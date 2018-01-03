@@ -17,8 +17,24 @@
     <!-- Our Vue template -->
     <div id="app">
       {{ message }}
+
+      <div class="row">
+        <div class="col-md-6">
+          <h2>Formula</h2>
+          <textarea id="formulaTextarea" style="width:100%; height:320px" wrap="off">{{ formula }}</textarea>
+
+          <button v-on:click="run">Run</button>
+        </div>
+
+        <div class="col-md 6">
+          <h2>Canvas</h2>
+          <canvas id="mathvisionCanvas" width="200" height="200" style="image-rendering: -moz-crisp-edges !important;">
+          </canvas>
+        </div>
+      </div>
+
     </div>
-    
+
     <!-- jQuery first, then Tether, then Bootstrap JS. -->
     <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" crossorigin="anonymous"></script>
