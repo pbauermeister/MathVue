@@ -1,6 +1,6 @@
 // default formula
 var defaultFormula = `
-WIDTH = 250;
+WIDTH = 300;
 RATIO = 1;
 X_MIN = -20; X_MAX = 20;
 Y_MIN = -20; Y_MAX = 20;
