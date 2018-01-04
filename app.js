@@ -57,6 +57,7 @@ var app = new Vue({
     if (window.location.hostname.indexOf(".github") === -1) {
       this.$router.push("");
     }
+    else alert("We are on github preview");
   }
 });
 
