@@ -21,8 +21,24 @@ color hsb(x, y) {
 }
 `.trim();
 
-// Processing stuff
+// try to retrieve from browser storage
+try {
+  autoSavedFormula = localStorage.getItem("autoSavedFormula");
+  if (autoSavedFormula && autoSavedFormula.trim()) {
+    defaultFormula = autoSavedFormula;
+  }
+} catch(e) {}
 
+function saveFormula(text) {
+  console.log("==>"+text);
+  try {
+    localStorage.setItem("autoSavedFormula", text.trim());
+  } catch(e) {}
+}
+
+//
+// Processing stuff
+//
 var processingInstance = null;
 
 function loadSketch(formula) {
@@ -63,17 +79,3 @@ function switchSketchState(on) {
   }
 }
 
-// Loading of the MathVision PDE template
-var mathVisionTemplate = "";
-var xhr = new XMLHttpRequest();
-xhr.onreadystatechange = function() {
-  if (xhr.readyState == 4) {
-    if (xhr.status == 200) {
-      mathVisionTemplate = xhr.responseText;
-    } else {
-      alert("Could not load the MathVision PDE template.");
-    }
-  }
-};
-xhr.open("GET", "mathvision-template.pde");
-xhr.send();

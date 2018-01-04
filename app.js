@@ -25,6 +25,9 @@ var app = new Vue({
     resume: function (event) {
       this.running = true;
       switchSketchState(true);
+    },
+    onInput: function () {
+      saveFormula(this.formula);
     }
   }
 });

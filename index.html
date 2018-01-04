@@ -21,7 +21,9 @@
         <div class="col-md-6">
           <h2>Formula</h2>
           <textarea v-model="formula"
-                    style="width:100%; min-height:300px; font-size: 0.75rem;"></textarea>
+                    style="width:100%; min-height:300px; font-size:0.75rem; font-family:monospace;"
+                    v-on:input="onInput()"
+                    ></textarea>
           <button v-on:click="run">Run</button>
           <button v-on:click="pause" v-show="started && running">Pause</button>
           <button v-on:click="resume" v-show="started && !running">Resume</button>
@@ -43,8 +45,11 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
     <!-- Load Processing -->
-    <script src="processing_v1.4.8.min.js"></script>
+    <script src="processing_v1.4.8.js"></script>
     <script src="pjs_glue.js"></script>
+
+    <!-- Load Mathvision -->
+    <script src="mathvision_template.js"></script>
 
     <!-- Get Vue, and load our app's code -->
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
