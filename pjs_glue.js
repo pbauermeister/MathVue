@@ -30,7 +30,6 @@ try {
 } catch(e) {}
 
 function saveFormula(text) {
-  console.log("==>"+text);
   try {
     localStorage.setItem("autoSavedFormula", text.trim());
   } catch(e) {}

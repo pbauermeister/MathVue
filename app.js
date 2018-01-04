@@ -31,8 +31,12 @@ var app = new Vue({
       switchSketchState(false);
     },
     resume: function (event) {
-      this.running = true;
-      switchSketchState(true);
+      if (!this.started) {
+        this.run();
+      } else {
+        this.running = true;
+        switchSketchState(true);
+      }
     },
     onInput: function () {
       this.link = makeLink(false, this.formula);
@@ -58,8 +62,7 @@ var app = new Vue({
 
   mounted() {
     if (this.$route.query.formula) {
-      this.formula = this.$route.query.formula;
-      
+      this.formula =  window.atob(this.$route.query.formula);
     } else {
       this.formula = defaultFormula;
     }
@@ -78,5 +81,5 @@ function makeLink(toGithub, formula) {
       //? "http://htmlpreview.github.io/?https://github.com/pbauermeister/MathVue/blob/master/index.html"
       ? "https://rawgit.com/pbauermeister/MathVue/master/index.html"
       : "";
-  return base + "?formula=" + encodeURIComponent(formula) + "&play";
+  return base + "?formula=" + window.btoa(formula) + "&play";
 }
