@@ -40,11 +40,25 @@
             <canvas id="mathvisionCanvas" width="300" height="300"
                     style="border: 1px solid lightgrey; max-width:100%">
             </canvas>
+
+            <!-- buttons -->
             <br/>
-            <!-- restart button -->
-            <a id="fullScreenButton" class="float-right" style="cursor:pointer"
-               title="Full screen"
-               v-on:click="fullScreen"><i class="fa fa-expand" aria-hidden="true"></i></a>
+            <div class="float-left">
+              <a style="cursor:pointer" title="Play"
+                 v-bind:class="{ 'text-muted': running }"
+                 v-bind:disabled="running"
+                 v-on:click="resume"><i class="fa fa-play" aria-hidden="true"></i></a>
+
+              <a style="cursor:pointer" title="Pause"
+                 v-bind:class="{ 'text-muted': !running }"
+                 v-bind:disabled="!running"
+                 v-on:click="pause"><i class="fa fa-pause" aria-hidden="true"></i></a>
+            </div>
+            <div class="float-right">
+              <a id="fullScreenButton"
+                 style="cursor:pointer" title="Full screen"
+                 v-on:click="fullScreen"><i class="fa fa-expand" aria-hidden="true"></i></a>
+            </div>
           </div>
         </div>
       </div>
