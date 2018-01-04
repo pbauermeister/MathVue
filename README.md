@@ -7,3 +7,5 @@ Re-implementation of [MathVision](https://github.com/pbauermeister/MathVision) w
 - [asm.js](http://asmjs.org/)
 
 There is no backend. Sharing formulas will be done using APIs of cloud file hosting services (e.g. Dropbox).
+
+Full-screen canvas: https://h3manth.com/content/html5-canvas-full-screen-and-full-page

@@ -38,6 +38,21 @@ var app = new Vue({
       this.link = makeLink(false, this.formula);
       this.linkToGithub = makeLink(true, this.formula);
       saveFormula(this.formula);
+    },
+    fullScreen: function(event) {
+      // full screen
+      var el = document.getElementById("mathvisionCanvas");
+      if(el.webkitRequestFullScreen) {
+        el.webkitRequestFullScreen();
+      } else {
+        el.mozRequestFullScreen();
+      }
+      // (re)start
+      if (!this.started) {
+        this.run();
+      } else {
+        this.resume();
+      }
     }
   },
 

@@ -36,9 +36,16 @@
         <!-- Canvas -->
         <div class="col-md-6 pt-3">
           <h2>Canvas</h2>
-          <canvas id="mathvisionCanvas" width="300" height="300"
-                  style="border: 1px solid lightgrey; max-width:100%">
-          </canvas>
+          <div style="display: inline-block">
+            <canvas id="mathvisionCanvas" width="300" height="300"
+                    style="border: 1px solid lightgrey; max-width:100%">
+            </canvas>
+            <br/>
+            <!-- restart button -->
+            <a id="fullScreenButton" class="float-right" style="cursor:pointer"
+               title="Full screen"
+               v-on:click="fullScreen"><i class="fa fa-expand" aria-hidden="true"></i></a>
+          </div>
         </div>
       </div>
 
