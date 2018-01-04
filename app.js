@@ -54,16 +54,14 @@ var app = new Vue({
       this.run(null);
     }
 
-    if (window.location.hostname.indexOf(".github") === -1) {
-      this.$router.push("");
-    }
-    else alert("We are on github preview");
+    this.$router.push("");
   }
 });
 
 function makeLink(toGithub, formula) {
   var base = toGithub
-      ? "http://htmlpreview.github.io/?https://github.com/pbauermeister/MathVue/blob/master/index.html"
+      //? "http://htmlpreview.github.io/?https://github.com/pbauermeister/MathVue/blob/master/index.html"
+      ? "https://rawgit.com/pbauermeister/MathVue/master/index.html"
       : "";
   return base + "?formula=" + encodeURIComponent(formula) + "&play";
 }
