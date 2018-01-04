@@ -16,7 +16,8 @@ var app = new Vue({
     formula: null,
     running: false,
     started: false,
-    link: makeLink(defaultFormula)
+    link: makeLink(false, defaultFormula),
+    linkToGithub: makeLink(true, defaultFormula)
   },
   
   methods: {
@@ -34,25 +35,34 @@ var app = new Vue({
       switchSketchState(true);
     },
     onInput: function () {
-      this.link = makeLink(this.formula);
+      this.link = makeLink(false, this.formula);
+      this.linkToGithub = makeLink(true, this.formula);
       saveFormula(this.formula);
     }
   },
 
   mounted() {
-    this.formula = this.$route.query.formula
-      ? this.$route.query.formula
-      : defaultFormula;
+    if (this.$route.query.formula) {
+      this.formula = this.$route.query.formula;
+      
+    } else {
+      this.formula = defaultFormula;
+    }
+
     var play =  typeof this.$route.query.play !== "undefined";
     if (play) {
-      this.running = true;
-      this.started = true;
-      loadSketch(this.formula);
+      this.run(null);
+    }
+
+    if (window.location.hostname.indexOf(".github") === -1) {
+      this.$router.push("");
     }
   }
 });
 
-function makeLink(formula) {
-  var base = "http://htmlpreview.github.io/?https://github.com/pbauermeister/MathVue/blob/master/index.html";
-  return base + "?formula=" + encodeURIComponent(formula);
+function makeLink(toGithub, formula) {
+  var base = toGithub
+      ? "http://htmlpreview.github.io/?https://github.com/pbauermeister/MathVue/blob/master/index.html"
+      : "";
+  return base + "?formula=" + encodeURIComponent(formula) + "&play";
 }

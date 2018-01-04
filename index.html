@@ -8,9 +8,12 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" crossorigin="anonymous">
 
+    <!-- Font Awesome -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
+    
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
  
-  <body class="p-4">
+  <body class="p-md-3 p-1 mr-3 mr-md-0">
     <h1>MathVue</h1>
 
     <!-- Our Vue template -->
@@ -19,7 +22,7 @@
 
       <!-- Formula -->
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6 pt-3">
           <h2>Formula</h2>
           <textarea v-model="formula"
                     style="width:100%; min-height:300px; font-size:0.75rem; font-family:monospace;"
@@ -31,19 +34,62 @@
         </div>
 
         <!-- Canvas -->
-        <div class="col-md 6">
+        <div class="col-md-6 pt-3">
           <h2>Canvas</h2>
           <canvas id="mathvisionCanvas" width="300" height="300"
-                  style="border: 1px solid lightgrey">
+                  style="border: 1px solid lightgrey; max-width:100%">
           </canvas>
         </div>
       </div>
 
       <!-- Exports -->
-      <div class="row">
-        <div class="col-md-6">
-          <a v-bind:href="link">Link</a>
+      <div class="row pt-3">
+        <div class="col-md-12">
+          <h2>Exports</h2>
         </div>
+
+        <table class="ml-3" style="width:95%">
+          <tr>
+            <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="link">Link</a> </td>
+            <td class="pl-2 pb-2">Link to this page, with formula as URL</td>
+          </tr>
+        
+          <tr>
+            <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="linkToGithub"
+                                      target="_blank">Github Link <i class="fas fa-external-link-alt"></i></a> </td>
+            <td class="pl-2 pb-2">Link to Github preview page, with formula as URL</td>
+          </tr>
+
+          <tr>
+            <td class="align-top"> <span class="badge badge-pill badge-warning">Formula</span> </td>
+            <td class="pl-2 pb-2">Save only formula</td>
+          </tr>
+
+          <tr>
+            <td class="align-top"> <span class="badge badge-pill badge-warning">Image</span> </td>
+            <td class="pl-2 pb-2">Grab and save image</td>
+          </tr>
+
+          <tr>
+            <td class="align-top"> <span class="badge badge-pill badge-warning">Anim GIF</span> </td>
+            <td class="pl-2 pb-2">Save as animated GIF</td>
+          </tr>
+
+          <tr>
+            <td class="align-top"> <span class="badge badge-pill badge-warning">Sketch</span> </td>
+            <td class="pl-2 pb-2">Save as PDE sketch for Processing or Processing.js</td>
+          </tr>
+
+          <tr>
+            <td class="align-top"> <span class="badge badge-pill badge-warning">Web page</span> </td>
+            <td class="pl-2 pb-2">Save as standalone Web page, or [x] HTML snippet</td>
+          </tr>
+
+          <tr>
+            <td class="align-top"> <span class="badge badge-pill badge-warning">Project</span> </td>
+            <td class="pl-2 pb-2">Save as project with formula and preview (o) on your Dropbox account [________] (o) on the MathView repo</td>
+          </tr>
+
       </div>
 
     </div>
