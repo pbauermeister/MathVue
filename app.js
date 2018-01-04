@@ -2,16 +2,23 @@
  * Vue.js app.
  */
 
+var router = new VueRouter({
+  mode: 'history',
+  routes: []
+});
+
 var app = new Vue({
+  router,
   el: '#app',
 
   data: {
     message: 'Hello MathVue! With Bootstrap 4.0.',
-    formula: defaultFormula,
+    formula: null,
     running: false,
-    started: false
+    started: false,
+    link: makeLink(defaultFormula)
   },
-
+  
   methods: {
     run: function (event) {
       this.running = true;
@@ -27,7 +34,19 @@ var app = new Vue({
       switchSketchState(true);
     },
     onInput: function () {
+      this.link = makeLink(this.formula);
       saveFormula(this.formula);
     }
+  },
+
+  created() {
+    this.formula = this.$route.query.formula
+      ? this.$route.query.formula
+      : defaultFormula;
   }
 });
+
+function makeLink(formula) {
+  var base = "http://htmlpreview.github.io/?https://github.com/pbauermeister/MathVue/blob/master/index.html";
+  return base + "?formula=" + encodeURIComponent(formula);
+}

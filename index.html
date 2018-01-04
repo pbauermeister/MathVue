@@ -17,6 +17,7 @@
     <div id="app">
       {{ message }}
 
+      <!-- Formula -->
       <div class="row">
         <div class="col-md-6">
           <h2>Formula</h2>
@@ -29,11 +30,19 @@
           <button v-on:click="resume" v-show="started && !running">Resume</button>
         </div>
 
+        <!-- Canvas -->
         <div class="col-md 6">
           <h2>Canvas</h2>
           <canvas id="mathvisionCanvas" width="300" height="300"
                   style="border: 1px solid lightgrey">
           </canvas>
+        </div>
+      </div>
+
+      <!-- Exports -->
+      <div class="row">
+        <div class="col-md-6">
+          <a v-bind:href="link">Link</a>
         </div>
       </div>
 
@@ -53,6 +62,7 @@
 
     <!-- Get Vue, and load our app's code -->
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
     <script src="app.js"></script>
     
   </body>
