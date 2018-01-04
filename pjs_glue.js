@@ -54,6 +54,9 @@ function loadSketch(formula) {
   var sketch = Processing.compile(code);
   var canvas = document.getElementById("mathvisionCanvas");
 
+  // remove border
+  canvas.setAttribute("style", "border:none; max-width:100%");
+  
   // (re)load processing on canvas
   if(processingInstance) {
     processingInstance.exit();  // cleanup
