@@ -39,10 +39,16 @@ var app = new Vue({
     }
   },
 
-  created() {
+  mounted() {
     this.formula = this.$route.query.formula
       ? this.$route.query.formula
       : defaultFormula;
+    var play =  typeof this.$route.query.play !== "undefined";
+    if (play) {
+      this.running = true;
+      this.started = true;
+      loadSketch(this.formula);
+    }
   }
 });
 
