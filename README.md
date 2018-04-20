@@ -11,7 +11,9 @@ There is no backend. Sharing formulas will be done using APIs of cloud file host
 
 ## To try it
 1. Visit https://rawgit.com/pbauermeister/MathVue/master/index.html
-2. Past the following into the Formula area: 
+2. Click the Play button to play the default formula.
+
+You can also try this formula:
 ```
 WIDTH = 600; RATIO = 2;
 X_MIN =  -1; X_MAX = 1;
@@ -37,7 +39,7 @@ color hsb(float x0, float y0, float t) {
     float y1 = ay;
 
     float val = cos(1/y1+t) * cos(x1/y1);             // perspective spots raster
-    val = 1 - pow(val, 4);                             // increase contrast
+    val = 1 - pow(val, 4);                            // increase contrast
     float fade = y1/Y_SPAN*2;
     val *= fade;                                      // fade horizon to avoid moiree
     float color_shift = cos(t/10)/2;
