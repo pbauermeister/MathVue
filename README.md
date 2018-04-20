@@ -1,5 +1,6 @@
 # MathVue
 
+## About
 Re-implementation of [MathVision](https://github.com/pbauermeister/MathVision) with these technologies:
 - [Vue](https://vuejs.org/)
 - [Bootstrap](https://getbootstrap.com/)
@@ -8,7 +9,47 @@ Re-implementation of [MathVision](https://github.com/pbauermeister/MathVision) w
 
 There is no backend. Sharing formulas will be done using APIs of cloud file hosting services (e.g. Dropbox).
 
-Follow [this link](https://rawgit.com/pbauermeister/MathVue/master/index.html?formula=V0lEVEggPSA2MDA7IFJBVElPID0gMjsKWF9NSU4gPSAgLTE7IFhfTUFYID0gMTsKWV9NSU4gPSAwLjU7IFlfTUFYID0gLTAuNTsKVElNRV9JTkNSRU1FTlQgPSAwLjU7Ck9VVF9QQVVTRSA9IGZhbHNlOwpmbG9hdCBjb3NULCBzaW5UOwoKYm9vbCBwcmVEcmF3KGZsb2F0IHQwKSB7CiAgICBmbG9hdCB0ID0gc2luKHQwLzMyMCkgKiBUV09fUEkgKiA0ICsgc2luKHQwLzIwKSAqIFBJIC8gMiAtIGNvcyh0MC80MCkgKiBQSTsKICAgIGNvc1QgPSBjb3ModC8xMCk7CiAgICBzaW5UID0gc2luKHQvMTApOwogICAgcmV0dXJuIHRydWU7Cn0KCmNvbG9yIGhzYihmbG9hdCB4MCwgZmxvYXQgeTAsIGZsb2F0IHQpIHsKICAgIGZsb2F0IHggPSB4MCAqIGNvc1QgLSB5MCAqIHNpblQ7CiAgICBmbG9hdCB5ID0geTAgKiBjb3NUICsgeDAgKiBzaW5UOyAKICAgIGlmKHk9PTApIHJldHVybiBjb2xvcigwKTsgLy8gYXZvaWQgemVyby1kaXZpZGUKCiAgICBheSA9IGFicyh5KTsKICAgIGZsb2F0IHgxID0geDsKICAgIGZsb2F0IHkxID0gYXk7CgogICAgZmxvYXQgdmFsID0gY29zKDEveTErdCkgKiBjb3MoeDEveTEpOyAgICAgICAgICAgICAvLyBwZXJzcGVjdGl2ZSBzcG90cyByYXN0ZXIKICAgIHZhbCA9IDEgLSBwb3codmFsLCA0KTsgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8vIGluY3JlYXNlIGNvbnRyYXN0CiAgICBmbG9hdCBmYWRlID0geTEvWV9TUEFOKjI7CiAgICB2YWwgKj0gZmFkZTsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8vIGZhZGUgaG9yaXpvbiB0byBhdm9pZCBtb2lyZWUKICAgIGZsb2F0IGNvbG9yX3NoaWZ0ID0gY29zKHQvMTApLzI7CgogICAgLy8gcGFjayBhbGwgaW50byBIU1YKICAgIGZsb2F0IHogPSAxK3Npbih2YWwvMik7IC8vIDAuLjIKICAgIGZsb2F0IGggPSAoeiArIGNvbG9yX3NoaWZ0KSAqIDg1OwogICAgaCA9IG1pbihtYXgoaCwgMCksIDI1N) to run MathVue with a sample formula.
+## To try it
+1. Visit https://rawgit.com/pbauermeister/MathVue/master/index.html
+2. Past the following into the Formula area: 
+```
+WIDTH = 600; RATIO = 2;
+X_MIN =  -1; X_MAX = 1;
+Y_MIN = 0.5; Y_MAX = -0.5;
+TIME_INCREMENT = 0.5;
+OUT_PAUSE = false;
+float cosT, sinT;
 
-Tips & Tricks:
+bool preDraw(float t0) {
+    float t = sin(t0/320) * TWO_PI * 4 + sin(t0/20) * PI / 2 - cos(t0/40) * PI;
+    cosT = cos(t/10);
+    sinT = sin(t/10);
+    return true;
+}
+
+color hsb(float x0, float y0, float t) {
+    float x = x0 * cosT - y0 * sinT;
+    float y = y0 * cosT + x0 * sinT; 
+    if(y==0) return color(0); // avoid zero-divide
+
+    ay = abs(y);
+    float x1 = x;
+    float y1 = ay;
+
+    float val = cos(1/y1+t) * cos(x1/y1);             // perspective spots raster
+    val = 1 - pow(val, 4);                             // increase contrast
+    float fade = y1/Y_SPAN*2;
+    val *= fade;                                      // fade horizon to avoid moiree
+    float color_shift = cos(t/10)/2;
+
+    // pack all into HSV
+    float z = 1+sin(val/2); // 0..2
+    float h = (z + color_shift) * 85;
+    h = min(max(h, 0), 255);
+    float v = y<0 ? 250 : 128*z;
+    return color(h, 200, v);
+}
+```
+
+## Tips & Tricks
 - Full-screen canvas: https://h3manth.com/content/html5-canvas-full-screen-and-full-page
