@@ -2,6 +2,19 @@
  * Vue.js app.
  */
 
+deparam = function (querystring) {
+  // remove any preceding url and split
+  querystring = querystring.substring(querystring.indexOf('?')+1).split('&');
+  var params = {}, pair, d = decodeURIComponent, i;
+  // march and parse
+  for (i = querystring.length; i > 0;) {
+    pair = querystring[--i].split('=');
+    params[d(pair[0])] = d(pair[1]);
+  }
+
+  return params;
+};//--  fn  deparam
+
 var router = new VueRouter({
   mode: 'history',
   routes: []
@@ -66,15 +79,10 @@ var app = new Vue({
     } else {
       this.formula = defaultFormula;
     }
-    if (this.$route.query.code) {
-      alert("Auth code="+this.$route.query.code);
-      axios.get('/auth?code=' + this.$route.query.code)
-        .then(response => {
-          alert("OK: token= " + response.data.access_token);
-        })
-        .catch(e => {
-          alert(e);
-        });
+    if (this.$route.hash) {
+      var params = deparam(this.$route.hash.substring(1));
+      alert("Hash = " + JSON.stringify(params));
+      alert("token = " + params.access_token);
     }
     
     var play =  typeof this.$route.query.play !== "undefined";
