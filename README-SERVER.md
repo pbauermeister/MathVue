@@ -9,7 +9,7 @@ This document describes the server setup and devlopment steps.
 
 Assuming user is `mathvue`, and we are in its home directory `/home/MathVue`.
 
-## 1. Prepare project
+## 1. Prepare project (not needed after project creation)
 
 ```
 npm init
@@ -21,7 +21,7 @@ npm install --save express
 ## 2. Update project (whenever packages changed)
 
 ```
-nom update
+npm update
 ```
 
 ## 3. Run and install server
@@ -87,7 +87,12 @@ sudo pm2 save
 
 ## 6. Develop
 
-Restart server:
+Stop server daemon:
 ```
-pm2 restart server.js
+pm2 stop server.js
+```
+
+Start server sticky:
+```
+nodejs server.js
 ```

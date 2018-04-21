@@ -66,7 +66,17 @@ var app = new Vue({
     } else {
       this.formula = defaultFormula;
     }
-
+    if (this.$route.query.code) {
+      alert("Auth code="+this.$route.query.code);
+      axios.get('/auth?code=' + this.$route.query.code)
+        .then(response => {
+          alert("OK: token= " + response.data.access_token);
+        })
+        .catch(e => {
+          alert(e);
+        });
+    }
+    
     var play =  typeof this.$route.query.play !== "undefined";
     if (play) {
       this.run(null);
