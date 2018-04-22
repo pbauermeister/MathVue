@@ -35,7 +35,10 @@ var app = new Vue({
     dropboxAllowed: true,
     dropboxLoginUrl: dropbox.getLoginUrl(),
     dropboxLoggedIn: dropbox.isLoggedIn(),
-    dropboxDisplayname: null    
+    dropboxDisplayname: null,
+    dropboxFiles: [],
+    dropboxDialog: null,
+    dropboxLoadingDialog: null,
   },
   
   methods: {
@@ -81,7 +84,62 @@ var app = new Vue({
       this.dropboxLoggedIn = dropbox.isLoggedIn();
     },
     dropboxSave: function() {},
-    dropboxLoad: function() {}
+    dropboxLoad: function() {
+      this._dropboxLoad(null, null);
+    },      
+    _dropboxLoad: function(cursorNext) {
+      var that = this;
+      if (that.dropboxLoadingDialog)
+        that.dropboxLoadingDialog.close();
+      that.dropboxLoadingDialog = BootstrapDialog.show({
+        message:'Querying Dropbox...',
+        animate: cursorNext==null,
+      });
+      dropbox.listFiles(cursorNext, function(data) {
+        var entries = data.entries
+            .filter(function(entry) {return entry.name.endsWith('.formula')});
+        var names = entries
+            .map(function(entry) {return entry.name});
+
+        var content = $('<div></div>');
+        for (var i in names)
+          content.append('<button onclick="app.dropboxLoadFile('+i+')">'
+                         + names[i] + '</button></br>');
+        if (entries.length == 0) {
+          content.append('No formula files in this batch');
+        }
+        if (data.has_more) {
+          content.append('<button class="float-right" onclick="app.dropboxLoadMore(\''
+                         + data.cursor+'\')">Next &gt;</button>');
+        }
+
+        if (that.dropboxLoadingDialog)
+          that.dropboxLoadingDialog.close();
+
+        that.dropboxFiles = entries;
+        that.dropboxDialog = BootstrapDialog.show({
+          animate: false,
+          title: 'Choose a file from Dropbox',
+          message: content, //names.join('\n')
+        });
+      }, function(error) {
+        try {
+          if (that.dropboxLoadingDialog)
+            that.dropboxLoadingDialog.close();
+          if (that.dropboxDialog)
+            that.dropboxDialog.close();
+        } catch (e) {}
+        alert('ERROR ' + error.response.status + ':\n' + JSON.stringify(error.response.data));
+      });
+    },
+    dropboxLoadMore: function(cursorNext) {
+      if (this.dropboxDialog)
+        this.dropboxDialog.close();
+      this._dropboxLoad(cursorNext);
+    },
+    dropboxLoadFile: function(index) {
+      alert(JSON.stringify(this.dropboxFiles[index]));
+    }
   },
 
   mounted() {
@@ -107,9 +165,11 @@ var app = new Vue({
     if (this.dropboxAllowed) {
       if (dropbox.isLoggedIn()) {
         // check if login still valid
-        dropbox.loginIfNeeded(function(account_data){
+        dropbox.loginIfNeeded(function(account_data) {
           that.dropboxLoggedIn = dropbox.isLoggedIn();
           that.dropboxDisplayname = account_data.name.display_name;
+        }, function() {
+          window.location.href = that.dropboxLoginUrl;
         });
       }
     }

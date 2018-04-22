@@ -29,18 +29,40 @@ dropbox = {
     });
   },
 
-  loginIfNeeded: function(then) {
+  loginIfNeeded: function(onSuccess, onError) {
     var token = this.getToken();
     var loginUrl = this.getLoginUrl();
     var that = this;
     this.checkToken(token)
       .then((response) => {
-        then(response.data);
+        onSuccess(response.data);
       })
       .catch((error) => {
-        //alert("chk err");
+        // TODO: distinguish errors: invalid login, from other errors
         that.setToken(null);
-        window.location.href = loginUrl;
+        onError();
+      });
+  },
+
+  listFiles: function(cursor, onResponse, onError) {
+    var params = {
+      method: 'POST',
+      url: 'https://api.dropboxapi.com/2/files/list_folder',
+      data: {path: '', recursive: true, include_media_info: true},
+      headers: {Authorization: 'Bearer ' + this.getToken()},
+    };
+    if (cursor) {
+      params.url += '/continue';
+      params.data = {cursor: cursor};
+    }
+    axios(params).then(
+      (response) => {
+        onResponse(response.data);
+      },
+      (error) => {
+        onError(error);
       });
   }
+  
+  
 }
