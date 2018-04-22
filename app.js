@@ -89,47 +89,47 @@ var app = new Vue({
     },      
     _dropboxLoad: function(cursorNext) {
       var that = this;
-      if (that.dropboxLoadingDialog)
-        that.dropboxLoadingDialog.close();
+      this._dropboxCloseDialogs();
       that.dropboxLoadingDialog = BootstrapDialog.show({
         message:'Querying Dropbox...',
         animate: cursorNext==null,
       });
       dropbox.listFiles(cursorNext, function(data) {
-        var entries = data.entries
-            .filter(function(entry) {return entry.name.endsWith('.formula')});
-        var names = entries
-            .map(function(entry) {return entry.name});
-
-        var content = $('<div></div>');
-        for (var i in names)
-          content.append('<button onclick="app.dropboxLoadFile('+i+')">'
-                         + names[i] + '</button></br>');
-        if (entries.length == 0) {
-          content.append('No formula files in this batch');
-        }
-        if (data.has_more) {
-          content.append('<button class="float-right" onclick="app.dropboxLoadMore(\''
-                         + data.cursor+'\')">Next &gt;</button>');
-        }
-
-        if (that.dropboxLoadingDialog)
-          that.dropboxLoadingDialog.close();
-
-        that.dropboxFiles = entries;
-        that.dropboxDialog = BootstrapDialog.show({
-          animate: false,
-          title: 'Choose a file from Dropbox',
-          message: content, //names.join('\n')
-        });
+        that._dropboxShowFiles(data);
       }, function(error) {
-        try {
-          if (that.dropboxLoadingDialog)
-            that.dropboxLoadingDialog.close();
-          if (that.dropboxDialog)
-            that.dropboxDialog.close();
-        } catch (e) {}
-        alert('ERROR ' + error.response.status + ':\n' + JSON.stringify(error.response.data));
+        that._dropboxError(error);
+      });
+    },
+    _dropboxError(error) {
+      this._dropboxCloseDialogs();
+      alert('ERROR ' + error.response.status + ':\n' + JSON.stringify(error.response.data));
+    },
+    _dropboxShowFiles: function(data) {
+      var entries = data.entries
+          .filter(function(entry) {return entry['.tag']=='file'})
+          .filter(function(entry) {return entry.name.endsWith('.formula')});
+      var names = entries
+          .map(function(entry) {return entry.name});
+
+      var content = $('<div></div>');
+      for (var i in names)
+        content.append('<button class="btn btn-sm button-list-item" onclick="app.dropboxLoadFile('+i+')">'
+                       + names[i] + '</button></br>');
+      if (entries.length == 0) {
+        content.append('No formula files in this batch');
+      }
+      if (data.has_more) {
+        content.append('<button class="btn btn-primary mt-2 float-right" onclick="app.dropboxLoadMore(\''
+                       + data.cursor+'\')">Next &gt;</button>');
+      }
+      if (this.dropboxLoadingDialog)
+        this.dropboxLoadingDialog.close();
+
+      this.dropboxFiles = entries;
+      this.dropboxDialog = BootstrapDialog.show({
+        animate: false,
+        title: 'Choose a file from Dropbox',
+        message: content, //names.join('\n')
       });
     },
     dropboxLoadMore: function(cursorNext) {
@@ -138,7 +138,22 @@ var app = new Vue({
       this._dropboxLoad(cursorNext);
     },
     dropboxLoadFile: function(index) {
-      alert(JSON.stringify(this.dropboxFiles[index]));
+      that = this;
+      dropbox.getFile(this.dropboxFiles[index].id, function(data) {
+        that.formula = data; // <== bim!
+        saveFormula(that.formula);
+        that._dropboxCloseDialogs();
+      }, function(error) {
+        that._dropboxError(error);
+      });
+    },
+    _dropboxCloseDialogs: function() {
+      try {
+        this.dropboxLoadingDialog && this.dropboxLoadingDialog.close();
+        this.dropboxDialog && this.dropboxDialog.close();
+      } catch (e) {}
+      this.dropboxLoadingDialog = null;
+      this.dropboxDialog = null;
     }
   },
 

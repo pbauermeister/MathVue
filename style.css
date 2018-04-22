@@ -1,3 +1,12 @@
 .badge-disabled {
     background-color: #f0f0f0;
 }
+
+.button-list-item {
+    background: none;
+    border: 1px solid grey;
+    border-radius: 0;
+    text-align: left;
+    width: 100%;
+    margin-bottom: -1px;
+}

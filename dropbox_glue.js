@@ -62,7 +62,24 @@ dropbox = {
       (error) => {
         onError(error);
       });
+  },
+
+  getFile: function(id, onResponse, onError) {
+    var params = {
+      method: 'POST',
+      url: 'https://content.dropboxapi.com/2/files/download',
+      headers: {
+        Authorization: 'Bearer ' + this.getToken(),
+        'Dropbox-API-Arg': JSON.stringify({path: id}),
+      },
+    };
+    axios(params).then(
+      (response) => {
+        onResponse(response.data);
+      },
+      (error) => {
+        onError(error);
+      });
   }
-  
   
 }
