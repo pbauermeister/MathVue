@@ -1,5 +1,5 @@
 .badge-disabled {
-    background-color: #f0f0f0;
+    background-color: #eee;
 }
 
 .button-list-item {
@@ -9,4 +9,8 @@
     text-align: left;
     width: 100%;
     margin-bottom: -1px;
+}
+
+.text-ghosted {
+    color: #ddd;
 }
