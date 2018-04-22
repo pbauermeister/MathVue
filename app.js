@@ -30,7 +30,12 @@ var app = new Vue({
     running: false,
     started: false,
     link: makeLink(false, defaultFormula),
-    linkToGithub: makeLink(true, defaultFormula)
+    linkToGithub: makeLink(true, defaultFormula),
+
+    dropboxAllowed: true,
+    dropboxLoginUrl: dropbox.getLoginUrl(),
+    dropboxLoggedIn: dropbox.isLoggedIn(),
+    dropboxDisplayname: null    
   },
   
   methods: {
@@ -70,33 +75,58 @@ var app = new Vue({
       } else {
         this.resume();
       }
-    }
+    },
+    dropboxLogout: function() {
+      dropbox.setToken(null);
+      this.dropboxLoggedIn = dropbox.isLoggedIn();
+    },
+    dropboxSave: function() {},
+    dropboxLoad: function() {}
   },
 
   mounted() {
+    this.dropboxAllowed = !window.location.href.startsWith('file:');
+    
+    var that = this;
+    // query
     if (this.$route.query.formula) {
       this.formula =  window.atob(this.$route.query.formula);
     } else {
       this.formula = defaultFormula;
     }
+    var play = typeof this.$route.query.play !== "undefined";
+    // hash
     if (this.$route.hash) {
       var params = deparam(this.$route.hash.substring(1));
-      alert("Hash = " + JSON.stringify(params));
-      alert("token = " + params.access_token);
+      if (params.access_token) {
+        dropbox.setToken(params.access_token);
+        this.dropboxLoggedIn = dropbox.isLoggedIn();
+      }
     }
-    
-    var play =  typeof this.$route.query.play !== "undefined";
+    // dropbox session
+    if (this.dropboxAllowed) {
+      if (dropbox.isLoggedIn()) {
+        // check if login still valid
+        dropbox.loginIfNeeded(function(account_data){
+          that.dropboxLoggedIn = dropbox.isLoggedIn();
+          that.dropboxDisplayname = account_data.name.display_name;
+        });
+      }
+    }
+    else {
+      that.dropboxLoggedIn = false;
+    }
+    // auto-play?
     if (play) {
       this.run(null);
     }
-
+    // reset url
     this.$router.push("");
   }
 });
 
 function makeLink(toGithub, formula) {
   var base = toGithub
-      //? "http://htmlpreview.github.io/?https://github.com/pbauermeister/MathVue/blob/master/index.html"
       ? "https://rawgit.com/pbauermeister/MathVue/master/index.html"
       : "";
   return base + "?formula=" + window.btoa(formula) + "&play";

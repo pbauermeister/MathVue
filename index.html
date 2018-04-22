@@ -10,18 +10,18 @@
 
     <!-- Font Awesome -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
+
+    <link rel="stylesheet" href="style.css">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
  
   <body class="p-md-3 p-1 mr-3 mr-md-0">
-
-    <!-- Dropbox login stuff -->
-    <a href="https://www.dropbox.com/oauth2/authorize?client_id=65hebhcza1whb68&response_type=token&redirect_uri=http://localhost:3001/">Login to Dropbox</a>
     
     <h1>MathVue</h1>
 
     <!-- Our Vue template -->
     <div id="app">
+
       {{ message }}
 
       <!-- Formula -->
@@ -79,40 +79,74 @@
             <td class="pl-2 pb-2">Link to current page, with formula as URL. Can be bookmarked.</td>
           </tr>
         
-          <tr>
+          <!-- tr>
             <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="linkToGithub"
                                       target="_blank">Github Link <i class="fas fa-external-link-alt"></i></a> </td>
             <td class="pl-2 pb-2">Link to Github preview page, with formula as URL. Can be bookmarked.</td>
-          </tr>
+          </tr -->
 
+          <!-- Dropbox -->
           <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-warning">Formula</span> </td>
+            <td class="align-top">
+              <div v-if="dropboxLoggedIn">
+                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSave">
+                  Save to Dropbox
+                </span><br/>
+                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoad">
+                  Load from to Dropbox
+                </span>
+              </div>
+              <div v-if="!dropboxLoggedIn">
+                <span class="badge badge-pill badge-disabled">
+                  Save to Dropbox
+                </span><br/>
+                <span class="badge badge-pill badge-disabled">
+                  Load from to Dropbox
+                </span>
+              </div>
+            </td>
+            
+            <td class="pl-2 pb-2">
+              <div v-if="dropboxLoggedIn">
+                You are logged in on Dropbox as "{{dropboxDisplayname}}"
+                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLogout">
+                  Logout
+                </span>
+              </div>
+              <div v-if="!dropboxLoggedIn && dropboxAllowed">
+                Please
+                <a class="badge badge-pill badge-default" v-bind:href="dropboxLoginUrl">Login to Dropbox</a>
+                to save on your Dropbox account
+              </div>
+              <div v-if="!dropboxAllowed">
+                Cannot access Dropbox when running from file://
+              </div>
+            </td>
+          </tr>
+          
+          <tr>
+            <td class="align-top"> <span class="badge badge-pill badge-disabled">Formula</span> </td>
             <td class="pl-2 pb-2">Save only formula</td>
           </tr>
 
           <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-warning">Image</span> </td>
+            <td class="align-top"> <span class="badge badge-pill badge-disabled">Image</span> </td>
             <td class="pl-2 pb-2">Grab and save image</td>
           </tr>
 
           <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-warning">Anim GIF</span> </td>
+            <td class="align-top"> <span class="badge badge-pill badge-disabled">Anim GIF</span> </td>
             <td class="pl-2 pb-2">Save as animated GIF</td>
           </tr>
 
           <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-warning">Sketch</span> </td>
+            <td class="align-top"> <span class="badge badge-pill badge-disabled">Sketch</span> </td>
             <td class="pl-2 pb-2">Save as PDE sketch for Processing or Processing.js</td>
           </tr>
 
           <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-warning">Web page</span> </td>
+            <td class="align-top"> <span class="badge badge-pill badge-disabled">Web page</span> </td>
             <td class="pl-2 pb-2">Save as standalone Web page, or [x] HTML snippet</td>
-          </tr>
-
-          <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-warning">Project</span> </td>
-            <td class="pl-2 pb-2">Save as project with formula and preview (o) on your Dropbox account [________] (o) on the MathView repo</td>
           </tr>
 
       </div>
@@ -131,8 +165,12 @@
     <!-- Load Mathvision -->
     <script src="mathvision_template.js"></script>
 
+    <!-- Dropbox -->
+    <script src="dropbox_glue.js"></script>
+
     <!-- Get Vue, and load our app's code -->
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>    
     <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
     <script src="app.js"></script>
     

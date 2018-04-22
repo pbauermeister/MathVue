@@ -23,7 +23,7 @@ color hsb(x, y) {
 
 // try to retrieve from browser storage
 try {
-  autoSavedFormula = localStorage.getItem("autoSavedFormula");
+  autoSavedFormula = localStorage.getItem("mathvue_autosavedformula");
   if (autoSavedFormula && autoSavedFormula.trim()) {
     defaultFormula = autoSavedFormula;
   }
@@ -31,7 +31,7 @@ try {
 
 function saveFormula(text) {
   try {
-    localStorage.setItem("autoSavedFormula", text.trim());
+    localStorage.setItem("mathvue_autosavedformula", text.trim());
   } catch(e) {}
 }
 
