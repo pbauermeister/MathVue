@@ -3,7 +3,8 @@ dropbox = {
 
   getLoginUrl: function() {
     var mathvue_client_id = '65hebhcza1whb68';
-    var this_urlbase = 'http://localhost:3001/';
+
+    var this_urlbase = window.location;
     return ('https://www.dropbox.com/oauth2/authorize?client_id='+ mathvue_client_id
             + '&response_type=token'
             + '&redirect_uri=' + this_urlbase);
