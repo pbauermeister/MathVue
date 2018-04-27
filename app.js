@@ -98,14 +98,13 @@ var app = new Vue({
     },
     dropboxSave: function() {},
     dropboxLoad: function() {
-      var that = this;
       this._dropboxCloseDialogs();
       this._showBusyDialog('Querying Dropbox...');
       dropbox.listFiles(null, function(data) {
-        that._dropboxShowFiles(data);
-      }, function(error) {
-        that._dropboxError(error);
-      });
+        this._dropboxShowFiles(data);
+      }.bind(this), function(error) {
+        this._dropboxError(error);
+      }.bind(this));
     },
     _dropboxError(error) {
       this._dropboxCloseDialogs();
@@ -134,16 +133,15 @@ var app = new Vue({
       });
     },
     dropboxLoadFile: function(index) {
-      that = this;
       this._dropboxCloseDialogs();
       this._showBusyDialog('Loading from Dropbox...');
       dropbox.getFile(this.dropboxFiles[index].id, function(data) {
-        that.formula = data; // <== bim!
-        saveFormula(that.formula);
-        that._dropboxCloseDialogs();
-      }, function(error) {
-        that._dropboxError(error);
-      });
+        this.formula = data; // <== bim!
+        saveFormula(this.formula);
+        this._dropboxCloseDialogs();
+      }.bind(this), function(error) {
+        this._dropboxError(error);
+      }.bind(this));
     },
     _dropboxCloseDialogs: function() {
       this._closeBusyDialog();
@@ -157,7 +155,6 @@ var app = new Vue({
   mounted() {
     this.dropboxAllowed = !window.location.href.startsWith('file:');
     
-    var that = this;
     // query
     if (this.$route.query.formula) {
       this.formula =  window.atob(this.$route.query.formula);
@@ -178,15 +175,15 @@ var app = new Vue({
       if (dropbox.isLoggedIn()) {
         // check if login still valid
         dropbox.loginIfNeeded(function(account_data) {
-          that.dropboxLoggedIn = dropbox.isLoggedIn();
-          that.dropboxDisplayname = account_data.name.display_name;
-        }, function() {
-          window.location.href = that.dropboxLoginUrl;
-        });
+          this.dropboxLoggedIn = dropbox.isLoggedIn();
+          this.dropboxDisplayname = account_data.name.display_name;
+        }.bind(this), function() {
+          window.location.href = thsi.dropboxLoginUrl;
+        }.bind(this));
       }
     }
     else {
-      that.dropboxLoggedIn = false;
+      thsi.dropboxLoggedIn = false;
     }
     // auto-play?
     if (play) {
