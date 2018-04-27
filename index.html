@@ -89,7 +89,7 @@
           <!-- Dropbox -->
           <tr>
             <td class="align-top">
-              <div v-if="dropboxLoggedIn">
+              <div v-if="dropboxLoggedIn && dropboxDisplayname">
                 <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSave">
                   Save to Dropbox
                 </span><br/>
@@ -97,7 +97,7 @@
                   Load from Dropbox
                 </span>
               </div>
-              <div v-if="!dropboxLoggedIn">
+              <div v-if="!dropboxLoggedIn || !dropboxDisplayname">
                 <span class="badge badge-pill badge-disabled">
                   Save to Dropbox
                 </span><br/>
@@ -109,15 +109,23 @@
             
             <td class="pl-2 pb-2">
               <div v-if="dropboxLoggedIn">
-                You are logged in on Dropbox as "{{dropboxDisplayname}}"
-                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLogout">
-                  Logout
-                </span>
+                <div v-if="dropboxDisplayname">
+                  You are logged in on Dropbox as <i>{{dropboxDisplayname}}</i>
+                  <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLogout">
+                    Logout
+                  </span>
+                </div>
+                <div v-if="!dropboxDisplayname" style="display: inline-block;" class="progress">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated"
+                       role="progressbar" style="width: 100%; padding: 0 10px;">
+                    Getting account infos...
+                  </div>
+                </div>
               </div>
               <div v-if="!dropboxLoggedIn && dropboxAllowed">
                 Please
                 <a class="badge badge-pill badge-default" v-bind:href="dropboxLoginUrl">Login to Dropbox</a>
-                to save on your Dropbox account
+                to access your Dropbox account.
               </div>
               <div v-if="!dropboxAllowed">
                 Cannot access Dropbox when running from file://

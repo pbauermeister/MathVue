@@ -45,7 +45,8 @@ dropbox = {
       });
   },
 
-  listFiles: function(cursor, onResponse, onError) {
+  listFiles: function(cursor, onResponse, onError, entries) {
+    var that = this;
     var params = {
       method: 'POST',
       url: 'https://api.dropboxapi.com/2/files/list_folder',
@@ -58,7 +59,12 @@ dropbox = {
     }
     axios(params).then(
       (response) => {
-        onResponse(response.data);
+        if (response.data.entries && response.data.entries.length)
+          entries = (entries ? entries : []).concat(response.data.entries);
+        if (response.data.has_more)
+          that.listFiles(response.data.cursor, onResponse, onError, entries)
+        else
+          onResponse(entries.sort());
       },
       (error) => {
         onError(error);

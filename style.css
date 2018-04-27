@@ -14,3 +14,9 @@
 .text-ghosted {
     color: #ccc;
 }
+
+.dialog-file-list {
+    max-height: 300px;
+    max-height: calc(100vh - 200px);
+    overflow-y: scroll;
+}
