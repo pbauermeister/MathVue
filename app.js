@@ -25,7 +25,7 @@ var app = new Vue({
   el: '#app',
 
   data: {
-    message: 'Hello MathVue! With Bootstrap 4.0.',
+    message: 'With Bootstrap v4, Vue.js v2.5, Processing v1.4, Node.js v8 + express v4.',
     formula: null,
     running: false,
     started: false,

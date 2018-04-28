@@ -2,6 +2,19 @@
     display: none;
 }
 
+.formula-textarea {
+    overflow-y: auto;
+    overflow-x: auto;
+
+    white-space: pre;
+    overflow-wrap: normal;
+
+    width:100%;
+    min-height:300px;
+    font-size:0.75rem;
+    font-family:monospace;
+}
+
 .badge-disabled {
     background-color: #ddd;
 }

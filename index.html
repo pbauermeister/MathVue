@@ -31,12 +31,12 @@
           <div class="col-md-6 pt-3">
             <h2>Formula</h2>
             <textarea v-model="formula"
-                      style="width:100%; min-height:300px; font-size:0.75rem; font-family:monospace;"
+                      class="formula-textarea"
                       v-on:input="onInput()"
                       ></textarea>
-            <button v-on:click="run">Run</button>
-            <button v-on:click="pause" v-show="started && running">Pause</button>
-            <button v-on:click="resume" v-show="started && !running">Resume</button>
+            <button class="btn btn-sm btn-primary" v-on:click="run">Run</button>
+            <button class="btn btn-sm btn-primary" v-on:click="pause" v-show="started && running">Pause</button>
+            <button class="btn btn-sm btn-primary" v-on:click="resume" v-show="started && !running">Resume</button>
           </div>
           
           <!-- Canvas -->
@@ -135,28 +135,23 @@
           </tr>
           
           <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-disabled">Formula</span> </td>
-            <td class="pl-2 pb-2 text-ghosted">Save only formula</td>
-          </tr>
-
-          <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-disabled">Image</span> </td>
+            <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
             <td class="pl-2 pb-2 text-ghosted">Grab and save image</td>
           </tr>
 
           <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-disabled">Anim GIF</span> </td>
+            <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
             <td class="pl-2 pb-2 text-ghosted">Save as animated GIF</td>
           </tr>
 
           <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-disabled">Sketch</span> </td>
-            <td class="pl-2 pb-2 text-ghosted">Save as PDE sketch for Processing or Processing.js</td>
+            <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
+            <td class="pl-2 pb-2 text-ghosted">Save as Processing sketch (PDE)</td>
           </tr>
 
           <tr>
-            <td class="align-top"> <span class="badge badge-pill badge-disabled">Web page</span> </td>
-            <td class="pl-2 pb-2 text-ghosted">Save as standalone Web page, or [x] HTML snippet</td>
+            <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
+            <td class="pl-2 pb-2 text-ghosted">Save as standalone HTML5 page or snippet</td>
           </tr>
 
         </div>

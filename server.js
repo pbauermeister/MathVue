@@ -11,4 +11,4 @@ app.get('/hello', (req, res) => res.send('==> Hello World!\n'));
 
 app.use(express.static('.'));
 
-app.listen(3001, () => console.log('Example app listening on port 3001!'));
+app.listen(3001, () => console.log('MathVue app (a Node.js backend) listening on port 3001!'));
