@@ -22,67 +22,68 @@
 
     <!-- Our Vue template -->
     <div id="app">
+      <div v-cloak>
 
-      {{ message }}
+        {{ message }}
 
-      <!-- Formula -->
-      <div class="row">
-        <div class="col-md-6 pt-3">
-          <h2>Formula</h2>
-          <textarea v-model="formula"
-                    style="width:100%; min-height:300px; font-size:0.75rem; font-family:monospace;"
-                    v-on:input="onInput()"
-                    ></textarea>
-          <button v-on:click="run">Run</button>
-          <button v-on:click="pause" v-show="started && running">Pause</button>
-          <button v-on:click="resume" v-show="started && !running">Resume</button>
-        </div>
+        <!-- Formula -->
+        <div class="row">
+          <div class="col-md-6 pt-3">
+            <h2>Formula</h2>
+            <textarea v-model="formula"
+                      style="width:100%; min-height:300px; font-size:0.75rem; font-family:monospace;"
+                      v-on:input="onInput()"
+                      ></textarea>
+            <button v-on:click="run">Run</button>
+            <button v-on:click="pause" v-show="started && running">Pause</button>
+            <button v-on:click="resume" v-show="started && !running">Resume</button>
+          </div>
+          
+          <!-- Canvas -->
+          <div class="col-md-6 pt-3">
+            <h2>Canvas</h2>
+            <div style="display: inline-block">
+              <canvas id="mathvisionCanvas" width="300" height="300"
+                      style="border: 1px solid lightgrey; max-width:100%">
+              </canvas>
 
-        <!-- Canvas -->
-        <div class="col-md-6 pt-3">
-          <h2>Canvas</h2>
-          <div style="display: inline-block">
-            <canvas id="mathvisionCanvas" width="300" height="300"
-                    style="border: 1px solid lightgrey; max-width:100%">
-            </canvas>
+              <!-- buttons -->
+              <br/>
+              <div class="float-left">
+                <a style="cursor:pointer" title="Play"
+                   v-bind:class="{ 'text-muted': running }"
+                   v-bind:disabled="running"
+                   v-on:click="resume"><i class="fa fa-play" aria-hidden="true"></i></a>
 
-            <!-- buttons -->
-            <br/>
-            <div class="float-left">
-              <a style="cursor:pointer" title="Play"
-                 v-bind:class="{ 'text-muted': running }"
-                 v-bind:disabled="running"
-                 v-on:click="resume"><i class="fa fa-play" aria-hidden="true"></i></a>
-
-              <a style="cursor:pointer" title="Pause"
-                 v-bind:class="{ 'text-muted': !running }"
-                 v-bind:disabled="!running"
-                 v-on:click="pause"><i class="fa fa-pause" aria-hidden="true"></i></a>
-            </div>
-            <div class="float-right">
-              <a id="fullScreenButton"
-                 style="cursor:pointer" title="Full screen"
-                 v-on:click="fullScreen"><i class="fa fa-expand" aria-hidden="true"></i></a>
+                <a style="cursor:pointer" title="Pause"
+                   v-bind:class="{ 'text-muted': !running }"
+                   v-bind:disabled="!running"
+                   v-on:click="pause"><i class="fa fa-pause" aria-hidden="true"></i></a>
+              </div>
+              <div class="float-right">
+                <a id="fullScreenButton"
+                   style="cursor:pointer" title="Full screen"
+                   v-on:click="fullScreen"><i class="fa fa-expand" aria-hidden="true"></i></a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Exports -->
-      <div class="row pt-3">
-        <div class="col-md-12">
-          <h2>Exports</h2>
-        </div>
+        <!-- Exports -->
+        <div class="row pt-3">
+          <div class="col-md-12">
+            <h2>Exports</h2>
+          </div>
 
-        <table class="ml-3" style="width:95%">
-          <tr>
-            <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="link">Link</a> </td>
-            <td class="pl-2 pb-2">Link to current page, with formula as URL. Can be bookmarked.</td>
-          </tr>
-        
-          <!-- tr>
-            <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="linkToGithub"
-                                      target="_blank">Github Link <i class="fas fa-external-link-alt"></i></a> </td>
+          <table class="ml-3" style="width:95%">
+            <tr>
+              <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="link">Link</a> </td>
+              <td class="pl-2 pb-2">Link to current page, with formula as URL. Can be bookmarked.</td>
+            </tr>
+            
+            <!-- tr>
+                 <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="linkToGithub"
+                                           target="_blank">Github Link <i class="fas fa-external-link-alt"></i></a> </td>
             <td class="pl-2 pb-2">Link to Github preview page, with formula as URL. Can be bookmarked.</td>
           </tr -->
 
@@ -158,8 +159,8 @@
             <td class="pl-2 pb-2 text-ghosted">Save as standalone Web page, or [x] HTML snippet</td>
           </tr>
 
+        </div>
       </div>
-
     </div>
     
     <!-- jQuery first, then Tether, then Bootstrap JS. -->
