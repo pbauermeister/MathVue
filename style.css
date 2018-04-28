@@ -16,17 +16,36 @@
 }
 
 .dialog-file-load-list {
+    height: 300px;
+    height: calc(100vh - 200px);
+
     max-height: 300px;
     max-height: calc(100vh - 200px);
-    overflow-y: scroll;
+
+    overflow-y: auto;
 }
 
 .dialog-file-save-list {
+    height: 300px;
+    height: calc(100vh - 300px);
+
     max-height: 300px;
     max-height: calc(100vh - 300px);
-    overflow-y: scroll;
+
+    overflow-y: auto;
 }
 
 .dialog-file-save-input {
     margin-top: 6px;
+}
+
+.dialog-file-empty {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content:center;
+    align-content:center;
+    flex-direction:column;
+    text-align: center;
 }

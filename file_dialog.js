@@ -47,6 +47,7 @@ var fileDialog = {
         '                 v-on:click="loadClicked(entry)">' +
         '           {{ entry.name }}' +
         '         </button>' +
+        '       <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
         '       </div>',
       onshow: function() {
         vueStarted = true;
@@ -74,6 +75,7 @@ var fileDialog = {
         '                   v-on:click="loadClicked(entry)">' +
         '             {{ entry.name }}' +
         '           </button>' +
+        '           <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
         '         </div>' +
         '         <input class="form-control dialog-file-save-input" type="text"' +
         '                v-model:value="filename"' +

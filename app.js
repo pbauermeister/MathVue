@@ -94,6 +94,10 @@ var app = new Vue({
     //
     // Dropbox methods
     //
+
+    _dropboxFilterEntries: function(entries) {
+      return entries.filter(entry => entry.name.endsWith('.formula'));
+    },
     
     _dropboxError: function(error) {
       this._dropboxCloseDialogs();
@@ -109,8 +113,8 @@ var app = new Vue({
       var busy = fileDialog.showBusyDialog('Reading files list from Dropbox...');
       dropbox.listFiles(null, function(entries) {
         busy.close();
+        entries = this._dropboxFilterEntries(entries);
         fileDialog.saveFile(entries, this.dropboxSaveFile);
-        //this._dropboxShowFilesForSave(data);
       }.bind(this), function(error) {
         busy.close();
         this._dropboxError(error);
@@ -129,6 +133,7 @@ var app = new Vue({
       var busy = fileDialog.showBusyDialog('Reading files list from Dropbox...');
       dropbox.listFiles(null, function(entries) {
         busy.close();
+        entries = this._dropboxFilterEntries(entries);
         fileDialog.openFile(entries, this.dropboxLoadFile);
       }.bind(this), function(error) {
         busy.close();
