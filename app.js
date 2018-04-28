@@ -96,6 +96,7 @@ var app = new Vue({
     //
 
     _dropboxFilterEntries: function(entries) {
+      //return entries;
       return entries.filter(entry => entry.name.endsWith('.formula'));
     },
     
@@ -110,7 +111,7 @@ var app = new Vue({
     },
 
     dropboxSaveDialog: function() {      
-      var busy = fileDialog.showBusyDialog('Reading files list from Dropbox...');
+      var busy = fileDialog.showBusyDialog('Reading files list...');
       dropbox.listFiles(null, function(entries) {
         busy.close();
         entries = this._dropboxFilterEntries(entries);
@@ -130,7 +131,7 @@ var app = new Vue({
     },
 
     dropboxLoadDialog: function() {
-      var busy = fileDialog.showBusyDialog('Reading files list from Dropbox...');
+      var busy = fileDialog.showBusyDialog('Reading files list...');
       dropbox.listFiles(null, function(entries) {
         busy.close();
         entries = this._dropboxFilterEntries(entries);
@@ -142,7 +143,7 @@ var app = new Vue({
     },
 
     dropboxLoadFile: function(entry) {
-      var busy = fileDialog.showBusyDialog('Loading from Dropbox...');
+      var busy = fileDialog.showBusyDialog('Loading file...');
       dropbox.getFile(entry.id, function(data) {
         busy.close();
         this.formula = data; // <== bim!

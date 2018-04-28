@@ -3,12 +3,16 @@
 }
 
 .button-list-item {
-    background: none;
-    border: 1px solid grey;
+    background: #f4f4f4;
+    border: 3px solid #e2e2e2;
     border-radius: 0;
     text-align: left;
     width: 100%;
-    margin-bottom: -1px;
+    margin-bottom: -3px;
+}
+
+.button-list-item:hover {
+    background: #c8c8c8;
 }
 
 .text-ghosted {
@@ -18,6 +22,7 @@
 .dialog-file-load-list {
     height: 300px;
     height: calc(100vh - 200px);
+    background: #e2e2e2;
 
     max-height: 300px;
     max-height: calc(100vh - 200px);
@@ -28,7 +33,8 @@
 .dialog-file-save-list {
     height: 300px;
     height: calc(100vh - 300px);
-
+    background: #e2e2e2;
+    
     max-height: 300px;
     max-height: calc(100vh - 300px);
 
@@ -36,7 +42,7 @@
 }
 
 .dialog-file-save-input {
-    margin-top: 6px;
+    margin-top: 3px;
 }
 
 .dialog-file-empty {

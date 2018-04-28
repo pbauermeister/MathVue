@@ -26,6 +26,7 @@ var fileDialog = {
 
   showBusyDialog: function(message) {
     return BootstrapDialog.show({
+      title: 'Dropbox',
       message: message +
         '<div class="progress">' +
         '  <div class="progress-bar progress-bar-striped progress-bar-animated"' +
@@ -40,7 +41,7 @@ var fileDialog = {
   openFile: function(entries, onItemSelected) {
     var dropboxDialog = BootstrapDialog.show({
       animate: false,
-      title: 'Choose a file from Dropbox',
+      title: 'Dropbox - Load file',
       message: '<div id="fileDialog" class="dialog-file-load-list">' +
         '         <button v-for="entry in entries"' +
         '                 class="btn btn-sm button-list-item"' +
@@ -64,10 +65,13 @@ var fileDialog = {
   },
 
   saveFile: function(entries, onSave) {
+    var setFocus = function() {
+      $('#dropbox-input-filename').focus();
+    }
     var that = this;
     var dropboxDialog = BootstrapDialog.show({
       animate: false,
-      title: 'Enter file name to save to Dropbox',
+      title: 'Dropbox - Save as',
       message: '<div id="fileDialog">' +
         '         <div class="dialog-file-save-list">' +
         '           <button v-for="entry in entries"' +
@@ -77,9 +81,9 @@ var fileDialog = {
         '           </button>' +
         '           <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
         '         </div>' +
-        '         <input class="form-control dialog-file-save-input" type="text"' +
+        '         <input id="dropbox-input-filename" class="form-control dialog-file-save-input" type="text"' +
         '                v-model:value="filename"' +
-        '                placeholder="Enter file name here" autofocus />' +
+        '                placeholder="Enter file name here or choose from list" autofocus />' +
         '       </div>',
       buttons: [
         {
@@ -95,6 +99,8 @@ var fileDialog = {
             if (filename) {
               dlg.close();
               onSave(entries, filename);
+            } else {
+              setFocus();
             }
           }
         }],
@@ -105,9 +111,15 @@ var fileDialog = {
           that.app = makeFileDialogVue(entries,
                                        function(entry, app) {
                                          app.filename = entry.name;
-                                         // TODO focus input
+                                         setFocus();
                                        });
         }, 100);
+
+        setTimeout(function() {
+          // ugly hack: run after Vue.js has rendered
+          setFocus();
+        }, 1000);
+
       }
     });
   }
