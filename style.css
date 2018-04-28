@@ -55,3 +55,8 @@
     flex-direction:column;
     text-align: center;
 }
+
+#dialog-file-save-hint {
+    color: red;
+    font-size: 90%;
+}
