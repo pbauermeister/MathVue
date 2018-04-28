@@ -15,8 +15,18 @@
     color: #ccc;
 }
 
-.dialog-file-list {
+.dialog-file-load-list {
     max-height: 300px;
     max-height: calc(100vh - 200px);
     overflow-y: scroll;
+}
+
+.dialog-file-save-list {
+    max-height: 300px;
+    max-height: calc(100vh - 300px);
+    overflow-y: scroll;
+}
+
+.dialog-file-save-input {
+    margin-top: 6px;
 }

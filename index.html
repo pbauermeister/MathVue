@@ -90,10 +90,10 @@
           <tr>
             <td class="align-top">
               <div v-if="dropboxLoggedIn && dropboxDisplayname">
-                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSave">
+                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSaveDialog">
                   Save to Dropbox
                 </span><br/>
-                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoad">
+                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoadDialog">
                   Load from Dropbox
                 </span>
               </div>
@@ -182,6 +182,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>    
     <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
+    <script src="file_dialog.js"></script>
     <script src="app.js"></script>
     
   </body>

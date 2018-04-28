@@ -38,19 +38,24 @@ var app = new Vue({
     dropboxDisplayname: null,
     dropboxFiles: [],
     dropboxDialog: null,
-    dropboxBusyDialog: null,
   },
   
   methods: {
+    //
+    // Animation methods
+    //
+    
     run: function (event) {
       this.running = true;
       this.started = true;
       loadSketch(this.formula);
     },
+
     pause: function (event) {
       this.running = false;
       switchSketchState(false);
     },
+
     resume: function (event) {
       if (!this.started) {
         this.run();
@@ -59,11 +64,7 @@ var app = new Vue({
         switchSketchState(true);
       }
     },
-    onInput: function () {
-      this.link = makeLink(false, this.formula);
-      this.linkToGithub = makeLink(true, this.formula);
-      saveFormula(this.formula);
-    },
+
     fullScreen: function(event) {
       // full screen
       var el = document.getElementById("mathvisionCanvas");
@@ -79,77 +80,73 @@ var app = new Vue({
         this.resume();
       }
     },
-    _showBusyDialog: function(message) {
-      this.dropboxBusyDialog = BootstrapDialog.show({
-        message: message + '<div class="progress"><div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div></div>',
-        animate: true,
-        size: BootstrapDialog.SIZE_SMALL
-      });
+
+    //
+    // Formula methods
+    //
+
+    onInput: function () {
+      this.link = makeLink(false, this.formula);
+      this.linkToGithub = makeLink(true, this.formula);
+      saveFormula(this.formula);
     },
-    _closeBusyDialog: function() {
-      try {
-        this.dropboxBusyDialog && this.dropboxBusyDialog.close();
-      } catch (e) {}
-      this.dropboxBusyDialog = null;
+
+    //
+    // Dropbox methods
+    //
+    
+    _dropboxError: function(error) {
+      this._dropboxCloseDialogs();
+      alert('ERROR ' + error.response.status + ':\n' + JSON.stringify(error.response.data));
     },
+
     dropboxLogout: function() {
       dropbox.setToken(null);
       this.dropboxLoggedIn = dropbox.isLoggedIn();
     },
-    dropboxSave: function() {},
-    dropboxLoad: function() {
-      this._dropboxCloseDialogs();
-      this._showBusyDialog('Querying Dropbox...');
-      dropbox.listFiles(null, function(data) {
-        this._dropboxShowFiles(data);
+
+    dropboxSaveDialog: function() {      
+      var busy = fileDialog.showBusyDialog('Reading files list from Dropbox...');
+      dropbox.listFiles(null, function(entries) {
+        busy.close();
+        fileDialog.saveFile(entries, this.dropboxSaveFile);
+        //this._dropboxShowFilesForSave(data);
       }.bind(this), function(error) {
+        busy.close();
         this._dropboxError(error);
       }.bind(this));
     },
-    _dropboxError(error) {
-      this._dropboxCloseDialogs();
-      alert('ERROR ' + error.response.status + ':\n' + JSON.stringify(error.response.data));
-    },
-    _dropboxShowFiles: function(entries) {
-      var entries = entries
-          .filter(function(entry) {return entry['.tag']=='file'})
-          //.filter(function(entry) {return entry.name.endsWith('.formula')});
-      var names = entries
-          .map(function(entry) {return entry.name});
 
-      var content = $('<div class="dialog-file-list"></div>');
-      for (var i in names)
-        content.append('<button class="btn btn-sm button-list-item" onclick="app.dropboxLoadFile('+i+')">'
-                       + names[i] + '</button></br>');
-      if (entries.length == 0) {
-        content.append('No formula files in this batch');
-      }
-      this._closeBusyDialog();
-      this.dropboxFiles = entries;
-      this.dropboxDialog = BootstrapDialog.show({
-        animate: false,
-        title: 'Choose a file from Dropbox',
-        message: content, //names.join('\n')
-      });
+    dropboxSaveFile: function(entries, filename) {
+      var names = entries.map(entry => entry.name)
+      if (names.indexOf(filename) > -1)
+        alert(filename + " exists");
+      alert(filename);
+      // TODO Save to DBox
     },
-    dropboxLoadFile: function(index) {
-      this._dropboxCloseDialogs();
-      this._showBusyDialog('Loading from Dropbox...');
-      dropbox.getFile(this.dropboxFiles[index].id, function(data) {
+
+    dropboxLoadDialog: function() {
+      var busy = fileDialog.showBusyDialog('Reading files list from Dropbox...');
+      dropbox.listFiles(null, function(entries) {
+        busy.close();
+        fileDialog.openFile(entries, this.dropboxLoadFile);
+      }.bind(this), function(error) {
+        busy.close();
+        this._dropboxError(error);
+      }.bind(this));
+    },
+
+    dropboxLoadFile: function(entry) {
+      var busy = fileDialog.showBusyDialog('Loading from Dropbox...');
+      dropbox.getFile(entry.id, function(data) {
+        busy.close();
         this.formula = data; // <== bim!
         saveFormula(this.formula);
-        this._dropboxCloseDialogs();
       }.bind(this), function(error) {
+        busy.close();
         this._dropboxError(error);
       }.bind(this));
     },
-    _dropboxCloseDialogs: function() {
-      this._closeBusyDialog();
-      try {
-        this.dropboxDialog && this.dropboxDialog.close();
-      } catch (e) {}
-      this.dropboxDialog = null;
-    }
   },
 
   mounted() {
