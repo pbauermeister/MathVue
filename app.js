@@ -72,10 +72,14 @@ var app = new Vue({
       }
     },
 
-    grabImage: function() {
-      if (!this.started) {
+    runOneFrame: function() {
         this.run();
         this.pause();
+    },
+
+    grabImage: function() {
+      if (!this.started) {
+        this.runOneFrame();
       }
       return grabImage();
     },
@@ -168,6 +172,7 @@ var app = new Vue({
       this.dropbox.downloadFile(entry.id, function(data) {
         busy.close();
         this.formula = data; // <== bim!
+        this.runOneFrame();
         saveFormula(this.formula);
       }.bind(this), function(error) {
         busy.close();
