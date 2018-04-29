@@ -15,6 +15,8 @@ deparam = function(querystring) {
   return params;
 };//--  fn  deparam
 
+const ENDING = 'formula';
+
 var router = new VueRouter({
   mode: 'history',
   routes: []
@@ -32,13 +34,17 @@ var app = new Vue({
     link: makeLink(false, defaultFormula),
     linkToGithub: makeLink(true, defaultFormula),
 
+    dropbox: new DropboxStorage(),
     dropboxAllowed: true,
-    dropboxLoginUrl: dropbox.getLoginUrl(),
+    dropboxLoginUrl: null,
+    dropboxLoggedIn: null,
     dropboxProfilePhotoUrl: null,
-    dropboxLoggedIn: dropbox.isLoggedIn(),
     dropboxDisplayname: null,
     dropboxFiles: [],
     dropboxDialog: null,
+
+    fileDialog: new FileDialog(ENDING),
+    ending: ENDING,
   },
   
   methods: {
@@ -114,16 +120,16 @@ var app = new Vue({
     },
 
     dropboxLogout: function() {
-      dropbox.setToken(null);
-      this.dropboxLoggedIn = dropbox.isLoggedIn();
+      this.dropbox.setToken(null);
+      this.dropboxLoggedIn = this.dropbox.isLoggedIn();
     },
 
     dropboxSaveDialog: function() {      
-      var busy = fileDialog.showBusyDialog('Reading files list...');
-      dropbox.listFolder(null, function(entries) {
+      var busy = this.fileDialog.showBusyDialog('Reading files list...');
+      this.dropbox.listFolder(null, function(entries) {
         busy.close();
         entries = this._dropboxFilterEntries(entries);
-        fileDialog.saveFile(entries, this.dropboxSaveFile);
+        this.fileDialog.saveFile(entries, this.dropboxSaveFile, this.dropbox);
       }.bind(this), function(error) {
         busy.close();
         this._dropboxError(error);
@@ -131,22 +137,26 @@ var app = new Vue({
     },
 
     dropboxSaveFile: function(entries, filename) {
-      var busy = fileDialog.showBusyDialog('Saving file...');
+      var busy = this.fileDialog.showBusyDialog('Saving file...');
       var b64Image = this.grabImage();
-      dropbox.uploadFile(filename, this.formula, b64Image, function(response) {
-        busy.close();
-      }.bind(this), function(error) {
-        busy.close();
-        this._dropboxError(error);
-      }.bind(this));
+      this.dropbox.uploadFile(
+        filename, this.ending, this.formula, b64Image,
+        function(response) {
+          busy.close();
+        }.bind(this),
+        function(error) {
+          busy.close();
+          this._dropboxError(error);
+        }.bind(this)
+      );
     },
 
     dropboxLoadDialog: function() {
-      var busy = fileDialog.showBusyDialog('Reading files list...');
-      dropbox.listFolder(null, function(entries) {
+      var busy = this.fileDialog.showBusyDialog('Reading files list...');
+      this.dropbox.listFolder(null, function(entries) {
         busy.close();
         entries = this._dropboxFilterEntries(entries);
-        fileDialog.openFile(entries, this.dropboxLoadFile);
+        this.fileDialog.openFile(entries, this.dropboxLoadFile, this.dropbox);
       }.bind(this), function(error) {
         busy.close();
         this._dropboxError(error);
@@ -154,8 +164,8 @@ var app = new Vue({
     },
 
     dropboxLoadFile: function(entry) {
-      var busy = fileDialog.showBusyDialog('Loading file...');
-      dropbox.downloadFile(entry.id, function(data) {
+      var busy = this.fileDialog.showBusyDialog('Loading file...');
+      this.dropbox.downloadFile(entry.id, function(data) {
         busy.close();
         this.formula = data; // <== bim!
         saveFormula(this.formula);
@@ -168,6 +178,8 @@ var app = new Vue({
 
   mounted() {
     this.dropboxAllowed = !window.location.href.startsWith('file:');
+    this.dropboxLoginUrl = this.dropbox.getLoginUrl();
+    this.dropboxLoggedIn = this.dropbox.isLoggedIn();
     
     // query
     if (this.$route.query.formula) {
@@ -180,16 +192,16 @@ var app = new Vue({
     if (this.$route.hash) {
       var params = deparam(this.$route.hash.substring(1));
       if (params.access_token) {
-        dropbox.setToken(params.access_token);
-        this.dropboxLoggedIn = dropbox.isLoggedIn();
+        this.dropbox.setToken(params.access_token);
+        this.dropboxLoggedIn = this.dropbox.isLoggedIn();
       }
     }
     // dropbox session
     if (this.dropboxAllowed) {
-      if (dropbox.isLoggedIn()) {
+      if (this.dropbox.isLoggedIn()) {
         // check if login still valid
-        dropbox.loginIfNeeded(function(account_data) {
-          this.dropboxLoggedIn = dropbox.isLoggedIn();
+        this.dropbox.loginIfNeeded(function(account_data) {
+          this.dropboxLoggedIn = this.dropbox.isLoggedIn();
           this.dropboxDisplayname = account_data.name.display_name;
           this.dropboxProfilePhotoUrl = account_data.profile_photo_url;
         }.bind(this), function() {

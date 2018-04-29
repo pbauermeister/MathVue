@@ -24,15 +24,16 @@ var makeFileDialogVue = function(dialog, entries, onReady, onItemSelected) {
     });
 };
 
-var fileDialog = {
+function FileDialog(ending) {
+  this.ending = ending;
 
-  formatPath: function(entry) {
+  this.formatPath = function(entry) {
     return entry.path_display.startsWith('/')
       ? entry.path_display.substring(1)
       : entry.path_display;
-  },
+  };
   
-  showBusyDialog: function(message) {
+  this.showBusyDialog = function(message) {
     var dlg = BootstrapDialog.show({
       title: 'Dropbox',
       message: message +
@@ -46,34 +47,29 @@ var fileDialog = {
     });
     dlg.getModal().removeClass('fade');
     return dlg;
-  },
+  };
 
-  loadThumbnails: function(entries) {
-    var that = this;
-    entries.map(entry => {
-      dropbox.getThumbnailDataUrl(entry, function(dataUrl) {        
-        this._loadImage(entry.id, dataUrl);
-      }.bind(this));      
-    });
-  },
-
-  _loadImage: function(id, dataUrl) {
-    document.getElementById(id).setAttribute('src', dataUrl);
-  },
+  this.thumbnailHandler = function(id, dataUrl) {
+    var elem = document.getElementById(id);
+    if (elem)
+      elem.setAttribute('src', dataUrl);
+  };
   
-  openFile: function(entries, onItemSelected) {
+  this.openFile = function(entries, onItemSelected, storageManager) {
     var that = this;
     var dlg = BootstrapDialog.show({
       animate: false,
       title: 'Dropbox - Load file',
       message: '<div id="fileDialog" class="dialog-file-load-list">' +
-        '         <button v-for="entry in entries"' +
-        '                 class="btn btn-sm button-list-item"' +
-        '                 v-on:click="loadClicked(entry)">' +
-        '           <div class="float-left  button-list-item-text">{{ dialog.formatPath(entry) }}</div>' +
-        '           <div class="float-right button-list-item-image"><img v-bind:id="entry.id"></div>' +
-        '         </button>' +
-        '       <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
+        '         <div v-cloak>' +
+        '           <button v-for="entry in entries"' +
+        '                   class="btn btn-sm button-list-item"' +
+        '                   v-on:click="loadClicked(entry)">' +
+        '             <div class="float-left  button-list-item-text">{{ dialog.formatPath(entry) }}</div>' +
+        '             <div class="float-right button-list-item-image"><img v-bind:id="entry.id"></div>' +
+        '           </button>' +
+        '           <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
+        '         </div>' +
         '       </div>',
       onshow: function() {
         vueStarted = true;
@@ -83,7 +79,7 @@ var fileDialog = {
             that,
             entries,
             function() {
-              that.loadThumbnails(entries);
+              storageManager.thumbnailsLoader(entries, that.ending, that.thumbnailHandler);
             },
             function(entry, app) {
               dlg.close();
@@ -93,13 +89,14 @@ var fileDialog = {
       }
     });
     dlg.getModal().removeClass('fade');
-  },
+  };
 
-  saveFile: function(entries, onSave) {
+  this.saveFile = function(entries, onSave, storageManager) {
     var input_selector = '#dropbox-input-filename';
     var button_selector = '#dialog-file-save-button-save';
     var hint_selector = '#dialog-file-save-hint';
     var names = entries.map(entry => this.formatPath(entry));
+    var ending = this.ending;
     var setFocus = function() {
       $(input_selector).focus();
     }
@@ -119,9 +116,9 @@ var fileDialog = {
       else
         button.html('Save');
 
-      var disabled = !name || !name.endsWith('.formula');
+      var disabled = !name || ending && !name.endsWith('.' + ending);
       button.prop('disabled', disabled);
-      hint.text(disabled && name ? 'Name must end with .formula' : null);
+      hint.text(disabled && name && ending ? 'Name must end with .' + ending : null);
     };
     var watchChange = function() {
       var input = $(input_selector);
@@ -133,19 +130,21 @@ var fileDialog = {
       animate: false,
       title: 'Dropbox - Save as',
       message: '<div id="fileDialog">' +
-        '         <div class="dialog-file-save-list">' +
-        '           <button v-for="entry in entries"' +
-        '                   class="btn btn-sm button-list-item"' +
-        '                   v-on:click="loadClicked(entry)">' +
-        '             <div class="float-left  button-list-item-text">{{ dialog.formatPath(entry) }}</div>' +
-        '             <div class="float-right button-list-item-image"><img v-bind:id="entry.id"></div>' +
-        '           </button>' +
-        '           <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
+        '         <div v-cloak>' +
+        '           <div class="dialog-file-save-list">' +
+        '             <button v-for="entry in entries"' +
+        '                     class="btn btn-sm button-list-item"' +
+        '                     v-on:click="loadClicked(entry)">' +
+        '               <div class="float-left  button-list-item-text">{{ dialog.formatPath(entry) }}</div>' +
+        '               <div class="float-right button-list-item-image"><img v-bind:id="entry.id"></div>' +
+        '             </button>' +
+        '             <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
+        '           </div>' +
+        '           <input id="dropbox-input-filename" class="form-control dialog-file-save-input" type="text"' +
+        '                  v-model:value="filename"' +
+        '                  placeholder="Enter file name here or choose from list" autofocus />' +
+        '           <div><span id="dialog-file-save-hint"></span>&nbsp;</div>' +
         '         </div>' +
-        '         <input id="dropbox-input-filename" class="form-control dialog-file-save-input" type="text"' +
-        '                v-model:value="filename"' +
-        '                placeholder="Enter file name here or choose from list" autofocus />' +
-        '         <div><span id="dialog-file-save-hint"></span>&nbsp;</div>' +
         '       </div>',
       buttons: [
         {
@@ -175,7 +174,7 @@ var fileDialog = {
             that,
             entries,
             function() {
-              that.loadThumbnails(entries);
+              storageManager.thumbnailsLoader(entries, that.ending, that.thumbnailHandler);
             },
             function(entry, app) {
               var path = that.formatPath(entry);
@@ -195,6 +194,6 @@ var fileDialog = {
       }
     });
     dlg.getModal().removeClass('fade');
-  }
+  };
+}
 
-};

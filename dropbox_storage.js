@@ -1,36 +1,36 @@
 
-dropbox = {
+function DropboxStorage() {
 
-  getLoginUrl: function() {
+  this.getLoginUrl = function() {
     var mathvue_client_id = '65hebhcza1whb68';
 
     var this_urlbase = window.location;
     return ('https://www.dropbox.com/oauth2/authorize?client_id='+ mathvue_client_id
             + '&response_type=token'
             + '&redirect_uri=' + this_urlbase);
-  },
+  };
 
-  setToken: function(access_token) {
+  this.setToken = function(access_token) {
     window.localStorage.setItem('dropbox_accesstoken', access_token || '');
-  },
+  };
 
-  getToken: function() {
+  this.getToken = function() {
     return window.localStorage.getItem('dropbox_accesstoken');
-  },
+  };
 
-  isLoggedIn: function() {
+  this.isLoggedIn = function() {
     return !!this.getToken();
-  },
+  };
 
-  checkToken: function(access_token) {
+  this.checkToken = function(access_token) {
     return axios({
       method: 'POST',
       url: 'https://api.dropboxapi.com/2/users/get_current_account',
       headers: {Authorization: 'Bearer ' + access_token},
     });
-  },
+  };
 
-  loginIfNeeded: function(onSuccess, onError) {
+  this.loginIfNeeded = function(onSuccess, onError) {
     var token = this.getToken();
     var loginUrl = this.getLoginUrl();
     var that = this;
@@ -43,9 +43,9 @@ dropbox = {
         that.setToken(null);
         onError();
       });
-  },
+  };
 
-  listFolder: function(cursor, onResponse, onError, entries) {
+  this.listFolder = function(cursor, onResponse, onError, entries) {
     var that = this;
     var params = {
       method: 'POST',
@@ -71,10 +71,11 @@ dropbox = {
       (error) => {
         onError(error);
       });
-  },
+  };
 
-  getThumbnailDataUrl: function(entry, onResponse) {
-    var thumbPath = entry.path_display.replace(/[.]formula$/, '.png');
+  this.getThumbnailDataUrl = function(entry, ending, onResponse) {
+    var re = new RegExp('[.]' + ending + '$');
+    var thumbPath = entry.path_display.replace(re, '.png');
     var format = 'png';
     var params = {
       method: 'POST',
@@ -98,9 +99,9 @@ dropbox = {
       },
       (error) => {}
     );
-  },
+  };
 
-  downloadFile: function(id, onResponse, onError) {
+  this.downloadFile = function(id, onResponse, onError) {
     var params = {
       method: 'POST',
       url: 'https://content.dropboxapi.com/2/files/download',
@@ -116,10 +117,10 @@ dropbox = {
       (error) => {
         onError(error);
       });
-  },
+  };
 
-  uploadFile: function(filename, text, b64Image,
-                       onResponse, onError) {
+  this.uploadFile = function(filename, ending, text, b64Image,
+                             onResponse, onError) {
     var uploadParams = {
       mode: 'overwrite',
       path: '/' + filename,
@@ -139,19 +140,18 @@ dropbox = {
     axios(params).then(
       function(response) {
         //onResponse(response);
-        var filename2 = filename.replace(/[.]formula$/, '.png');
-        console.log(filename);
-        console.log(filename2);
+        var re = new RegExp('[.]' + ending + '$');
+        var filename2 = filename.replace(re, '.png');
         this.uploadImage(filename2, b64Image, onResponse, onError);
       }.bind(this),
       (error) => {
         console.log(error);
         onError(error);
       });
-  },
+  };
 
-  uploadImage: function(filename, b64Image,
-                        onResponse, onError) {
+  this.uploadImage = function(filename, b64Image,
+                              onResponse, onError) {
     var uploadParams = {
       mode: 'overwrite',
       path: '/' + filename,
@@ -179,8 +179,16 @@ dropbox = {
       axios(params).then(onResponse, onError);
     }
     req.send();
-  },
-  
+  };
+
+  this.thumbnailsLoader = function(entries, ending, thumbnailHandler) {
+    entries.forEach(function(entry) {
+      this.getThumbnailDataUrl(entry, ending, function(dataUrl) {        
+        thumbnailHandler(entry.id, dataUrl);
+      }.bind(this));
+    }.bind(this));
+  };
+
 }
 
 
