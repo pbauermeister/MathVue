@@ -81,3 +81,10 @@ function switchSketchState(on) {
   }
 }
 
+function grabImage() {
+  var name = "mathvisionCanvas";
+  var canvas = document.getElementById(name);
+  var image = canvas.toDataURL('image/png');
+  var b64Data = image.replace(/^data:image\/(png|jpg);base64,/, '');
+  return b64Data;
+}

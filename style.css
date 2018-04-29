@@ -26,10 +26,20 @@
     text-align: left;
     width: 100%;
     margin-bottom: -3px;
+    padding: 1px 1px 1px 5px;
 }
 
 .button-list-item:hover {
     background: #c8c8c8;
+}
+
+.button-list-item-text {
+    height: 100%;
+    padding: 6px 0;
+}
+
+.button-list-item-image {
+    min-height: 32px;
 }
 
 .text-ghosted {

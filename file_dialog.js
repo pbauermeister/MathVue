@@ -2,7 +2,7 @@
  * Mini Vue.js app for file dialogs
  */
 
-var makeFileDialogVue = function(dialog, entries, onItemSelected) {
+var makeFileDialogVue = function(dialog, entries, onReady, onItemSelected) {
     return new Vue({
       el: '#fileDialog',
       
@@ -19,6 +19,7 @@ var makeFileDialogVue = function(dialog, entries, onItemSelected) {
       },
       
       mounted() {
+        onReady();
       }
     });
 };
@@ -46,6 +47,19 @@ var fileDialog = {
     dlg.getModal().removeClass('fade');
     return dlg;
   },
+
+  loadThumbnails: function(entries) {
+    var that = this;
+    entries.map(entry => {
+      dropbox.getThumbnailDataUrl(entry, function(dataUrl) {        
+        this._loadImage(entry.id, dataUrl);
+      }.bind(this));      
+    });
+  },
+
+  _loadImage: function(id, dataUrl) {
+    document.getElementById(id).setAttribute('src', dataUrl);
+  },
   
   openFile: function(entries, onItemSelected) {
     var that = this;
@@ -56,7 +70,8 @@ var fileDialog = {
         '         <button v-for="entry in entries"' +
         '                 class="btn btn-sm button-list-item"' +
         '                 v-on:click="loadClicked(entry)">' +
-        '           {{ dialog.formatPath(entry) }}' +
+        '           <div class="float-left  button-list-item-text">{{ dialog.formatPath(entry) }}</div>' +
+        '           <div class="float-right button-list-item-image"><img v-bind:id="entry.id"></div>' +
         '         </button>' +
         '       <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
         '       </div>',
@@ -67,6 +82,9 @@ var fileDialog = {
           makeFileDialogVue(
             that,
             entries,
+            function() {
+              that.loadThumbnails(entries);
+            },
             function(entry, app) {
               dlg.close();
               onItemSelected(entry);
@@ -119,7 +137,8 @@ var fileDialog = {
         '           <button v-for="entry in entries"' +
         '                   class="btn btn-sm button-list-item"' +
         '                   v-on:click="loadClicked(entry)">' +
-        '             {{ dialog.formatPath(entry) }}' +
+        '             <div class="float-left  button-list-item-text">{{ dialog.formatPath(entry) }}</div>' +
+        '             <div class="float-right button-list-item-image"><img v-bind:id="entry.id"></div>' +
         '           </button>' +
         '           <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
         '         </div>' +
@@ -155,6 +174,9 @@ var fileDialog = {
           that.app = makeFileDialogVue(
             that,
             entries,
+            function() {
+              that.loadThumbnails(entries);
+            },
             function(entry, app) {
               var path = that.formatPath(entry);
               app.filename = path;

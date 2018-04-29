@@ -63,12 +63,41 @@ dropbox = {
           entries = (entries ? entries : []).concat(response.data.entries);
         if (response.data.has_more)
           that.listFolder(response.data.cursor, onResponse, onError, entries)
-        else
-          onResponse(entries.sort((a, b) => a.path_display > b.path_display));
+        else {
+          var entries = entries.sort((a, b) => a.path_display > b.path_display);
+          onResponse(entries);
+        }
       },
       (error) => {
         onError(error);
       });
+  },
+
+  getThumbnailDataUrl: function(entry, onResponse) {
+    var thumbPath = entry.path_display.replace(/[.]formula$/, '.png');
+    var format = 'png';
+    var params = {
+      method: 'POST',
+      url: 'https://content.dropboxapi.com/2/files/get_thumbnail',
+      responseType: 'arraybuffer',
+      headers: {
+        Authorization: 'Bearer ' + this.getToken(),
+        'Dropbox-API-Arg': JSON.stringify({
+          path: thumbPath,
+          format: format,
+          size: 'w32h32',
+          mode: 'fitone_bestfit',
+        }),
+      },
+    };
+    axios(params).then(
+      (response) => {
+        var data64 = _arrayBufferToBase64(response.data);
+        var dataUrl = 'data:image/' + format + ';base64,' + data64;
+        onResponse(dataUrl);
+      },
+      (error) => {}
+    );
   },
 
   downloadFile: function(id, onResponse, onError) {
@@ -89,7 +118,8 @@ dropbox = {
       });
   },
 
-  uploadFile: function(filename, text, onResponse, onError) {
+  uploadFile: function(filename, text, b64Image,
+                       onResponse, onError) {
     var uploadParams = {
       mode: 'overwrite',
       path: '/' + filename,
@@ -107,14 +137,59 @@ dropbox = {
       data: new TextEncoder("utf-8").encode(text),
     };
     axios(params).then(
-      (response) => {
-        onResponse(response);
-      },
+      function(response) {
+        //onResponse(response);
+        var filename2 = filename.replace(/[.]formula$/, '.png');
+        console.log(filename);
+        console.log(filename2);
+        this.uploadImage(filename2, b64Image, onResponse, onError);
+      }.bind(this),
       (error) => {
         console.log(error);
         onError(error);
       });
-  }
+  },
 
+  uploadImage: function(filename, b64Image,
+                        onResponse, onError) {
+    var uploadParams = {
+      mode: 'overwrite',
+      path: '/' + filename,
+      autorename: false,
+    };
+    var params = {
+      method: 'POST',
+      url: 'https://content.dropboxapi.com/2/files/upload',
+      headers: {
+        Authorization: 'Bearer ' + this.getToken(),
+        'Dropbox-API-Arg': JSON.stringify(uploadParams),
+        'Content-Type': 'application/octet-stream',
+      },
+    };
+
+    // b64->bytes: https://stackoverflow.com/a/49273187
+    var req = new XMLHttpRequest;
+    req.open('GET', "data:application/octet;base64," + b64Image);
+    req.responseType = 'arraybuffer';
+    req.onload = function fileLoaded(e)
+    {
+      var byteArray = new Int8Array(e.target.response);
+
+      params.data = byteArray;
+      axios(params).then(onResponse, onError);
+    }
+    req.send();
+  },
   
+}
+
+
+function _arrayBufferToBase64(buffer) {
+  var binary = '';
+  var bytes = new Uint8Array(buffer);
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
 }

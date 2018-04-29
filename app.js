@@ -2,7 +2,7 @@
  * Vue.js app.
  */
 
-deparam = function (querystring) {
+deparam = function(querystring) {
   // remove any preceding url and split
   querystring = querystring.substring(querystring.indexOf('?')+1).split('&');
   var params = {}, pair, d = decodeURIComponent, i;
@@ -46,18 +46,18 @@ var app = new Vue({
     // Animation methods
     //
     
-    run: function (event) {
+    run: function(event) {
       this.running = true;
       this.started = true;
       loadSketch(this.formula);
     },
 
-    pause: function (event) {
+    pause: function(event) {
       this.running = false;
       switchSketchState(false);
     },
 
-    resume: function (event) {
+    resume: function(event) {
       if (!this.started) {
         this.run();
       } else {
@@ -66,6 +66,14 @@ var app = new Vue({
       }
     },
 
+    grabImage: function() {
+      if (!this.started) {
+        this.run();
+        this.pause();
+      }
+      return grabImage();
+    },
+    
     fullScreen: function(event) {
       // full screen
       var el = document.getElementById("mathvisionCanvas");
@@ -86,7 +94,7 @@ var app = new Vue({
     // Formula methods
     //
 
-    onInput: function () {
+    onInput: function() {
       this.link = makeLink(false, this.formula);
       this.linkToGithub = makeLink(true, this.formula);
       saveFormula(this.formula);
@@ -124,7 +132,8 @@ var app = new Vue({
 
     dropboxSaveFile: function(entries, filename) {
       var busy = fileDialog.showBusyDialog('Saving file...');
-      dropbox.uploadFile(filename, this.formula, function(response) {
+      var b64Image = this.grabImage();
+      dropbox.uploadFile(filename, this.formula, b64Image, function(response) {
         busy.close();
       }.bind(this), function(error) {
         busy.close();
