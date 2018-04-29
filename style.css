@@ -73,6 +73,10 @@
     text-align: center;
 }
 
+#dialog-file-save-button-save {
+    min-width: 8em;
+}
+
 #dialog-file-save-hint {
     color: red;
     font-size: 90%;

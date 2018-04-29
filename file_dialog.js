@@ -2,13 +2,14 @@
  * Mini Vue.js app for file dialogs
  */
 
-var makeFileDialogVue = function(entries, onItemSelected) {
+var makeFileDialogVue = function(dialog, entries, onItemSelected) {
     return new Vue({
       el: '#fileDialog',
       
       data: {
         entries: entries,
         filename: "",
+        dialog: dialog,
       },
       
       methods: {
@@ -24,8 +25,14 @@ var makeFileDialogVue = function(entries, onItemSelected) {
 
 var fileDialog = {
 
+  formatPath: function(entry) {
+    return entry.path_display.startsWith('/')
+      ? entry.path_display.substring(1)
+      : entry.path_display;
+  },
+  
   showBusyDialog: function(message) {
-    return BootstrapDialog.show({
+    var dlg = BootstrapDialog.show({
       title: 'Dropbox',
       message: message +
         '<div class="progress">' +
@@ -36,17 +43,20 @@ var fileDialog = {
       animate: true,
       size: BootstrapDialog.SIZE_SMALL
     });
+    dlg.getModal().removeClass('fade');
+    return dlg;
   },
   
   openFile: function(entries, onItemSelected) {
-    var dropboxDialog = BootstrapDialog.show({
+    var that = this;
+    var dlg = BootstrapDialog.show({
       animate: false,
       title: 'Dropbox - Load file',
       message: '<div id="fileDialog" class="dialog-file-load-list">' +
         '         <button v-for="entry in entries"' +
         '                 class="btn btn-sm button-list-item"' +
         '                 v-on:click="loadClicked(entry)">' +
-        '           {{ entry.name }}' +
+        '           {{ dialog.formatPath(entry) }}' +
         '         </button>' +
         '       <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
         '       </div>',
@@ -54,21 +64,24 @@ var fileDialog = {
         vueStarted = true;
         setTimeout(function() {
           // hack: run after dialog really created
-          makeFileDialogVue(entries,
-                            function(entry, app) {
-                              dropboxDialog.close();
-                              onItemSelected(entry);
-                            });
+          makeFileDialogVue(
+            that,
+            entries,
+            function(entry, app) {
+              dlg.close();
+              onItemSelected(entry);
+            });
         }, 100);
       }
     });
+    dlg.getModal().removeClass('fade');
   },
 
   saveFile: function(entries, onSave) {
     var input_selector = '#dropbox-input-filename';
     var button_selector = '#dialog-file-save-button-save';
     var hint_selector = '#dialog-file-save-hint';
-    var names = entries.map(entry => entry.name);
+    var names = entries.map(entry => this.formatPath(entry));
     var setFocus = function() {
       $(input_selector).focus();
     }
@@ -81,20 +94,24 @@ var fileDialog = {
       var hint = $(hint_selector);
 
       name = (name || input.val()).trim();
+      
+      var exists = names.indexOf(name)>-1;
+      if (exists)
+        button.html('Overwrite');
+      else
+        button.html('Save');
 
-      button.html(names.indexOf(name)==-1 ? 'Save' : 'Overwrite');
       var disabled = !name || !name.endsWith('.formula');
       button.prop('disabled', disabled);
-      button.attr('title', disabled ? 'Name must end with .formula' : null);
-      hint.text(disabled ? 'Name must end with .formula' : null);
-   };
+      hint.text(disabled && name ? 'Name must end with .formula' : null);
+    };
     var watchChange = function() {
       var input = $(input_selector);
       input.on('input', function() { checkChange() });
       input.focusout(function() { defer(function() {setFocus(); }) });
     };
     var that = this;
-    var dropboxDialog = BootstrapDialog.show({
+    var dlg = BootstrapDialog.show({
       animate: false,
       title: 'Dropbox - Save as',
       message: '<div id="fileDialog">' +
@@ -102,7 +119,7 @@ var fileDialog = {
         '           <button v-for="entry in entries"' +
         '                   class="btn btn-sm button-list-item"' +
         '                   v-on:click="loadClicked(entry)">' +
-        '             {{ entry.name }}' +
+        '             {{ dialog.formatPath(entry) }}' +
         '           </button>' +
         '           <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
         '         </div>' +
@@ -135,12 +152,15 @@ var fileDialog = {
         vueStarted = true;
         defer(function() {
           // hack: run after dialog really created
-          that.app = makeFileDialogVue(entries,
-                                       function(entry, app) {
-                                         app.filename = entry.name;
-                                         setFocus();
-                                         checkChange(entry.name);
-                                       });
+          that.app = makeFileDialogVue(
+            that,
+            entries,
+            function(entry, app) {
+              var path = that.formatPath(entry);
+              app.filename = path;
+              setFocus();
+              checkChange(path);
+            });
         });
 
         defer(function() {
@@ -152,6 +172,7 @@ var fileDialog = {
 
       }
     });
+    dlg.getModal().removeClass('fade');
   }
 
 };

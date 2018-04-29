@@ -45,7 +45,7 @@ dropbox = {
       });
   },
 
-  listFiles: function(cursor, onResponse, onError, entries) {
+  listFolder: function(cursor, onResponse, onError, entries) {
     var that = this;
     var params = {
       method: 'POST',
@@ -62,16 +62,16 @@ dropbox = {
         if (response.data.entries && response.data.entries.length)
           entries = (entries ? entries : []).concat(response.data.entries);
         if (response.data.has_more)
-          that.listFiles(response.data.cursor, onResponse, onError, entries)
+          that.listFolder(response.data.cursor, onResponse, onError, entries)
         else
-          onResponse(entries.sort());
+          onResponse(entries.sort((a, b) => a.path_display > b.path_display));
       },
       (error) => {
         onError(error);
       });
   },
 
-  getFile: function(id, onResponse, onError) {
+  downloadFile: function(id, onResponse, onError) {
     var params = {
       method: 'POST',
       url: 'https://content.dropboxapi.com/2/files/download',
@@ -87,6 +87,34 @@ dropbox = {
       (error) => {
         onError(error);
       });
+  },
+
+  uploadFile: function(filename, text, onResponse, onError) {
+    var uploadParams = {
+      mode: 'overwrite',
+      path: '/' + filename,
+      autorename: false,
+    };
+    var params = {
+      method: 'POST',
+      url: 'https://content.dropboxapi.com/2/files/upload',
+      headers: {
+        Authorization: 'Bearer ' + this.getToken(),
+        'Dropbox-API-Arg': JSON.stringify(uploadParams),
+        'Content-Type': 'text/plain; charset=dropbox-cors-hack',
+        'Content-Type': 'application/octet-stream',
+      },
+      data: new TextEncoder("utf-8").encode(text),
+    };
+    axios(params).then(
+      (response) => {
+        onResponse(response);
+      },
+      (error) => {
+        console.log(error);
+        onError(error);
+      });
   }
+
   
 }

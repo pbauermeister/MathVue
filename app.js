@@ -25,7 +25,7 @@ var app = new Vue({
   el: '#app',
 
   data: {
-    message: 'With Bootstrap v4, Vue.js v2.5, Processing v1.4, Node.js v8 + express v4.',
+    message: 'With Bootstrap v4, Vue.js v2.5, FontAwesome v5, Processing v1.4, Node.js v8 + express v4.',
     formula: null,
     running: false,
     started: false,
@@ -34,6 +34,7 @@ var app = new Vue({
 
     dropboxAllowed: true,
     dropboxLoginUrl: dropbox.getLoginUrl(),
+    dropboxProfilePhotoUrl: null,
     dropboxLoggedIn: dropbox.isLoggedIn(),
     dropboxDisplayname: null,
     dropboxFiles: [],
@@ -101,7 +102,6 @@ var app = new Vue({
     },
     
     _dropboxError: function(error) {
-      this._dropboxCloseDialogs();
       alert('ERROR ' + error.response.status + ':\n' + JSON.stringify(error.response.data));
     },
 
@@ -112,7 +112,7 @@ var app = new Vue({
 
     dropboxSaveDialog: function() {      
       var busy = fileDialog.showBusyDialog('Reading files list...');
-      dropbox.listFiles(null, function(entries) {
+      dropbox.listFolder(null, function(entries) {
         busy.close();
         entries = this._dropboxFilterEntries(entries);
         fileDialog.saveFile(entries, this.dropboxSaveFile);
@@ -123,16 +123,18 @@ var app = new Vue({
     },
 
     dropboxSaveFile: function(entries, filename) {
-      var names = entries.map(entry => entry.name)
-      if (names.indexOf(filename) > -1)
-        alert(filename + " exists");
-      alert(filename);
-      // TODO Save to DBox
+      var busy = fileDialog.showBusyDialog('Saving file...');
+      dropbox.uploadFile(filename, this.formula, function(response) {
+        busy.close();
+      }.bind(this), function(error) {
+        busy.close();
+        this._dropboxError(error);
+      }.bind(this));
     },
 
     dropboxLoadDialog: function() {
       var busy = fileDialog.showBusyDialog('Reading files list...');
-      dropbox.listFiles(null, function(entries) {
+      dropbox.listFolder(null, function(entries) {
         busy.close();
         entries = this._dropboxFilterEntries(entries);
         fileDialog.openFile(entries, this.dropboxLoadFile);
@@ -144,7 +146,7 @@ var app = new Vue({
 
     dropboxLoadFile: function(entry) {
       var busy = fileDialog.showBusyDialog('Loading file...');
-      dropbox.getFile(entry.id, function(data) {
+      dropbox.downloadFile(entry.id, function(data) {
         busy.close();
         this.formula = data; // <== bim!
         saveFormula(this.formula);
@@ -180,8 +182,9 @@ var app = new Vue({
         dropbox.loginIfNeeded(function(account_data) {
           this.dropboxLoggedIn = dropbox.isLoggedIn();
           this.dropboxDisplayname = account_data.name.display_name;
+          this.dropboxProfilePhotoUrl = account_data.profile_photo_url;
         }.bind(this), function() {
-          window.location.href = thsi.dropboxLoginUrl;
+          window.location.href = this.dropboxLoginUrl;
         }.bind(this));
       }
     }
