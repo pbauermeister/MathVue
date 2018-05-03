@@ -181,9 +181,13 @@ function DropboxStorage() {
     req.send();
   };
 
+  this.thumbnailsCache = {};
   this.thumbnailsLoader = function(entries, ending, thumbnailHandler) {
     entries.forEach(function(entry) {
+      var cached = this.thumbnailsCache[entry.id]; // use cache
+      if (cached) thumbnailHandler(entry.id, cached);
       this.getThumbnailDataUrl(entry, ending, function(dataUrl) {        
+        this.thumbnailsCache[entry.id] = dataUrl; // set cache
         thumbnailHandler(entry.id, dataUrl);
       }.bind(this));
     }.bind(this));

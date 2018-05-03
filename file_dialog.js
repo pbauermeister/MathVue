@@ -2,7 +2,7 @@
  * Mini Vue.js app for file dialogs
  */
 
-var makeFileDialogVue = function(dialog, entries, onReady, onItemSelected) {
+var makeFileDialogVue = function(dialog, entries, ending, onReady, onItemSelected) {
     return new Vue({
       el: '#fileDialog',
       
@@ -10,11 +10,15 @@ var makeFileDialogVue = function(dialog, entries, onReady, onItemSelected) {
         entries: entries,
         filename: "",
         dialog: dialog,
+        ending: ending,
       },
       
       methods: {
-        loadClicked: function (entry) {
+        loadClicked: function(entry) {
           onItemSelected(entry, this);
+        },
+        fixName: function() {
+          this.filename += '.' + ending;
         },
       },
       
@@ -78,6 +82,7 @@ function FileDialog(ending) {
           makeFileDialogVue(
             that,
             entries,
+            ending,
             function() {
               storageManager.thumbnailsLoader(entries, that.ending, that.thumbnailHandler);
             },
@@ -118,7 +123,10 @@ function FileDialog(ending) {
 
       var disabled = !name || ending && !name.endsWith('.' + ending);
       button.prop('disabled', disabled);
-      hint.text(disabled && name && ending ? 'Name must end with .' + ending : null);
+
+      var has_hint = disabled && name && ending;
+      //hint.text(has_hint ? 'Name must end with .' + ending : null);
+      has_hint && hint.show() || hint.hide();
     };
     var watchChange = function() {
       var input = $(input_selector);
@@ -143,7 +151,10 @@ function FileDialog(ending) {
         '           <input id="dropbox-input-filename" class="form-control dialog-file-save-input" type="text"' +
         '                  v-model:value="filename"' +
         '                  placeholder="Enter file name here or choose from list" autofocus />' +
-        '           <div><span id="dialog-file-save-hint"></span>&nbsp;</div>' +
+        '           <span style="display:none" id="dialog-file-save-hint">Name must end with .{{ending}}' +
+        '             <span class="badge badge-pill badge-default" style="cursor:pointer"' +
+        '               v-on:click="fixName()">Fix it</span>' +
+        '           </span>&nbsp;' +
         '         </div>' +
         '       </div>',
       buttons: [
@@ -173,6 +184,7 @@ function FileDialog(ending) {
           that.app = makeFileDialogVue(
             that,
             entries,
+            ending,
             function() {
               storageManager.thumbnailsLoader(entries, that.ending, that.thumbnailHandler);
             },
