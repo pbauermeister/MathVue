@@ -2,7 +2,7 @@
  * Mini Vue.js app for file dialogs
  */
 
-var makeFileDialogVue = function(dialog, entries, ending, onReady, onItemSelected) {
+var makeFileDialogVue = function(dialog, entries, ending, onChanged, onReady, onItemSelected) {
     return new Vue({
       el: '#fileDialog',
       
@@ -19,6 +19,7 @@ var makeFileDialogVue = function(dialog, entries, ending, onReady, onItemSelecte
         },
         fixName: function() {
           this.filename += '.' + ending;
+          onChanged && onChanged(this.filename);
         },
       },
       
@@ -83,6 +84,7 @@ function FileDialog(ending) {
             that,
             entries,
             ending,
+            null,
             function() {
               storageManager.thumbnailsLoader(entries, that.ending, that.thumbnailHandler);
             },
@@ -185,6 +187,7 @@ function FileDialog(ending) {
             that,
             entries,
             ending,
+            checkChange,
             function() {
               storageManager.thumbnailsLoader(entries, that.ending, that.thumbnailHandler);
             },

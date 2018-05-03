@@ -69,6 +69,107 @@
           </div>
         </div>
 
+        <!-- Help Panel -->
+        <br/>
+
+        <div class="wrap-collabsible">
+          <input id="collapsible" class="toggle" type="checkbox">
+          <label for="collapsible" class="lbl-toggle">Formula syntax</label>
+          <div class="collapsible-content">
+            <div class="content-inner">
+
+              <div class="card">
+                <div>
+                  For language syntax, see
+                  <a href="http://processingjs.org/learning/">http://processingjs.org/learning/</a>.
+                  For a list of math functions see
+                  <a href="http://processingjs.org/reference/">http://processingjs.org/reference/</a>. <br/>&nbsp;
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <pre>
+The following parameters may be redefined:
+- int WIDTH, HEIGHT ..... Define the range of the canvas space
+- float RATIO ........... If HEIGHT is left 0, is used to compute HEIGHT; if
+                            RATIO set to AUTO, calculated after X/Y spans
+- int X_MIN, X_MAX ...... These two parameters define the range of the
+- int Y_MIN, Y_MAX          parametric space
+- float TIME_INCREMENT .. Time increment for animation
+- bool CLICK_PAUSE ...... If true, clicking canvas toggles animation on/off
+- bool OUT_PAUSE ........ If true, mouse outside canvas stops animation
+- bool MOUSE_MOVE ....... If true and no animation, redraw frame on mouse
+                            moves
+- int FRAMES ............ In animation mode, defines the number of wanted
+                            frames
+
+The following variables, deduced from the parametric range (x, y),
+may be used as constants:
+- int X_SPAN, Y_SPAN
+
+If HEIGHT is left to 0, then it is deduced using WIDTH and
+RATIO.
+
+To define a pixel color, the user shall redefine either rgb() or hsb()
+function, which shall return a color according to the wanted color model,
+and passing t if animation is wanted:
+- color rgb(x, y) ....... No animation
+- color rgb(x, y, t) .... Animate with TIME_INCREMENT or 1
+- color hsb(x, y) ....... No animation
+- color hsb(x, y, t) .... Animate with TIME_INCREMENT or 1
+
+In these functions, the system variables width, height, mouseX,
+mouseY, etc. may be used.
+
+In addition to the coordinates in the parametric space (x and y),
+which are passed as arguments to rgb() or hsb(), the u and v
+variables are also available, giving the coordinates of the current
+pixel in the canvas space.</pre>
+                  </div>
+                  <div class="col">
+                    <pre>Note also that the following function may be redefined:
+- bool preDraw(t) {} .... called before a frame is drawn: if it returns
+                            true, the frame is drawn.
+- void postDraw(t) {} ... called after a frame is drawn
+
+Example formula, providing time animation and mouse interaction:
+--------------------------------- cut here --------------------------------
+WIDTH = 200;
+float RATIO = 1;
+TIME_INCREMENT = 0.02;
+color rgb(x, y, t) {
+  x = map(x, X_MIN, X_MAX, -1, 1);          // no care for param range
+  y = map(y, Y_MIN, Y_MAX, -1, 1);          // no care for param range
+  float r = dist(0, 0, x, y);               // Conv. cartesian to polar
+  float theta = atan2(y, x);                // Conv. cartesian to polar
+
+  theta += t;
+  r += mouseX / width;
+  r = pow(r*5, 0.67);                       // squeezes center a bit
+  float ampli = (int)(mouseY/height*10 +1);
+  float k = sq(sin(r*PI));                  // ripples
+  float l = sq(sin(theta*ampli + k*PI/4));  // wavy rays
+  float res = pow(k*l, 0.25);               // thinner black areas
+
+  return color(res*255);                    // grayscales
+}
+--------------------------------- cut here --------------------------------
+
+By default, the parameters are:
+WIDTH  = 300;         X_MIN = 0;
+RATIO  = 4/3;         X_MAX = 1;
+HEIGHT = 0;           Y_MIN = 0;
+FRAMES = 0;           Y_MAX = 1/RATIO;
+
+CLICK_PAUSE = false;  TIME_INCREMENT   = 0;
+OUT_PAUSE   = true;   FIRST_FRAME_TIME = 0;
+MOUSE_MOVE  = false;
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Storage -->
         <div class="row pt-3">
           <div class="col-md-12">

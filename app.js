@@ -232,3 +232,4 @@ function makeLink(toGithub, formula) {
       : "";
   return base + "?formula=" + window.btoa(formula) + "&play";
 }
+
