@@ -15,7 +15,8 @@
     <link rel="stylesheet" href="style.css">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
- 
+  </head>
+  
   <body class="p-md-3 p-1 mr-3 mr-md-0">
     
     <h1>MathVue</h1>
@@ -123,10 +124,12 @@ mouseY, etc. may be used.
 In addition to the coordinates in the parametric space (x and y),
 which are passed as arguments to rgb() or hsb(), the u and v
 variables are also available, giving the coordinates of the current
-pixel in the canvas space.</pre>
+pixel in the canvas space.
+                    </pre>
                   </div>
                   <div class="col">
-                    <pre>Note also that the following function may be redefined:
+                    <pre>
+Note also that the following function may be redefined:
 - bool preDraw(t) {} .... called before a frame is drawn: if it returns
                             true, the frame is drawn.
 - void postDraw(t) {} ... called after a frame is drawn
@@ -163,13 +166,14 @@ FRAMES = 0;           Y_MAX = 1/RATIO;
 CLICK_PAUSE = false;  TIME_INCREMENT   = 0;
 OUT_PAUSE   = true;   FIRST_FRAME_TIME = 0;
 MOUSE_MOVE  = false;
+                    </pre>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
+        
         <!-- Storage -->
         <div class="row pt-3">
           <div class="col-md-12">
@@ -182,96 +186,118 @@ MOUSE_MOVE  = false;
               <td class="pl-2 pb-2">Link to current page, with formula as URL. Can be bookmarked.</td>
             </tr>
             
-            <!-- tr>
-                 <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="linkToGithub"
-                                           target="_blank">Github Link <i class="fas fa-external-link-alt"></i></a> </td>
-            <td class="pl-2 pb-2">Link to Github preview page, with formula as URL. Can be bookmarked.</td>
-          </tr -->
-
-          <!-- Dropbox -->
-          <tr>
-            <td class="align-top">
-              <div v-if="dropboxLoggedIn && dropboxDisplayname">
-                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSaveDialog">
-                  Save to Dropbox
-                </span><br/>
-                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoadDialog">
-                  Load from Dropbox
-                </span>
-              </div>
-              <div v-if="!dropboxLoggedIn || !dropboxDisplayname">
-                <span class="badge badge-pill badge-disabled">
-                  Save to Dropbox
-                </span><br/>
-                <span class="badge badge-pill badge-disabled">
-                  Load from to Dropbox
-                </span>
-              </div>
-            </td>
-            
-            <td class="pl-2 pb-2">
-              <div v-if="dropboxLoggedIn">
-                <div v-if="dropboxDisplayname">
-                  <img style="height: 20px" v-bind:src="dropboxProfilePhotoUrl">
-
-                  <small>
-                  {{dropboxDisplayname}}
-                  </small>
-                  |
-                  <small>
-                    <a href="https://www.dropbox.com/home/Apps/MathVue" target="_blank">
-                      MathVue folder <i class="fas fa-external-link-alt"></i></a>
-                  </small>
-                  |
-                  <small>
-                    <div class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLogout">
-                      Logout
-                    </div>
-                  </small>
-
+            <!-- Dropbox -->
+            <tr>
+              <td class="align-top">
+                <div v-if="dropboxLoggedIn && dropboxDisplayname">
+                  <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSaveDialog">
+                    Save to Dropbox
+                  </span><br/>
+                  <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoadDialog">
+                    Load from Dropbox
+                  </span>
                 </div>
-                <div v-if="!dropboxDisplayname" style="display: inline-block;" class="progress">
-                  <div class="progress-bar progress-bar-striped progress-bar-animated"
-                       role="progressbar" style="width: 100%; padding: 0 10px;">
-                    Getting account infos...
+                <div v-if="!dropboxLoggedIn || !dropboxDisplayname">
+                  <span class="badge badge-pill badge-disabled">
+                    Save to Dropbox
+                  </span><br/>
+                  <span class="badge badge-pill badge-disabled">
+                    Load from to Dropbox
+                  </span>
+                </div>
+              </td>
+              
+              <td class="pl-2 pb-2">
+                <div v-if="dropboxLoggedIn">
+                  <div v-if="dropboxDisplayname">
+                    <img style="height: 20px" v-bind:src="dropboxProfilePhotoUrl">
+                    
+                    <small>
+                      {{dropboxDisplayname}}
+                    </small>
+                    |
+                    <small>
+                      <a href="https://www.dropbox.com/home/Apps/MathVue" target="_blank">
+                        MathVue folder <i class="fas fa-external-link-alt"></i></a>
+                    </small>
+                    |
+                    <small>
+                      <div class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLogout">
+                        Logout
+                      </div>
+                    </small>
+                    
+                  </div>
+                  <div v-if="!dropboxDisplayname" style="display: inline-block;" class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                         role="progressbar" style="width: 100%; padding: 0 10px;">
+                      Getting account infos...
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div v-if="!dropboxLoggedIn && dropboxAllowed">
-                Please
-                <a class="badge badge-pill badge-default" v-bind:href="dropboxLoginUrl">Login to Dropbox</a>
-                to access your Dropbox account.
-              </div>
-              <div v-if="!dropboxAllowed">
-                Cannot access Dropbox when running from file://
-              </div>
-            </td>
-          </tr>
-          
-          <tr>
-            <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
-            <td class="pl-2 pb-2 text-ghosted">Grab and save image</td>
-          </tr>
+                <div v-if="!dropboxLoggedIn && dropboxAllowed">
+                  Please
+                  <a class="badge badge-pill badge-default" v-bind:href="dropboxLoginUrl">Login to Dropbox</a>
+                  to access your Dropbox account.
+                </div>
+                <div v-if="!dropboxAllowed">
+                  Cannot access Dropbox when running from file://
+                </div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
+              <td class="pl-2 pb-2 text-ghosted">Grab and save image</td>
+            </tr>
 
-          <tr>
-            <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
-            <td class="pl-2 pb-2 text-ghosted">Save as animated GIF</td>
-          </tr>
+            <tr>
+              <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
+              <td class="pl-2 pb-2 text-ghosted">Save as animated GIF</td>
+            </tr>
 
-          <tr>
-            <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
-            <td class="pl-2 pb-2 text-ghosted">Save as Processing sketch (PDE)</td>
-          </tr>
+            <tr>
+              <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
+              <td class="pl-2 pb-2 text-ghosted">Save as Processing sketch (PDE)</td>
+            </tr>
 
-          <tr>
-            <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
-            <td class="pl-2 pb-2 text-ghosted">Save as standalone HTML5 page or snippet</td>
-          </tr>
+            <tr>
+              <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
+              <td class="pl-2 pb-2 text-ghosted">Save as standalone HTML5 page or snippet</td>
+            </tr>
+          </table>
 
         </div>
-      </div>
+
+        <!-- Discussion -->
+        <div class="row pt-3">
+          <div class="col-md-12">
+            <h2>Discussion</h2>
+            <!-- Disqus -->
+            <div id="disqus_thread"></div>
+            <script>
+              /**
+              *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+              *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+              /*
+              var disqus_config = function () {
+              this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+              this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+              };
+              */
+              (function() { // DON'T EDIT BELOW THIS LINE
+              var d = document, s = d.createElement('script');
+              s.src = 'https://mathvue.disqus.com/embed.js';
+              s.setAttribute('data-timestamp', +new Date());
+              (d.head || d.body).appendChild(s);
+              })();
+            </script>
+          </div>
+        </div>
+        
+      </div>  
     </div>
-    
+
     <!-- jQuery first, then Tether, then Bootstrap JS. -->
     <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" crossorigin="anonymous"></script>
@@ -294,6 +320,9 @@ MOUSE_MOVE  = false;
     <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
     <script src="file_dialog.js"></script>
     <script src="app.js"></script>
+
+    <noscript>Please enable JavaScript for MathVue to work.</noscript>
+    <script id="dsq-count-scr" src="//mathvue.disqus.com/count.js" async></script>
     
   </body>
 </html>
