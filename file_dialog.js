@@ -2,7 +2,7 @@
  * Mini Vue.js app for file dialogs
  */
 
-var makeFileDialogVue = function(dialog, entries, ending, onChanged, onReady, onItemSelected) {
+function makeFileDialogVue(dialog, entries, ending, onChanged, onReady, onItemSelected) {
     return new Vue({
       el: '#fileDialog',
       

@@ -1,14 +1,10 @@
 const express = require('express');
 const https = require("https");
 const app = express()
-
 const request = require('request');
 
+const message = 'MathVue app (a Node.js backend) listening on port 3001!';
 
-app.get('/hello', (req, res) => res.send('==> Hello World!\n'));
-
-//app.get('/*', (req, res) => res.send(`==> accessed ${req.url}\n`));
-
+// This server just serves the static files. So it does almost nothing.
 app.use(express.static('.'));
-
-app.listen(3001, () => console.log('MathVue app (a Node.js backend) listening on port 3001!'));
+app.listen(3001, () => console.log(message));

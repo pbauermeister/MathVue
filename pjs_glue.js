@@ -2,8 +2,13 @@
  * Glue to Processing.js
  */
 
-// default formula
-var defaultFormula = `
+var ProcessingJsAdaptor = function() {
+
+  //
+  // Default formula, embeded one, or retrieved from browser storage
+  //
+  
+  this.defaultFormula = `
 WIDTH = 300;
 RATIO = 1;
 X_MIN = -20; X_MAX = 20;
@@ -18,73 +23,78 @@ color hsb(x, y) {
   float hue = shift * 255;
 
   return color(hue, 255, bright);
-}
-`.trim();
+}`.trim();
 
-// try to retrieve from browser storage
-try {
-  autoSavedFormula = localStorage.getItem("mathvue_autosavedformula");
-  if (autoSavedFormula && autoSavedFormula.trim()) {
-    defaultFormula = autoSavedFormula;
-  }
-} catch(e) {}
-
-function saveFormula(text) {
+  // try to retrieve from browser storage
   try {
-    localStorage.setItem("mathvue_autosavedformula", text.trim());
+    autoSavedFormula = localStorage.getItem("mathvue_autosavedformula");
+    if (autoSavedFormula && autoSavedFormula.trim()) {
+      this.defaultFormula = autoSavedFormula;
+    }
   } catch(e) {}
-}
 
-//
-// Processing stuff
-//
-var processingInstance = null;
-
-function loadSketch(formula) {
-  // assemble a full PDE out of the user formula and mathvision template
-  var patt = new RegExp("Start of user formula @@@(.|\n)*?"+
-                        "End of user formula @@@", "gm");
-  // TODO: clean formula from code injection and remove /*...*/ comments
-  var text = "Start of user formula @@@\n"+ formula +
-      "\n// End "+"of user formula @@@";
-
-  // compile it by Processing.js
-  var code = mathVisionTemplate.replace(patt, text); // TODO: use function to avoid \1
-  var sketch = Processing.compile(code);
-  var canvas = document.getElementById("mathvisionCanvas");
-
-  // remove border
-  canvas.setAttribute("style", "border:none; max-width:100%");
+  //
+  // Save formula into browser storage
+  //
   
-  // (re)load processing on canvas
-  if(processingInstance) {
-    processingInstance.exit();  // cleanup
+  this.saveFormula = function(text) {
+    try {
+      localStorage.setItem("mathvue_autosavedformula", text.trim());
+    } catch(e) {}
   }
-  try {
-    processingInstance = new Processing(canvas, sketch);
-    processingInstance.loop();
-  }
-  catch (e){
-    alert(e);
-  }
-}
 
-function switchSketchState(on) {
-  if (!processingInstance) {
-    processingInstance = Processing.getInstanceById('sketch');
-  }
+  //
+  // Processing stuff
+  //
+  this.processingInstance = null;
+
+  this.loadSketch = function(formula) {
+    // assemble a full PDE out of the user formula and mathvision template
+    var patt = new RegExp("Start of user formula @@@(.|\n)*?"+
+                          "End of user formula @@@", "gm");
+    // TODO: clean formula from code injection and remove /*...*/ comments
+    var text = "Start of user formula @@@\n"+ formula +
+        "\n// End "+"of user formula @@@";
+
+    // compile it by Processing.js
+    var code = mathVisionTemplate.replace(patt, text); // TODO: use function to avoid \1
+    var sketch = Processing.compile(code);
+    var canvas = document.getElementById("mathvisionCanvas");
+    
+    // remove border
+    canvas.setAttribute("style", "border:none; max-width:100%");
+    
+    // (re)load processing on canvas
+    if(this.processingInstance) {
+      this.processingInstance.exit();  // cleanup
+    }
+    try {
+      this.processingInstance = new Processing(canvas, sketch);
+      this.processingInstance.loop();
+    }
+    catch (e){
+      alert(e);
+    }
+  };
+
+  this.switchSketchState = function(on) {
+    if (!this.processingInstance) {
+      this.processingInstance = Processing.getInstanceById('sketch');
+    }
   
-  if (on) {
-    processingInstance.loop();  // call Processing loop() function
-  } else {
-    processingInstance.noLoop(); // stop animation, call noLoop()
-  }
-}
+    if (on) {
+      this.processingInstance.loop();  // call Processing loop() function
+    } else {
+      this.processingInstance.noLoop(); // stop animation, call noLoop()
+    }
+  };
 
-function grabImage() {
-  var name = "mathvisionCanvas";
-  var canvas = document.getElementById(name);
-  var image = canvas.toDataURL('image/png');
-  var b64Data = image.replace(/^data:image\/(png|jpg);base64,/, '');
-  return b64Data;
+  this.grabImage = function() {
+    var name = "mathvisionCanvas";
+    var canvas = document.getElementById(name);
+    var image = canvas.toDataURL('image/png');
+    var b64Data = image.replace(/^data:image\/(png|jpg);base64,/, '');
+    return b64Data;
+  };
+
 }

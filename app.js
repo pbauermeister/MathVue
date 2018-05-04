@@ -2,7 +2,7 @@
  * Vue.js app.
  */
 
-deparam = function(querystring) {
+var deparam = function(querystring) {
   // remove any preceding url and split
   querystring = querystring.substring(querystring.indexOf('?')+1).split('&');
   var params = {}, pair, d = decodeURIComponent, i;
@@ -22,6 +22,8 @@ var router = new VueRouter({
   routes: []
 });
 
+var pjs = new ProcessingJsAdaptor();
+
 var app = new Vue({
   router,
   el: '#app',
@@ -31,8 +33,8 @@ var app = new Vue({
     formula: null,
     running: false,
     started: false,
-    link: makeLink(false, defaultFormula),
-    linkToGithub: makeLink(true, defaultFormula),
+    link: makeLink(false, pjs.defaultFormula),
+    linkToGithub: makeLink(true, pjs.defaultFormula),
 
     dropbox: new DropboxStorage(),
     dropboxAllowed: true,
@@ -55,12 +57,12 @@ var app = new Vue({
     run: function(event) {
       this.running = true;
       this.started = true;
-      loadSketch(this.formula);
+      pjs.loadSketch(this.formula);
     },
 
     pause: function(event) {
       this.running = false;
-      switchSketchState(false);
+      pjs.switchSketchState(false);
     },
 
     resume: function(event) {
@@ -68,7 +70,7 @@ var app = new Vue({
         this.run();
       } else {
         this.running = true;
-        switchSketchState(true);
+        pjs.switchSketchState(true);
       }
     },
 
@@ -81,7 +83,7 @@ var app = new Vue({
       if (!this.started) {
         this.runOneFrame();
       }
-      return grabImage();
+      return pjs.grabImage();
     },
     
     fullScreen: function(event) {
@@ -107,7 +109,7 @@ var app = new Vue({
     onInput: function() {
       this.link = makeLink(false, this.formula);
       this.linkToGithub = makeLink(true, this.formula);
-      saveFormula(this.formula);
+      pjs.saveFormula(this.formula);
     },
 
     //
@@ -173,7 +175,7 @@ var app = new Vue({
         busy.close();
         this.formula = data; // <== bim!
         this.runOneFrame();
-        saveFormula(this.formula);
+        pjs.saveFormula(this.formula);
       }.bind(this), function(error) {
         busy.close();
         this._dropboxError(error);
@@ -190,7 +192,7 @@ var app = new Vue({
     if (this.$route.query.formula) {
       this.formula =  window.atob(this.$route.query.formula);
     } else {
-      this.formula = defaultFormula;
+      this.formula = pjs.defaultFormula;
     }
     var play = typeof this.$route.query.play !== "undefined";
     // hash
