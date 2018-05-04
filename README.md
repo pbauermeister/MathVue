@@ -10,8 +10,8 @@ Re-implementation of [MathVision](https://github.com/pbauermeister/MathVision) w
 There is no backend. Sharing formulas will be done using APIs of cloud file hosting services (e.g. Dropbox).
 
 ## To try it
-1. Visit https://rawgit.com/pbauermeister/MathVue/master/index.html
-2. Click the Play button to play the default formula.
+1. Visit https://mathvue.com/
+2. Click the Play button to play the boring default formula.
 
 You can also try this formula:
 ```
