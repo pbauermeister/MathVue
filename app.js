@@ -157,6 +157,17 @@ var app = new Vue({
       );
     },
 
+    dropboxLoadSampleDialog: function() {
+      var busy = this.fileDialog.showBusyDialog('Reading files list...');
+      this.dropbox.listPublicFolder(null, function(entries) {
+        busy.close();
+        this.fileDialog.openFileGallery(entries, this.dropboxLoadFileGallery);
+      }.bind(this), function(error) {
+        busy.close();
+        this._dropboxError(error);
+      }.bind(this));
+    },
+
     dropboxLoadDialog: function() {
       var busy = this.fileDialog.showBusyDialog('Reading files list...');
       this.dropbox.listFolder(null, function(entries) {
@@ -181,6 +192,20 @@ var app = new Vue({
         this._dropboxError(error);
       }.bind(this));
     },
+
+    dropboxLoadFileGallery: function(entry) {
+      var busy = this.fileDialog.showBusyDialog('Loading file...');
+      this.dropbox.downloadFilePublic(entry.formula_url, function(data) {
+        busy.close();
+        this.formula = data.formula; // <== bim!
+        this.runOneFrame();
+        pjs.saveFormula(this.formula);
+      }.bind(this), function(error) {
+        busy.close();
+        this._dropboxError(error);
+      }.bind(this));
+    },
+
   },
 
   mounted() {

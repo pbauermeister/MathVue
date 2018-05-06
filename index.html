@@ -189,11 +189,23 @@ MOUSE_MOVE  = false;
           </div>
 
           <table class="ml-3" style="width:95%">
-            <tr>
-              <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="link">Link</a> </td>
-              <td class="pl-2 pb-2">Link to current page, with formula as URL. Can be bookmarked.</td>
-            </tr>
             
+            <!-- Dropbox public -->
+            <tr>
+              <td class="align-top">
+                  <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoadSampleDialog">
+                    Load sample
+                  </span>
+                </div>
+              </td>
+              
+              <td class="pl-2 pb-2">
+                <div>
+                  Public samples.
+                </div>
+              </td>
+            </tr>
+
             <!-- Dropbox -->
             <tr>
               <td class="align-top">
@@ -263,7 +275,12 @@ MOUSE_MOVE  = false;
             <h2>Export</h2>
           </div>
 
-	  <table>
+          <table class="ml-3" style="width:95%">
+            <tr>
+              <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="link">Link</a> </td>
+              <td class="pl-2 pb-2">Link to current page, with formula as URL. Can be bookmarked.</td>
+            </tr>
+
             <tr>
               <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
               <td class="pl-2 pb-2 text-ghosted">Grab and save image</td>

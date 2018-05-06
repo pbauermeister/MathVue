@@ -24,7 +24,7 @@ function makeFileDialogVue(dialog, entries, ending, onChanged, onReady, onItemSe
       },
       
       mounted() {
-        onReady();
+        onReady && onReady();
       }
     });
 };
@@ -83,11 +83,49 @@ function FileDialog(ending) {
           makeFileDialogVue(
             that,
             entries,
-            ending,
+            that.ending,
             null,
             function() {
               storageManager.thumbnailsLoader(entries, that.ending, that.thumbnailHandler);
             },
+            function(entry, app) {
+              dlg.close();
+              onItemSelected(entry);
+            });
+        }, 100);
+      }
+    });
+    dlg.getModal().removeClass('fade');
+  };
+
+  this.openFileGallery = function(entries, onItemSelected) {
+    var that = this;
+    var dlg = BootstrapDialog.show({
+      animate: false,
+      title: 'Dropbox - Load gallery file',
+      message: '<div id="fileDialog" class="dialog-file-load-list">' +
+        '         <div v-cloak>' +
+        '           <button v-for="entry in entries"' +
+        '                   class="btn btn-sm button-list-item"' +
+        '                   v-on:click="loadClicked(entry)">' +
+        '             <div class="float-left  button-list-item-text">{{ entry.name }}</div>' +
+        '             <div class="float-right button-list-item-image">' +
+        '               <img style="height: 32px" v-bind:src="entry.thumb_url">' +
+        '             </div>' +
+        '           </button>' +
+        '           <div v-if="!entries.length" class="dialog-file-empty">No files found</div>' +
+        '         </div>' +
+        '       </div>',
+      onshow: function() {
+        vueStarted = true;
+        setTimeout(function() {
+          // hack: run after dialog really created
+          makeFileDialogVue(
+            that,
+            entries,
+            that.ending,
+            null,
+            null,
             function(entry, app) {
               dlg.close();
               onItemSelected(entry);

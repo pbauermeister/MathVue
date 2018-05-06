@@ -64,9 +64,26 @@ function DropboxStorage() {
         if (response.data.has_more)
           that.listFolder(response.data.cursor, onResponse, onError, entries)
         else {
-          var entries = entries.sort((a, b) => a.path_display > b.path_display);
+          var entries = entries.sort((a, b) => a.path_display.toUpperCase() > b.path_display.toUpperCase());
           onResponse(entries);
         }
+      },
+      (error) => {
+        onError(error);
+      });
+  };
+
+  this.listPublicFolder = function(cursor, onResponse, onError, entries) {
+    var that = this;
+    var params = {
+      method: 'GET',
+      url: '/api/gallery',
+    };
+    axios(params).then(
+      (response) => {
+        var entries = response.data.entries.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase());
+        console.log(entries);
+        onResponse(entries);
       },
       (error) => {
         onError(error);
@@ -110,6 +127,21 @@ function DropboxStorage() {
         'Dropbox-API-Arg': JSON.stringify({path: id}),
       },
     };
+    axios(params).then(
+      (response) => {
+        onResponse(response.data);
+      },
+      (error) => {
+        onError(error);
+      });
+  };
+
+  this.downloadFilePublic = function(url, onResponse, onError) {
+    var params = {
+      method: 'GET',
+      url: '/api/gallery/url/' + encodeURIComponent(url),
+    };
+    console.log(params.url);
     axios(params).then(
       (response) => {
         onResponse(response.data);
