@@ -182,33 +182,42 @@ MOUSE_MOVE  = false;
           </div>
         </div>
         
+        <!-- Gallery -->
+        <!-- TODO no link to dialog, bur list of thumbnails-->
+        <div class="row pt-3">
+          <div class="col-md-12">
+            <h2>Gallery</h2>
+          </div>
+
+          <div class="container ml-2 pl-2">
+
+            <!-- Dropbox public -->
+            <div class="row">
+              <div class="col-3">
+                <span class="badge badge-pill badge-default"
+                      style="cursor:pointer"
+                      v-on:click="dropboxLoadSampleDialog">Load sample</span>
+              </div>
+              <div class="col-9">
+                Public samples.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- Storage -->
         <div class="row pt-3">
           <div class="col-md-12">
             <h2>Storage</h2>
           </div>
 
-          <table class="ml-3" style="width:95%">
-            
-            <!-- Dropbox public -->
-            <tr>
-              <td class="align-top">
-                  <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoadSampleDialog">
-                    Load sample
-                  </span>
-                </div>
-              </td>
-              
-              <td class="pl-2 pb-2">
-                <div>
-                  Public samples.
-                </div>
-              </td>
-            </tr>
+          <div class="container ml-2 pl-2">
 
-            <!-- Dropbox -->
-            <tr>
-              <td class="align-top">
+            <!-- Dropbox account -->
+            <div class="row">
+              <div class="col-3">
+                <!-- buttons when logged in -->
                 <div v-if="dropboxLoggedIn && dropboxDisplayname">
                   <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSaveDialog">
                     Save to Dropbox
@@ -217,6 +226,7 @@ MOUSE_MOVE  = false;
                     Load from Dropbox
                   </span>
                 </div>
+                <!-- buttons when logged out -->
                 <div v-if="!dropboxLoggedIn || !dropboxDisplayname">
                   <span class="badge badge-pill badge-disabled">
                     Save to Dropbox
@@ -225,9 +235,9 @@ MOUSE_MOVE  = false;
                     Load from to Dropbox
                   </span>
                 </div>
-              </td>
-              
-              <td class="pl-2 pb-2">
+              </div>
+              <div class="col-9">
+                <!-- links when logged in -->
                 <div v-if="dropboxLoggedIn">
                   <div v-if="dropboxDisplayname">
                     <img style="height: 20px" v-bind:src="dropboxProfilePhotoUrl">
@@ -255,53 +265,75 @@ MOUSE_MOVE  = false;
                     </div>
                   </div>
                 </div>
+                <!-- login link when logged out -->
                 <div v-if="!dropboxLoggedIn && dropboxAllowed">
                   Please
                   <a class="badge badge-pill badge-default" v-bind:href="dropboxLoginUrl">Login to Dropbox</a>
                   to access your Dropbox account.
                 </div>
+                <!-- hint when noi Dropbox possible -->
                 <div v-if="!dropboxAllowed">
                   Cannot access Dropbox when running from file://
                 </div>
-              </td>
-            </tr>
-	  </table>
+              </div>
+            </div>
+          </div>
 
 	</div>
-        
+
         <!-- Exports -->
         <div class="row pt-3">
           <div class="col-md-12">
             <h2>Export</h2>
           </div>
 
-          <table class="ml-3" style="width:95%">
-            <tr>
-              <td class="align-top"> <a class="badge badge-pill badge-default" v-bind:href="link">Link</a> </td>
-              <td class="pl-2 pb-2">Link to current page, with formula as URL. Can be bookmarked.</td>
-            </tr>
+          <div class="container ml-2 pl-2">
 
-            <tr>
-              <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
-              <td class="pl-2 pb-2 text-ghosted">Grab and save image</td>
-            </tr>
-
-            <tr>
-              <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
-              <td class="pl-2 pb-2 text-ghosted">Save as animated GIF</td>
-            </tr>
-
-            <tr>
-              <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
-              <td class="pl-2 pb-2 text-ghosted">Save as Processing sketch (PDE)</td>
-            </tr>
-
-            <tr>
-              <td class="pl-2 pb-2 text-ghosted">- Coming soon -</td>
-              <td class="pl-2 pb-2 text-ghosted">Save as standalone HTML5 page or snippet</td>
-            </tr>
-          </table>
-
+            <div class="row">
+              <div class="col-3">
+                <a class="badge badge-pill badge-default" v-bind:href="link">Link</a>
+              </div>
+              <div class="col-9">
+                Link to current page, with formula as URL. Can be bookmarked.
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-3">
+                - Coming soon -
+              </div>
+              <div class="col-9">
+                Grab and save image
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-3">
+                - Coming soon -
+              </div>
+              <div class="col-9">
+                Save as animated GIF
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-3">
+                - Coming soon -
+              </div>
+              <div class="col-9">
+                Save as Processing sketch (PDE)
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-3">
+                - Coming soon -
+              </div>
+              <div class="col-9">
+                Save as standalone HTML5 page or snippet
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Discussion -->
@@ -330,7 +362,7 @@ MOUSE_MOVE  = false;
           </div>
         </div>
         
-      </div>  
+      </div>
     </div>
 
     <!-- jQuery first, then Tether, then Bootstrap JS. -->
