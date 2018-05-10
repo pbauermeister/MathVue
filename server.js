@@ -5,6 +5,7 @@ const request = require('request');
 const util = require('util');
 var exec = require('child_process').exec;
 
+////////////////////////////////////////////////////////////////////////////////
 
 //
 // logging
@@ -40,6 +41,17 @@ Array.prototype.unique = function() {
   });
 };
 
+const END_OF_EXT = '(?=[?\'])';
+const FILE_NAME = '[^\'"\\:#]+[.]';
+function mkUrlRegExp(ext) {
+  return new RegExp(GALLERY_PAGE_URL_BASE + FILE_NAME + ext + END_OF_EXT, 'g');
+}
+
+function rxMatches(text, rx) {
+  var matches = text.match(rx);
+  return matches ? matches.unique() : [];
+}
+
 //
 // Dropbox endpoints
 //
@@ -50,8 +62,8 @@ Array.prototype.unique = function() {
 // It is implemented this way in the backend because the API does not
 // work as needed for public folders.
 //
-const GALLERY_FORMULA_RX = new RegExp(GALLERY_PAGE_URL_BASE + '[^\'"\\:#]+[.]' + EXT_FORMULA, 'g');
-const GALLERY_THUMB_RX = new RegExp(GALLERY_PAGE_URL_BASE + '[^\'"\\:#]+[.]' + EXT_THUMB, 'g');
+const GALLERY_FORMULA_RX = mkUrlRegExp(EXT_FORMULA);
+const GALLERY_THUMB_RX = mkUrlRegExp(EXT_THUMB);
 app.get('/api/gallery', async function(req, res) {
   var options = {
     host: 'www.dropbox.com',
@@ -65,9 +77,13 @@ app.get('/api/gallery', async function(req, res) {
       bodyChunks.push(chunk);
     }).on('end', function() {
       var body = "" + Buffer.concat(bodyChunks);
+      //console.log("----------------------");
+      //console.log(body);
+      //console.log("----------------------");
+
       // formula and thumbnail urls
-      var formula_matches = body.match(GALLERY_FORMULA_RX).unique();
-      var thumb_matches = body.match(GALLERY_THUMB_RX).unique();      
+      var formula_matches = rxMatches(body, GALLERY_FORMULA_RX);
+      var thumb_matches = rxMatches(body, GALLERY_THUMB_RX);
       // assemble items list
       var entries = formula_matches.map(function(formula) {
         // look for corresponding thumb
