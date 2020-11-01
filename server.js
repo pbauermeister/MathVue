@@ -4,6 +4,12 @@ const app = express()
 const request = require('request');
 const util = require('util');
 var exec = require('child_process').exec;
+var execFile = require('child_process').execFile;
+
+const exec_async = util.promisify(require('child_process').exec);
+
+const bodyParser = require('body-parser');
+const jsonParser = bodyParser.json()
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -127,6 +133,50 @@ app.get('/api/gallery/url/:url', async function(req, res) {
       res.send({formula: stdout});
     }
   });
+});
+
+//
+// Webassembly endpoints
+//
+
+app.post('/api/compile_wasm', jsonParser, async function(req, res) {
+  console.log('compile_wasm');
+  let code = req.body.code;
+  //console.log(code);
+
+  execFile('./compile.py', [code], (error, stdout, stderr) => {
+    console.log(`compile: stdout: ${stdout}`);
+    if (stderr) {
+      console.error(`compile: stderr: ${stderr}`);
+    }
+    if (error) {
+      console.error(`compile: error: ${error.message}`);
+      res.status(500);
+      res.send(JSON.stringify({success:false, error, stdout, stderr}));
+      return;
+    }
+    res.send(JSON.stringify({
+      base64data: stdout.trim()
+    }));
+  });
+  return;
+
+
+  try {
+    const { err, stdout, stderr } = await exec_async('./compile.py', {input:'hello'});
+    console.log('<<< err:', err);
+    console.log('<<< stdout:', stdout);
+    console.log('<<< stderr:', stderr);
+  } catch (e) {
+    console.error(e);
+    res.status(500);
+    res.send(JSON.stringify({success:false, error:e}));
+    return;
+  }
+  res.send(JSON.stringify({
+    base64data: //'bliblablo'
+    'AGFzbQEAAAABFgRgAn9/AX9gAn9/AXxgAXwAYAF8AXwCEgEDZW52Bm1lbW9yeQIBgAKAAgMFBAMCAQAHEwIFX2luaXQAAwdfcmVuZGVyAAEKowUEKQAgAEQAAAAAAADgP6CcIABEAAAAAAAA4D+hmyAARAAAAAAAAAAAZhsLogMCDH8DfEGMrOgDKAIAIgZBAEoEQEGQrOgDKAIAIQdBiKzoAygCACIEQQBKIQhBlKzoAygCACEJIABEAAAAAAAAJECjRAAAAAAAQJ9AoJyqtyEOQYCs6AMrAwAhDwNAIAcgA2siBSAFbCEKIAQgA2whCyAIBEBBACEBA0AgCSABayICIAJsIApqtyIAnyENRAAAAAAAAPA/IAIgBRACRBgtRFT7IRlAo0QAAAAAAMByQKIgAEQAAAAAAAB5QKMgDaAgDqGgmSIAIABEAAAAAAAAWUCjnEQAAAAAAABZQKKhRAAAAAAAAFlAo6EiAEQAAAAAAABJQKJEAAAAAAAA8D8gDSAPo6EiDaIQAKohAiAARAAAAAAAAPA/oCAARAAAAAAAAG5AoiANRJqZmZmZmek/okSamZmZmZnJP6CiokQAAAAAAADgP6IQAKohDCABIAtqQQJ0QYAIaiAAIAAgAEQAAAAAAABeQKKioiANohAAqkEIdCACQRB0ciAMckGAgIB4cjYCACABQQFqIgEgBEcNAAsLIANBAWoiAyAGSA0ACwsLhQEBA3wgAEEAIABrIABBf0obt0S7vdfZ33zbPaAhAiABtyEDIAFBf0oEfEQYLURU+yHpPyEEIAMgAqEgAiADoKMFRNIhM3982QJAIQQgAiADoCACIAOhowsiAiACIAJE4zYawFsgyT+ioqIgAkRgdk8eFmrvP6KhIASgIgKaIAIgAEEASBsLTABBiKzoAyAANgIAQYys6AMgATYCAEGQrOgDIAFBAXUiATYCAEGUrOgDIABBAXUiADYCAEGArOgDIAEgAWwgACAAbGq3nzkDAEGACAs='
+  }));
 });
 
 //
