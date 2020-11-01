@@ -22,7 +22,9 @@ var router = new VueRouter({
   routes: []
 });
 
-var pjs = new ProcessingJsAdaptor();
+var pjs_adaptor = new ProcessingJsAdaptor();
+var pjs_formula = new ProcessingJsFormula()
+var pjs_help = new PjsHelp();
 
 var app = new Vue({
   router,
@@ -33,8 +35,8 @@ var app = new Vue({
     formula: null,
     running: false,
     started: false,
-    link: makeLink(false, pjs.defaultFormula),
-    linkToGithub: makeLink(true, pjs.defaultFormula),
+    link: makeLink(false, pjs_formula.defaultFormula),
+    linkToGithub: makeLink(true, pjs_formula.defaultFormula),
 
     dropbox: new DropboxStorage(),
     dropboxAllowed: true,
@@ -47,22 +49,23 @@ var app = new Vue({
 
     fileDialog: new FileDialog(ENDING),
     ending: ENDING,
+    help: pjs_help.html
   },
-  
+
   methods: {
     //
     // Animation methods
     //
-    
+
     run: function(event) {
       this.running = true;
       this.started = true;
-      pjs.loadSketch(this.formula);
+      pjs_adaptor.loadSketch(this.formula);
     },
 
     pause: function(event) {
       this.running = false;
-      pjs.switchSketchState(false);
+      pjs_adaptor.switchSketchState(false);
     },
 
     resume: function(event) {
@@ -70,22 +73,26 @@ var app = new Vue({
         this.run();
       } else {
         this.running = true;
-        pjs.switchSketchState(true);
+        pjs_adaptor.switchSketchState(true);
       }
     },
 
     runOneFrame: function() {
-        this.run();
-        this.pause();
+      this.run();
+      this.pause();
     },
 
     grabImage: function() {
       if (!this.started) {
         this.runOneFrame();
       }
-      return pjs.grabImage();
+      var name = "mathvisionCanvas";
+      var canvas = document.getElementById(name);
+      var image = canvas.toDataURL('image/png');
+      var b64Data = image.replace(/^data:image\/(png|jpg);base64,/, '');
+      return b64Data;
     },
-    
+
     fullScreen: function(event) {
       // full screen
       var el = document.getElementById("mathvisionCanvas");
@@ -109,7 +116,7 @@ var app = new Vue({
     onInput: function() {
       this.link = makeLink(false, this.formula);
       this.linkToGithub = makeLink(true, this.formula);
-      pjs.saveFormula(this.formula);
+      pjs_formula.save(this.formula);
     },
 
     //
@@ -120,7 +127,7 @@ var app = new Vue({
       //return entries;
       return entries.filter(entry => entry.name.endsWith('.formula'));
     },
-    
+
     _dropboxError: function(error) {
       alert('ERROR ' + error.response.status + ':\n' + JSON.stringify(error.response.data));
     },
@@ -130,7 +137,7 @@ var app = new Vue({
       this.dropboxLoggedIn = this.dropbox.isLoggedIn();
     },
 
-    dropboxSaveDialog: function() {      
+    dropboxSaveDialog: function() {
       var busy = this.fileDialog.showBusyDialog('Reading files list...');
       this.dropbox.listFolder(null, function(entries) {
         busy.close();
@@ -186,7 +193,7 @@ var app = new Vue({
         busy.close();
         this.formula = data; // <== bim!
         this.runOneFrame();
-        pjs.saveFormula(this.formula);
+        pjs_formula.save(this.formula);
       }.bind(this), function(error) {
         busy.close();
         this._dropboxError(error);
@@ -199,7 +206,7 @@ var app = new Vue({
         busy.close();
         this.formula = data.formula; // <== bim!
         this.runOneFrame();
-        pjs.saveFormula(this.formula);
+        pjs_formula.save(this.formula);
       }.bind(this), function(error) {
         busy.close();
         this._dropboxError(error);
@@ -212,12 +219,12 @@ var app = new Vue({
     this.dropboxAllowed = !window.location.href.startsWith('file:');
     this.dropboxLoginUrl = this.dropbox.getLoginUrl();
     this.dropboxLoggedIn = this.dropbox.isLoggedIn();
-    
+
     // query
     if (this.$route.query.formula) {
       this.formula =  window.atob(this.$route.query.formula);
     } else {
-      this.formula = pjs.defaultFormula;
+      this.formula = pjs_formula.defaultFormula;
     }
     var play = typeof this.$route.query.play !== "undefined";
     // hash

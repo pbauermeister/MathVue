@@ -61,7 +61,7 @@
     height: 300px;
     height: calc(100vh - 300px);
     background: #e2e2e2;
-    
+
     max-height: 300px;
     max-height: calc(100vh - 300px);
 
@@ -140,4 +140,56 @@ input[type='checkbox'] {
 .toggle:checked + .lbl-toggle {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
+}
+
+table {
+    width: 100%;
+}
+
+.md table {
+    margin: 0 0 8px 0;
+}
+
+.md tr {
+    border-bottom: 1px solid #eee;
+}
+
+.md td {
+    padding: 1px 0 1px 0;
+}
+
+.md p {
+    margin-top: 0.7rem;
+    margin-bottom: 0.3rem;
+}
+
+.md h5 {
+    margin: 16px 0 8px 0;
+}
+
+.md pre {
+    padding: .2rem .4rem;
+    font-size: 90%;
+    color: #bd4147;
+    background-color: #f7f7f9;
+    border-radius: .25rem;
+}
+
+.md td code {
+    white-space: nowrap;
+}
+
+.columns-1 {
+    column-count: 1;
+    column-gap: 40px;
+}
+
+.columns-2 {
+    column-count: 2;
+    column-gap: 40px;
+}
+
+.columns-3 {
+    column-count: 3;
+    column-gap: 40px;
 }
