@@ -14,178 +14,33 @@ var app = new Vue({
 
   data: {
     program_nr: 0,
-    // Contains the actual webassembly
-    base64data: 'AGFzbQEAAAABFgRgAn9/AX9gAn9/AXxgAXwAYAF8AXwCEgEDZW52Bm1lbW9yeQIBgAKAAgMFBAMCAQAHEwIFX2luaXQAAwdfcmVuZGVyAAEKowUEKQAgAEQAAAAAAADgP6CcIABEAAAAAAAA4D+hmyAARAAAAAAAAAAAZhsLogMCDH8DfEGMrOgDKAIAIgZBAEoEQEGQrOgDKAIAIQdBiKzoAygCACIEQQBKIQhBlKzoAygCACEJIABEAAAAAAAAJECjRAAAAAAAQJ9AoJyqtyEOQYCs6AMrAwAhDwNAIAcgA2siBSAFbCEKIAQgA2whCyAIBEBBACEBA0AgCSABayICIAJsIApqtyIAnyENRAAAAAAAAPA/IAIgBRACRBgtRFT7IRlAo0QAAAAAAMByQKIgAEQAAAAAAAB5QKMgDaAgDqGgmSIAIABEAAAAAAAAWUCjnEQAAAAAAABZQKKhRAAAAAAAAFlAo6EiAEQAAAAAAABJQKJEAAAAAAAA8D8gDSAPo6EiDaIQAKohAiAARAAAAAAAAPA/oCAARAAAAAAAAG5AoiANRJqZmZmZmek/okSamZmZmZnJP6CiokQAAAAAAADgP6IQAKohDCABIAtqQQJ0QYAIaiAAIAAgAEQAAAAAAABeQKKioiANohAAqkEIdCACQRB0ciAMckGAgIB4cjYCACABQQFqIgEgBEcNAAsLIANBAWoiAyAGSA0ACwsLhQEBA3wgAEEAIABrIABBf0obt0S7vdfZ33zbPaAhAiABtyEDIAFBf0oEfEQYLURU+yHpPyEEIAMgAqEgAiADoKMFRNIhM3982QJAIQQgAiADoCACIAOhowsiAiACIAJE4zYawFsgyT+ioqIgAkRgdk8eFmrvP6KhIASgIgKaIAIgAEEASBsLTABBiKzoAyAANgIAQYys6AMgATYCAEGQrOgDIAFBAXUiATYCAEGUrOgDIABBAXUiADYCAEGArOgDIAEgAWwgACAAbGq3nzkDAEGACAs=',
-    code: `
-#include <math.h>
-#include <stdlib.h>
-#include <emscripten.h>
-#include <stdio.h>
-
-int height;
-int width;
-int pixelCount;
-int factor;
-
-/*
-We'll cheat a bit and just allocate loads of memory
-so we don't have to implement malloc
-*/
-int data[2000000];
-
-int* EMSCRIPTEN_KEEPALIVE init(int cWidth, int cHeight, int cFactor) {
-  factor = cFactor;
-  width = cWidth;
-  height = cHeight;
-  pixelCount = width * height;
-  // data = malloc(pixelCount * sizeof(int));
-  return &data[0];
-}
-
-void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
-  for (int y = 0; y < height; y++) {
-    int yw = y * width;
-    for (int x = 0; x < width; x++) {
-      int xx = factor > 0 ? x + (int)timestamp : (int)timestamp - x;
-      data[yw + x] =
-        (255 << 24)      |   // A
-        ((xx%256) << 16) |   // B
-        ((y%256) <<  8)  |   // G
-        (xx+y)%256;          // R
-    }
-  }
-}
-
-`,
-    code: `
-#include <math.h>
-#include <stdlib.h>
-#include <emscripten.h>
-
-int height;
-int width;
-int pixelCount;
-
-#define PI 3.14159265358979323846
-#define TWO_PI (PI*2)
-
-#define min(a, b)  ((a) > (b) ? (b) : (a))
-#define max(a, b)  ((a) > (b) ? (a) : (b))
-
-#define COEFF_1 0.7853981633974483
-#define COEFF_2 2.356194490192345
-double customAtan2(float y, float x) {
-  double abs_y = fabs(y) + 1e-10;
-  double angle;
-  if (x >= 0) {
-    double r = (x - abs_y) / (x + abs_y);
-    angle = 0.1963 * r * r * r - 0.9817 * r + COEFF_1;
-  } else {
-    double r = (x + abs_y) / (abs_y - x);
-    angle = 0.1963 * r * r * r - 0.9817 * r + COEFF_2;
-  }
-  return y < 0 ? -angle : angle;
-}
-
-/*
-We'll cheat a bit and just allocate loads of memory
-so we don't have to implement malloc
-*/
-int data[2000000];
-
-int* EMSCRIPTEN_KEEPALIVE init(int cWidth, int cHeight, int cFactor) {
-  width = cWidth;
-  height = cHeight;
-  pixelCount = width * height;
-  // data = malloc(pixelCount * sizeof(int));
-  return &data[0];
-}
-
-//WIDTH = 600; RATIO = 2;
-const double X_MIN =   -1;
-const double X_MAX =    1;
-const double Y_MIN =  0.5;
-const double Y_MAX = -0.5;
-
-const double X_SPAN = X_MAX - X_MIN;
-const double Y_SPAN = Y_MAX - Y_MIN;
-//TIME_INCREMENT = 0.5;
-
-
-int convert_hsv_to_rgb(float H, float S, float V) {
-  if(H>360 || H<0 || S>100 || S<0 || V>100 || V<0){
-    return 0;
-  }
-  float s = S/100;
-  float v = V/100;
-  float C = s*v;
-  float X = C*(1-fabs(fmod(H/60.0, 2)-1));
-  float m = v-C;
-  float r,g,b;
-  if(H >= 0 && H < 60){
-    r = C, g = X, b = 0;
-  }
-  else if(H >= 60 && H < 120){
-    r = X, g = C, b = 0;
-  }
-  else if(H >= 120 && H < 180){
-    r = 0, g = C, b = X;
-  }
-  else if(H >= 180 && H < 240){
-    r = 0, g = X, b = C;
-  }
-  else if(H >= 240 && H < 300){
-    r = X, g = 0, b = C;
-  }
-  else{
-    r = C, g = 0, b = X;
-  }
-  int R = (r+m)*255;
-  int G = (g+m)*255;
-  int B = (b+m)*255;
-
-  return (B   << 16)  |  // B
-         (G   <<  8)  |  // G
-         (R        );    // R
-}
-
-void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
-  double w = (double)width;
-  double h = (double)height;
-  double t = timestamp;
-
-  for (int v = 0; v < height; v++) {
-    int vv = v * width;
-    double y = Y_SPAN * (double)v / h + Y_MIN;
-    for (int u = 0; u < width; u++) {
-      double x = X_SPAN * (double)u / w + X_MIN;
-
-      float radius = sqrt(x*x + y*y);  // cartesian to polar
-      float angle = customAtan2(x, y) - t/8;   // cartesian to polar; turns with time
-
-      // the spiral
-      float value = angle*3 - log(radius)*12;
-      value = cos(value);
-
-      int luma = (int)((value + 1) * 127);
-      int pixel = luma | luma <<8 | luma << 16;
-
-      data[vv + u] = (255 << 24) | pixel;
-    }
-  }
-}
-`
+    base64data: null, // Contains the actual webassembly
+    c_code: null
   },
 
   methods: {
-    compile_wasm: function() {
-      let code = this.code;
-      axios.post('/api/compile_wasm', {code: code})
+    load_source: function() {
+      axios.get('formula.c')
+	.then((response) => {
+	  this.c_code = response.data;
+	  try {
+	    this.compile_code();
+	  }
+	  catch (e) {
+	    console.error(e);
+	  }
+	})
+	.catch((error) => {
+	  console.error(error);
+	});
+    },
+
+    compile_code: function() {
+      axios.post('/api/compile_code', {code: this.c_code})
 	.then((response) => {
 	  console.log(response);
           this.base64data = response.data.base64data;
 	  try {
-	    this.clone_canvas();
 	    this.start_wasm();
 	  }
 	  catch (e) {
@@ -201,12 +56,14 @@ void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
 	});
     },
 
-    clone_canvas: function() {
-      return;
-      const canvas = document.getElementById('canvas');
-      let clonedItem = canvas.cloneNode(false);
-      canvas.parentNode.appendChild(clonedItem);
-      canvas.remove();
+    fullScreen: function(event) {
+      // full screen
+      var el = document.getElementById('canvas');
+      if(el.webkitRequestFullScreen) {
+        el.webkitRequestFullScreen();
+      } else {
+        el.mozRequestFullScreen();
+      }
     },
 
     decode_b64: function(b64) {
@@ -306,7 +163,8 @@ void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
   },
 
   mounted() {
-    //this.compile_wasm();
-    this.start_wasm();
+    //this.compile_code();
+    //this.start_wasm();
+    this.load_source();
   }
 });

@@ -139,8 +139,8 @@ app.get('/api/gallery/url/:url', async function(req, res) {
 // Webassembly endpoints
 //
 
-app.post('/api/compile_wasm', jsonParser, async function(req, res) {
-  console.log('compile_wasm');
+app.post('/api/compile_code', jsonParser, async function(req, res) {
+  console.log('compile_code');
   let code = req.body.code;
   //console.log(code);
 

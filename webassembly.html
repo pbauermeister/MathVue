@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="bootstrap4-dialog.css">
+
+    <!-- Font Awesome -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  </head>
+
+  <body>
+    <div id="app">
+      <div>
+	<canvas height="400" id="canvas" width="800"></canvas>
+      </div>
+      <button class="btn btn-sm btn-primary" v-on:click="compile_code">Compile</button>
+
+      <div class="float-right">
+        <a id="fullScreenButton"
+           style="cursor:pointer" title="Full screen"
+           v-on:click="fullScreen"><i class="fa fa-expand" aria-hidden="true"></i></a>
+      </div>
+    </div>
+
+    <!-- jQuery first, then Tether, then Bootstrap JS. -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script src="bootstrap4-dialog.js" crossorigin="anonymous"></script>
+
+    <!-- Get Vue, and load our app's code -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
+
+    <script src="threadify.min.js"></script>
+    <script src="app_wasm.js"></script>
+  </body>
+</html>
