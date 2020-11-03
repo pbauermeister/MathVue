@@ -6,7 +6,7 @@ import subprocess
 import base64
 import os
 
-code = sys.argv[1]
+formula = sys.argv[1]
 
 CMD = ('emcc program.c '
 #       '-Os '  # avoid optim > 2 as it wil minify the identifiers.
@@ -16,11 +16,19 @@ CMD = ('emcc program.c '
        '-s WASM=1 '
        '-o out.js')
 
+with open('wasm/formula.c') as f:
+    code = f.read()
+
 with tempfile.TemporaryDirectory(prefix='wasmCompile') as d:
     os.chdir(d)
+
     with open('program.c', 'w') as f:
         f.write(code)
+        f.write('\n')
+        f.write(formula)
+
     subprocess.check_call(CMD.split())
+
     with open('out.wasm', 'rb') as f:
         wasm = f.read()
 

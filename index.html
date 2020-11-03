@@ -26,278 +26,220 @@
 	   alt="Fork me on GitHub">
     </a>
 
-
     <h1>MathVue</h1>
 
     <!-- Our Vue template -->
     <div id="app">
-      <div v-cloak>
+      With Bootstrap v4, Vue.js v2.5, Processing v1.4, Node.js v8.
 
-        {{ message }}
+      <!-- Formula -->
+      <div class="row">
+        <div class="col-md-6 pt-3">
+          <h2>Formula</h2>
+          <textarea v-model="formula"
+                    class="formula-textarea"
+                    v-on:input="onInput()"
+                    ></textarea>
+          <button class="btn btn-sm btn-primary" v-on:click="run">Run</button>
+          <button class="btn btn-sm btn-primary" v-on:click="pause" v-show="started && running">Pause</button>
+          <button class="btn btn-sm btn-primary" v-on:click="resume" v-show="started && !running">Resume</button>
+        </div>
 
-        <!-- Formula -->
-        <div class="row">
-          <div class="col-md-6 pt-3">
-            <h2>Formula</h2>
-            <textarea v-model="formula"
-                      class="formula-textarea"
-                      v-on:input="onInput()"
-                      ></textarea>
-            <button class="btn btn-sm btn-primary" v-on:click="run">Run</button>
-            <button class="btn btn-sm btn-primary" v-on:click="pause" v-show="started && running">Pause</button>
-            <button class="btn btn-sm btn-primary" v-on:click="resume" v-show="started && !running">Resume</button>
-          </div>
+        <!-- Canvas -->
+        <div class="col-md-6 pt-3">
+          <h2>Canvas</h2>
+          <div style="display: inline-block">
+            <canvas id="mathvisionCanvas" width="300" height="300"
+                    style="border: 1px solid lightgrey; max-width:100%">
+            </canvas>
+            <br/>
 
-          <!-- Canvas -->
-          <div class="col-md-6 pt-3">
-            <h2>Canvas</h2>
-            <div style="display: inline-block">
-              <canvas id="mathvisionCanvas" width="300" height="300"
-                      style="border: 1px solid lightgrey; max-width:100%">
-              </canvas>
+            <!-- buttons -->
+            <div class="float-left">
+              <a style="cursor:pointer" title="Play"
+                 v-bind:class="{ 'text-muted': running }"
+                 v-bind:disabled="running"
+                 v-on:click="resume"><i class="fa fa-play" aria-hidden="true"></i></a>
 
-              <!-- buttons -->
-              <br/>
-              <div class="float-left">
-                <a style="cursor:pointer" title="Play"
-                   v-bind:class="{ 'text-muted': running }"
-                   v-bind:disabled="running"
-                   v-on:click="resume"><i class="fa fa-play" aria-hidden="true"></i></a>
-
-                <a style="cursor:pointer" title="Pause"
-                   v-bind:class="{ 'text-muted': !running }"
-                   v-bind:disabled="!running"
-                   v-on:click="pause"><i class="fa fa-pause" aria-hidden="true"></i></a>
-              </div>
-              <div class="float-right">
-                <a id="fullScreenButton"
-                   style="cursor:pointer" title="Full screen"
-                   v-on:click="fullScreen"><i class="fa fa-expand" aria-hidden="true"></i></a>
-              </div>
+              <a style="cursor:pointer" title="Pause"
+                 v-bind:class="{ 'text-muted': !running }"
+                 v-bind:disabled="!running"
+                 v-on:click="pause"><i class="fa fa-pause" aria-hidden="true"></i></a>
+            </div>
+            <div class="float-right">
+              <a id="fullScreenButton"
+                 style="cursor:pointer" title="Full screen"
+                 v-on:click="fullScreen"><i class="fa fa-expand" aria-hidden="true"></i></a>
             </div>
           </div>
         </div>
+      </div>
+      <br/>
 
-        <!-- Help Panel -->
-        <br/>
+      <!-- Help Panel -->
+      <Help markdown_path="/pjs/help.md"></Help>
 
-        <div class="wrap-collabsible">
-          <input id="collapsible" class="toggle" type="checkbox">
-          <label for="collapsible" class="lbl-toggle">Formula syntax</label>
-          <div class="collapsible-content">
-            <div class="content-inner">
-
-              <div class="card">
-                <div class="card-header p-2">
-                  For language syntax, see
-                  <a href="http://processingjs.org/learning/">http://processingjs.org/learning/</a>.
-                  For a list of math functions see
-                  <a href="http://processingjs.org/reference/">http://processingjs.org/reference/</a>.
-                </div>
-                <div class="card-body p-2">
-		  <!-- https://stackoverflow.com/a/45844579 -->
-		  <div class="d-block d-sm-none"> <!-- XS -->
-		    <div class="md columns-1" v-html="help"></div>
-		  </div>
-		  <div class="d-none d-sm-block d-md-none"> <!-- SM -->
-		    <div class="md columns-1" v-html="help"></div>
-		  </div>
-		  <div class="d-none d-md-block d-lg-none"> <!-- MD -->
-		    <div class="md columns-1" v-html="help"></div>
-		  </div>
-		  <div class="d-none d-lg-block d-xl-none"> <!-- LG -->
-		    <div class="md columns-2" v-html="help"></div>
-		  </div>
-		  <div class="d-none d-xl-block"> <!-- XL -->
-		    <div class="md columns-3" v-html="help"></div>
-		  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <!-- Gallery -->
+      <!-- TODO no link to dialog, bur list of thumbnails-->
+      <div class="row pt-3">
+        <div class="col-md-12">
+          <h2>Gallery</h2>
         </div>
 
-        <!-- Gallery -->
-        <!-- TODO no link to dialog, bur list of thumbnails-->
-        <div class="row pt-3">
-          <div class="col-md-12">
-            <h2>Gallery</h2>
-          </div>
+        <div class="container ml-2 pl-2">
 
-          <div class="container ml-2 pl-2">
-
-            <!-- Dropbox public -->
-            <div class="row">
-              <div class="col-3">
-                <span class="badge badge-pill badge-default"
-                      style="cursor:pointer"
-                      v-on:click="dropboxLoadSampleDialog">Load sample</span>
-              </div>
-              <div class="col-9">
-                Public samples.
-              </div>
+          <!-- Dropbox public -->
+          <div class="row">
+            <div class="col-3">
+              <span class="badge badge-pill badge-default"
+                    style="cursor:pointer"
+                    v-on:click="dropboxLoadSampleDialog">Load sample</span>
             </div>
-
+            <div class="col-9">
+              Public samples.
+            </div>
           </div>
+
+        </div>
+      </div>
+
+      <!-- Storage -->
+      <div class="row pt-3">
+        <div class="col-md-12">
+          <h2>Storage</h2>
         </div>
 
-        <!-- Storage -->
-        <div class="row pt-3">
-          <div class="col-md-12">
-            <h2>Storage</h2>
-          </div>
+        <div class="container ml-2 pl-2">
 
-          <div class="container ml-2 pl-2">
-
-            <!-- Dropbox account -->
-            <div class="row">
-              <div class="col-3">
-                <!-- buttons when logged in -->
-                <div v-if="dropboxLoggedIn && dropboxDisplayname">
-                  <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSaveDialog">
-                    Save to Dropbox
-                  </span><br/>
-                  <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoadDialog">
-                    Load from Dropbox
-                  </span>
-                </div>
-                <!-- buttons when logged out -->
-                <div v-if="!dropboxLoggedIn || !dropboxDisplayname">
-                  <span class="badge badge-pill badge-disabled">
-                    Save to Dropbox
-                  </span><br/>
-                  <span class="badge badge-pill badge-disabled">
-                    Load from to Dropbox
-                  </span>
-                </div>
+          <!-- Dropbox account -->
+          <div class="row">
+            <div class="col-3">
+              <!-- buttons when logged in -->
+              <div v-if="dropboxLoggedIn && dropboxDisplayname">
+                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSaveDialog">
+                  Save to Dropbox
+                </span><br/>
+                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoadDialog">
+                  Load from Dropbox
+                </span>
               </div>
-              <div class="col-9">
-                <!-- links when logged in -->
-                <div v-if="dropboxLoggedIn">
-                  <div v-if="dropboxDisplayname">
-                    <img style="height: 20px" v-bind:src="dropboxProfilePhotoUrl">
+              <!-- buttons when logged out -->
+              <div v-if="!dropboxLoggedIn || !dropboxDisplayname">
+                <span class="badge badge-pill badge-disabled">
+                  Save to Dropbox
+                </span><br/>
+                <span class="badge badge-pill badge-disabled">
+                  Load from to Dropbox
+                </span>
+              </div>
+            </div>
+            <div class="col-9">
+              <!-- links when logged in -->
+              <div v-if="dropboxLoggedIn">
+                <div v-if="dropboxDisplayname">
+                  <img style="height: 20px" v-bind:src="dropboxProfilePhotoUrl">
 
-                    <small>
-                      {{dropboxDisplayname}}
-                    </small>
-                    |
-                    <small>
-                      <a href="https://www.dropbox.com/home/Apps/MathVue" target="_blank">
-                        MathVue folder <i class="fas fa-external-link-alt"></i></a>
-                    </small>
-                    |
-                    <small>
-                      <div class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLogout">
-                        Logout
-                      </div>
-                    </small>
-
-                  </div>
-                  <div v-if="!dropboxDisplayname" style="display: inline-block;" class="progress">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated"
-                         role="progressbar" style="width: 100%; padding: 0 10px;">
-                      Getting account infos...
+                  <small>
+                    {{dropboxDisplayname}}
+                  </small>
+                  |
+                  <small>
+                    <a href="https://www.dropbox.com/home/Apps/MathVue" target="_blank">
+                      MathVue folder <i class="fas fa-external-link-alt"></i></a>
+                  </small>
+                  |
+                  <small>
+                    <div class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLogout">
+                      Logout
                     </div>
+                  </small>
+
+                </div>
+                <div v-if="!dropboxDisplayname" style="display: inline-block;" class="progress">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated"
+                       role="progressbar" style="width: 100%; padding: 0 10px;">
+                    Getting account infos...
                   </div>
                 </div>
-                <!-- login link when logged out -->
-                <div v-if="!dropboxLoggedIn && dropboxAllowed">
-                  Please
-                  <a class="badge badge-pill badge-default" v-bind:href="dropboxLoginUrl">Login to Dropbox</a>
-                  to access your Dropbox account.
-                </div>
-                <!-- hint when noi Dropbox possible -->
-                <div v-if="!dropboxAllowed">
-                  Cannot access Dropbox when running from file://
-                </div>
+              </div>
+              <!-- login link when logged out -->
+              <div v-if="!dropboxLoggedIn && dropboxAllowed">
+                Please
+                <a class="badge badge-pill badge-default" v-bind:href="dropboxLoginUrl">Login to Dropbox</a>
+                to access your Dropbox account.
+              </div>
+              <!-- hint when noi Dropbox possible -->
+              <div v-if="!dropboxAllowed">
+                Cannot access Dropbox when running from file://
               </div>
             </div>
-          </div>
-
-	</div>
-
-        <!-- Exports -->
-        <div class="row pt-3">
-          <div class="col-md-12">
-            <h2>Export</h2>
-          </div>
-
-          <div class="container ml-2 pl-2">
-
-            <div class="row">
-              <div class="col-3">
-                <a class="badge badge-pill badge-default" v-bind:href="link">Link</a>
-              </div>
-              <div class="col-9">
-                Link to current page, with formula as URL. Can be bookmarked.
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-3">
-                - Coming soon -
-              </div>
-              <div class="col-9">
-                Grab and save image
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-3">
-                - Coming soon -
-              </div>
-              <div class="col-9">
-                Save as animated GIF
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-3">
-                - Coming soon -
-              </div>
-              <div class="col-9">
-                Save as Processing sketch (PDE)
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-3">
-                - Coming soon -
-              </div>
-              <div class="col-9">
-                Save as standalone HTML5 page or snippet
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Discussion -->
-        <div class="row pt-3">
-          <div class="col-md-12">
-            <h2>Discussion</h2>
-            <!-- Disqus -->
-            <div id="disqus_thread"></div>
-            <script>
-              /**
-              *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-              *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
-              /*
-              var disqus_config = function () {
-              this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-              this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-              };
-              */
-              (function() { // DON'T EDIT BELOW THIS LINE
-              var d = document, s = d.createElement('script');
-              s.src = 'https://mathvue.disqus.com/embed.js';
-              s.setAttribute('data-timestamp', +new Date());
-              (d.head || d.body).appendChild(s);
-              })();
-            </script>
           </div>
         </div>
 
       </div>
+
+      <!-- Exports -->
+      <div class="row pt-3">
+        <div class="col-md-12">
+          <h2>Export</h2>
+        </div>
+
+        <div class="container ml-2 pl-2">
+
+          <div class="row">
+            <div class="col-3">
+              <a class="badge badge-pill badge-default" v-bind:href="link">Link</a>
+            </div>
+            <div class="col-9">
+              Link to current page, with formula as URL. Can be bookmarked.
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-3">
+              - Coming soon -
+            </div>
+            <div class="col-9">
+              Grab and save image
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-3">
+              - Coming soon -
+            </div>
+            <div class="col-9">
+              Save as animated GIF
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-3">
+              - Coming soon -
+            </div>
+            <div class="col-9">
+              Save as Processing sketch (PDE)
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-3">
+              - Coming soon -
+            </div>
+            <div class="col-9">
+              Save as standalone HTML5 page or snippet
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discussion -->
+      <div class="row pt-3">
+        <div class="col-md-12">
+	  <Discussion></Discussion>
+        </div>
+      </div>
+
     </div>
 
     <!-- jQuery first, then Tether, then Bootstrap JS. -->
@@ -323,10 +265,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
 
     <script src="/common/js/file_dialog.js"></script>
+    <script src="/common/js/component_help.js"></script>
+    <script src="/common/js/component_discussion.js"></script>
 
     <script src="/pjs/adaptor.js"></script>
     <script src="/pjs/formula.js"></script>
-    <script src="/pjs/help.js"></script>
     <script src="/pjs/app.js"></script>
 
     <noscript>Please enable JavaScript for MathVue to work.</noscript>

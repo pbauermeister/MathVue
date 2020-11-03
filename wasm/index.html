@@ -15,39 +15,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   </head>
 
-  <body>
+  <body class="p-md-3 p-1 mr-3 mr-md-0">
+
+    <!-- Github -->
+    <a href="https://github.com/pbauermeister/MathVue" target="_blank">
+      <img style="position: absolute; top: 0; right: 0; border: 0;"
+	   src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"
+	   alt="Fork me on GitHub">
+    </a>
+
+    <h1>MathVue Webassembly</h1>
+
     <div id="app">
-      <div>
-	<canvas height="400" id="canvas" width="800"></canvas>
+      With Bootstrap v4, Vue.js v2.5, Node.js v8, WebAssembly (Wasm), Enscripten (emcc).
+
+      <!-- Formula -->
+      <div class="row">
+        <div class="col-md-6 pt-3">
+          <h2>Formula</h2>
+          <textarea v-model="formula"
+                    class="formula-textarea"
+                    v-on:input="onInput()"
+                    ></textarea>
+          <button class="btn btn-sm btn-primary"
+		  v-on:click="run">Run</button>
+          <button class="btn btn-sm btn-primary"
+		  v-on:click="pause"
+		  v-show="running">Pause</button>
+          <button class="btn btn-sm btn-primary"
+		  v-on:click="resume"
+		  v-show="!running">Resume</button>
+        </div>
+
+        <!-- Canvas -->
+        <div class="col-md-6 pt-3">
+          <h2>Canvas</h2>
+          <div style="display: inline-block">
+	    <canvas id="canvas" width="500" height="300"
+                    style="border: 1px solid lightgrey; max-width:100%">
+            </canvas>
+            <br/>
+
+	    <!-- buttons -->
+	    <span v-if="loading">
+              <a class="mx-1">
+		<i class="fas fa-hourglass-half" aria-hidden="true"></i>
+	      </a>
+	    </span>
+	    <span v-else>
+              <a style="cursor:pointer" class="mx-1"
+		 v-show="running"
+		 v-on:click="pause"
+		 >
+		<i class="fa fa-pause" aria-hidden="true"></i>
+	      </a>
+              <a style="cursor:pointer" class="mx-1"
+		 v-show="!running"
+		 v-on:click="resume">
+		<i class="fa fa-play" aria-hidden="true"></i>
+	      </a>
+	    </span>
+
+	    <div class="float-right">
+              <a id="fullScreenButton"
+		 class="mx-1"
+		 style="cursor:pointer" title="Full screen"
+		 v-on:click="fullScreen">
+		<i class="fa fa-expand" aria-hidden="true"></i>
+	      </a>
+	    </div>
+	  </div>
+	</div>
       </div>
-      <button class="btn btn-sm btn-primary" v-on:click="load_source">Compile</button>
+      <br/>
 
-      <div class="float-right">
-	<span v-if="loading">
-          <a class="mx-1">
-	    <i class="fas fa-hourglass-half" aria-hidden="true"></i>
-	  </a>
-	</span>
-	<span v-else>
-          <a style="cursor:pointer" class="mx-1"
-	     v-show="running"
-             v-on:click="pause"
-	     >
-	    <i class="fa fa-pause" aria-hidden="true"></i>
-	  </a>
-          <a style="cursor:pointer" class="mx-1"
-	     v-show="!running"
-             v-on:click="resume">
-	    <i class="fa fa-play" aria-hidden="true"></i>
-	  </a>
-	</span>
+      <!-- Help Panel -->
+      <Help markdown_path="/wasm/help.md"></Help>
 
-        <a id="fullScreenButton"
-	   class="mx-1"
-           style="cursor:pointer" title="Full screen"
-           v-on:click="fullScreen">
-	  <i class="fa fa-expand" aria-hidden="true"></i>
-	</a>
+      <!-- Discussion -->
+      <div class="row pt-3">
+        <div class="col-md-12">
+	  <!-- Discussion></Discussion -->
+        </div>
       </div>
     </div>
 
@@ -62,6 +111,9 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
     <script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
+
+    <script src="/common/js/component_help.js"></script>
+    <script src="/common/js/component_discussion.js"></script>
 
     <script src="/wasm/app.js"></script>
   </body>

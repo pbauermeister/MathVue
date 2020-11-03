@@ -3,15 +3,20 @@
 #include <stdbool.h>
 #include <emscripten.h>
 
-int height;
-int width;
-int pixelCount;
+double X_MIN =   -1;
+double X_MAX =    1;
+double Y_MIN =  0.5;
+double Y_MAX = -0.5;
+
+int HEIGHT;
+int WIDTH;
+int PIXEL_COUNT;
+
+double X_SPAN;
+double Y_SPAN;
 
 #define PI 3.14159265358979323846
 #define TWO_PI (PI*2)
-
-#define min(a, b)  ((a) > (b) ? (b) : (a))
-#define max(a, b)  ((a) > (b) ? (a) : (b))
 
 #define COEFF_1 0.7853981633974483
 #define COEFF_2 2.356194490192345
@@ -32,22 +37,12 @@ double customAtan2(float y, float x) {
 int data[2000000];
 
 int* EMSCRIPTEN_KEEPALIVE init(int cWidth, int cHeight, int cFactor) {
-  width = cWidth;
-  height = cHeight;
-  pixelCount = width * height;
+  WIDTH = cWidth;
+  HEIGHT = cHeight;
+  PIXEL_COUNT = WIDTH * HEIGHT;
 //  data = malloc(pixelCount * sizeof(int));
   return data;
 }
-
-//WIDTH = 600; RATIO = 2;
-const double X_MIN =   -1;
-const double X_MAX =    1;
-const double Y_MIN =  0.5;
-const double Y_MAX = -0.5;
-
-const double X_SPAN = X_MAX - X_MIN;
-const double Y_SPAN = Y_MAX - Y_MIN;
-//TIME_INCREMENT = 0.5;
 
 
 int convert_hsv_to_rgb(float hue, float sat, float val) {
@@ -95,18 +90,21 @@ int compute_pixel(double x, double y, double t);
 bool pre_draw(double t);
 
 void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
-  double w = (double)width;
-  double h = (double)height;
+  X_SPAN = X_MAX - X_MIN;
+  Y_SPAN = Y_MAX - Y_MIN;
+
+  double w = (double)WIDTH;
+  double h = (double)HEIGHT;
   double t = timestamp / 200;
   int last_pixel = 0;
 
   if(!pre_draw(t))
     return;
 
-  for (int v = 0; v < height; v++) {
-    int row = v * width;
+  for (int v = 0; v < HEIGHT; v++) {
+    int row = v * WIDTH;
     double y = Y_SPAN * (double)v / h + Y_MIN;
-    for (int u = 0; u < width; u++) {
+    for (int u = 0; u < WIDTH; u++) {
       double x = X_SPAN * (double)u / w + X_MIN;
       int pixel = compute_pixel(x, y, t);
       if (pixel == -1)
@@ -118,7 +116,7 @@ void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
   }
 }
 
-#if 1
+#if 0
 bool pre_draw(double t) { return true; }
 int compute_pixel(double x, double y, double t) {
       float radius = sqrt(x*x + y*y);  // cartesian to polar
@@ -133,7 +131,7 @@ int compute_pixel(double x, double y, double t) {
       return pixel;
 }
 
-#else
+//#else
 
 double cos_t;
 double sin_t;
@@ -166,3 +164,5 @@ int compute_pixel(double x, double y, double t) {
 }
 
 #endif
+
+//// User formula:

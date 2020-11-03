@@ -24,14 +24,12 @@ var router = new VueRouter({
 
 var pjs_adaptor = new ProcessingJsAdaptor();
 var pjs_formula = new ProcessingJsFormula()
-var pjs_help = new PjsHelp();
 
 var app = new Vue({
   router,
   el: '#app',
 
   data: {
-    message: 'With Bootstrap v4, Vue.js v2.5, FontAwesome v5, Processing v1.4, Node.js v8 + express v4.',
     formula: null,
     running: false,
     started: false,
@@ -48,8 +46,7 @@ var app = new Vue({
     dropboxDialog: null,
 
     fileDialog: new FileDialog(ENDING),
-    ending: ENDING,
-    help: pjs_help.html
+    ending: ENDING
   },
 
   methods: {

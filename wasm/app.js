@@ -17,29 +17,50 @@ var app = new Vue({
     running: false,
     loading: false,
     base64data: null, // Contains the actual webassembly
-    c_code: null
+    formula: `
+double cos_t;
+double sin_t;
+bool pre_draw(double t0) {
+    float t = sin(t0/320) * TWO_PI * 4 + sin(t0/20) * PI / 2 - cos(t0/40) * PI;
+    cos_t = cos(t/10);
+    sin_t = sin(t/10);
+    return true;
+}
+
+int compute_pixel(double x, double y, double t) {
+    double x1 = x * cos_t - y * sin_t;
+    double y1 = y * cos_t + x * sin_t;
+    if(y1==0) return -1; // avoid zero-divide
+
+    double x2 = x1;
+    double y2 = fabs(y1);
+
+    double val = cos(1/y2 + t) * cos(x2/y2);   // perspective spots raster
+    val = 1 - pow(val, 4);                     // increase contrast
+    double fade = y2/Y_SPAN*2;
+    val *= fade;                               // fade horizon to avoid moiree
+    double color_shift = cos(t/10)/2;
+
+    // pack all into HSV
+    double z = 1 + sin(val/2); // 0..2
+    double h = (z + color_shift) * 120; // 0..360
+    double v = y1<0 ? 100 : 50*z;
+    return convert_hsv_to_rgb(h, 78, v);
+}`.trim()
   },
 
   methods: {
-    load_source: function() {
-      this.loading = true;
-      axios.get('wasm/formula.c')
-	.then((response) => {
-	  this.c_code = response.data;
-	  try {
-	    this.compile_code();
-	  }
-	  catch (e) {
-	    console.error(e);
-	  }
-	})
-	.catch((error) => {
-	  console.error(error);
-	});
+    //
+    // Animation methods
+    //
+
+    run: function() {
+      this.compile_code();
     },
 
     compile_code: function() {
-      axios.post('/api/compile_code', {code: this.c_code})
+      this.loading = true;
+      axios.post('/api/compile_code', {code: this.formula})
 	.then((response) => {
 	  console.log(response);
           this.base64data = response.data.base64data;
@@ -59,16 +80,6 @@ var app = new Vue({
 	});
     },
 
-    fullScreen: function(event) {
-      // full screen
-      var el = document.getElementById('canvas');
-      if(el.webkitRequestFullScreen) {
-        el.webkitRequestFullScreen();
-      } else {
-        el.mozRequestFullScreen();
-      }
-    },
-
     pause: function() {
       this.running = false;
     },
@@ -80,6 +91,30 @@ var app = new Vue({
     play_toggle: function() {
       this.running = !this.running;
     },
+
+    fullScreen: function(event) {
+      // full screen
+      var el = document.getElementById('canvas');
+      if(el.webkitRequestFullScreen) {
+        el.webkitRequestFullScreen();
+      } else {
+        el.mozRequestFullScreen();
+      }
+    },
+
+    //
+    // Formula methods
+    //
+
+    onInput: function() {
+//      this.link = makeLink(false, this.formula);
+//      this.linkToGithub = makeLink(true, this.formula);
+//      pjs_formula.save(this.formula);
+    },
+
+    //
+    // Wasm methods
+    //
 
     decode_b64: function(b64) {
       const str = window.atob(b64);
@@ -101,10 +136,9 @@ var app = new Vue({
       console.log('*** start_wasm');
       console.log('Code length (b64):', this.base64data.length);
 
-      //
       // Compile WASM
+      // ------------
       // https://compile.fi/canvas-filled-three-ways-js-webassembly-and-webgl/
-      //
       const memSize = 256;
       const memory = new WebAssembly.Memory({
 	initial: memSize,
@@ -137,9 +171,8 @@ var app = new Vue({
 
       const instance = await WebAssembly.instantiate(module, importObject);
 
-      //
       // Get canvas
-      //
+      // ----------
       const canvas = document.getElementById('canvas');
       const height = canvas.height;
       const width = canvas.width;
@@ -150,9 +183,8 @@ var app = new Vue({
 	throw 'Your browser does not support canvas';
       }
 
-      //
       // Bind WASM to canvas
-      //
+      // -------------------
       const init_f = instance.exports._init || instance.exports.init;
       const render_f = instance.exports._render || instance.exports.render;
 
@@ -161,9 +193,8 @@ var app = new Vue({
 					 width * height * 4);
       const img = new ImageData(data, width, height);
 
-      //
       // Render
-      //
+      // ------
       this.program_nr++;
       this.loading = false;
       this.running = true;
@@ -184,6 +215,6 @@ var app = new Vue({
   mounted() {
     //this.compile_code();
     //this.start_wasm();
-    this.load_source();
+    this.run();
   }
 });

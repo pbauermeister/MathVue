@@ -1,5 +1,7 @@
-var PjsHelp = function() {
-  let md = `
+For language syntax, see <http://processingjs.org/learning/>. For a
+list of math functions see <http://processingjs.org/reference/>.
+__________
+
 ##### Parameters
 
 Parameter                 | Description
@@ -103,8 +105,3 @@ color rgb(x, y, t) {
 »»»
 
 ##### Happy math'ing!
-`.trim().replace(/[«»]/g, '`');
-  let conv = new showdown.Converter();
-  conv.setOption('tables', true);
-  this.html = conv.makeHtml(md);
-}

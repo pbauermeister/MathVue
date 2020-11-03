@@ -197,3 +197,7 @@ table {
 .text-muted {
     color: #ddd !important;
 }
+
+.card-header p {
+    margin-bottom: 0 !important;
+}
