@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <emscripten.h>
 
 int height;
@@ -49,54 +50,77 @@ const double Y_SPAN = Y_MAX - Y_MIN;
 //TIME_INCREMENT = 0.5;
 
 
-int convert_hsv_to_rgb(float H, float S, float V) {
-  if(H>360 || H<0 || S>100 || S<0 || V>100 || V<0){
-    return 0;
+int convert_hsv_to_rgb(float hue, float sat, float val) {
+  hue = fmin(hue, 360);
+  hue = fmax(hue, 0);
+  sat = fmin(sat, 100);
+  sat = fmax(sat, 0);
+  val = fmin(val, 100);
+  val = fmax(val, 0);
+
+  float s = sat / 100;
+  float v = val / 100;
+  float c = s * v;
+  float x = c * (1 - fabs(fmod(hue / 60.0, 2) - 1));
+  float m = v - c;
+  float r, g, b;
+  if(hue >= 0 && hue < 60){
+    r = c, g = x, b = 0;
   }
-  float s = S/100;
-  float v = V/100;
-  float C = s*v;
-  float X = C*(1-fabs(fmod(H/60.0, 2)-1));
-  float m = v-C;
-  float r,g,b;
-  if(H >= 0 && H < 60){
-    r = C, g = X, b = 0;
+  else if(hue >= 60 && hue < 120){
+    r = x, g = c, b = 0;
   }
-  else if(H >= 60 && H < 120){
-    r = X, g = C, b = 0;
+  else if(hue >= 120 && hue < 180){
+    r = 0, g = c, b = x;
   }
-  else if(H >= 120 && H < 180){
-    r = 0, g = C, b = X;
+  else if(hue >= 180 && hue < 240){
+    r = 0, g = x, b = c;
   }
-  else if(H >= 180 && H < 240){
-    r = 0, g = X, b = C;
-  }
-  else if(H >= 240 && H < 300){
-    r = X, g = 0, b = C;
+  else if(hue >= 240 && hue < 300){
+    r = x, g = 0, b = c;
   }
   else{
-    r = C, g = 0, b = X;
+    r = c, g = 0, b = x;
   }
-  int R = (r+m)*255;
-  int G = (g+m)*255;
-  int B = (b+m)*255;
+  int red   = (r + m) * 255;
+  int green = (g + m) * 255;
+  int blue  = (b + m) * 255;
 
-  return (B   << 16)  |  // B
-         (G   <<  8)  |  // G
-         (R        );    // R
+  return (blue  << 16)  |
+         (green <<  8)  |
+         (red        );
 }
+
+int compute_pixel(double x, double y, double t);
+bool pre_draw(double t);
 
 void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
   double w = (double)width;
   double h = (double)height;
-  double t = timestamp;
+  double t = timestamp / 200;
+  int last_pixel = 0;
+
+  if(!pre_draw(t))
+    return;
 
   for (int v = 0; v < height; v++) {
-    int vv = v * width;
+    int row = v * width;
     double y = Y_SPAN * (double)v / h + Y_MIN;
     for (int u = 0; u < width; u++) {
       double x = X_SPAN * (double)u / w + X_MIN;
+      int pixel = compute_pixel(x, y, t);
+      if (pixel == -1)
+	pixel = last_pixel;
 
+      data[row + u] = (255 << 24) | pixel;
+      last_pixel = pixel;
+    }
+  }
+}
+
+/*
+bool pre_draw(double t) { return true; }
+int compute_pixel(double x, double y, double t) {
       float radius = sqrt(x*x + y*y);  // cartesian to polar
       float angle = customAtan2(x, y) - t/8;   // cartesian to polar; turns with time
 
@@ -106,8 +130,36 @@ void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
 
       int luma = (int)((value + 1) * 127);
       int pixel = luma | luma <<8 | luma << 16;
+      return pixel;
+}
+*/
 
-      data[vv + u] = (255 << 24) | pixel;
-    }
-  }
+double cos_t;
+double sin_t;
+bool pre_draw(double t0) {
+    float t = sin(t0/320) * TWO_PI * 4 + sin(t0/20) * PI / 2 - cos(t0/40) * PI;
+    cos_t = cos(t/10);
+    sin_t = sin(t/10);
+    return true;
+}
+
+int compute_pixel(double x, double y, double t) {
+    double x1 = x * cos_t - y * sin_t;
+    double y1 = y * cos_t + x * sin_t;
+    if(y1==0) return -1; // avoid zero-divide
+
+    double x2 = x1;
+    double y2 = fabs(y1);
+
+    double val = cos(1/y2 + t) * cos(x2/y2);   // perspective spots raster
+    val = 1 - pow(val, 4);                     // increase contrast
+    double fade = y2/Y_SPAN*2;
+    val *= fade;                               // fade horizon to avoid moiree
+    double color_shift = cos(t/10)/2;
+
+    // pack all into HSV
+    double z = 1 + sin(val/2); // 0..2
+    double h = (z + color_shift) * 120; // 0..360
+    double v = y1<0 ? 100 : 50*z;
+    return convert_hsv_to_rgb(h, 78, v);
 }
