@@ -23,7 +23,7 @@ var app = new Vue({
   methods: {
     load_source: function() {
       this.loading = true;
-      axios.get('formula.c')
+      axios.get('wasm/formula.c')
 	.then((response) => {
 	  this.c_code = response.data;
 	  try {

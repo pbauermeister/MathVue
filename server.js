@@ -12,7 +12,6 @@ const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json()
 
 ////////////////////////////////////////////////////////////////////////////////
-
 //
 // logging
 // https://dev.to/brightdevs/http-request-logging-in-nodejs-42od
@@ -24,6 +23,7 @@ const logRequestStart = (req, res, next) => {
 
 app.use(logRequestStart);
 
+////////////////////////////////////////////////////////////////////////////////
 //
 // Parameters
 //
@@ -37,6 +37,7 @@ const EXT_FORMULA = 'formula';
 const EXT_THUMB = 'png';
 const PARTS_RX = new RegExp('.*?/([^/]+)[.]([^/]+)$');
 
+////////////////////////////////////////////////////////////////////////////////
 //
 // Helpers
 //
@@ -58,6 +59,7 @@ function rxMatches(text, rx) {
   return matches ? matches.unique() : [];
 }
 
+////////////////////////////////////////////////////////////////////////////////
 //
 // Dropbox endpoints
 //
@@ -121,7 +123,7 @@ app.get('/api/gallery', async function(req, res) {
 // browser (to avoid CORS denial)
 app.get('/api/gallery/url/:url', async function(req, res) {
   var url = req.params.url;
-  var command = 'curl -L -X GET \'' + url + '\''; 
+  var command = 'curl -L -X GET \'' + url + '\'';
   //console.log(command);
   exec(command, function(error, stdout, stderr) {
     if (error) {
@@ -135,38 +137,46 @@ app.get('/api/gallery/url/:url', async function(req, res) {
   });
 });
 
+////////////////////////////////////////////////////////////////////////////////
 //
-// Webassembly endpoints
+// Webassembly API endpoints
 //
 
 app.post('/api/compile_code', jsonParser, async function(req, res) {
-  console.log('compile_code');
+  console.log('Compile_code...');
   let code = req.body.code;
   //console.log(code);
 
-  execFile('./compile.py', [code], (error, stdout, stderr) => {
-    console.log(`compile: stdout: ${stdout}`);
+  execFile('wasm/compile.py', [code], (error, stdout, stderr) => {
+    //console.log(`Compile: stdout: ${stdout}`);
     if (stderr) {
-      console.error(`compile: stderr: ${stderr}`);
+      console.error(`Compile: stderr: ${stderr}`);
     }
     if (error) {
-      console.error(`compile: error: ${error.message}`);
+      console.error(`Compile: error: ${error.message}`);
       res.status(500);
       res.send(JSON.stringify({success:false, error, stdout, stderr}));
       return;
     }
+    console.log('... compile_code done.');
     res.send(JSON.stringify({
       base64data: stdout.trim()
     }));
   });
 });
 
+////////////////////////////////////////////////////////////////////////////////
 //
 // Static files
 //
 
+app.get('/webassembly', function(req, res) {
+  res.sendfile('wasm/index.html');
+});
+
 app.use(express.static('.'));
 
+////////////////////////////////////////////////////////////////////////////////
 //
 // Let's go
 //
