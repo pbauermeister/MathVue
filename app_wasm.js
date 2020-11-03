@@ -14,12 +14,15 @@ var app = new Vue({
 
   data: {
     program_nr: 0,
+    running: false,
+    loading: false,
     base64data: null, // Contains the actual webassembly
     c_code: null
   },
 
   methods: {
     load_source: function() {
+      this.loading = true;
       axios.get('formula.c')
 	.then((response) => {
 	  this.c_code = response.data;
@@ -64,6 +67,18 @@ var app = new Vue({
       } else {
         el.mozRequestFullScreen();
       }
+    },
+
+    pause: function() {
+      this.running = false;
+    },
+
+    resume: function() {
+      this.running = true;
+    },
+
+    play_toggle: function() {
+      this.running = !this.running;
     },
 
     decode_b64: function(b64) {
@@ -150,12 +165,16 @@ var app = new Vue({
       // Render
       //
       this.program_nr++;
+      this.loading = false;
+      this.running = true;
       let program_nr = this.program_nr;
       const render = (timestamp) => {
 	if (this.program_nr != program_nr)
 	  return;
-	render_f(timestamp);
-	ctx.putImageData(img, 0, 0);
+	if (this.running) {
+	  render_f(timestamp);
+	  ctx.putImageData(img, 0, 0);
+	}
 	window.requestAnimationFrame(render);
       };
       window.requestAnimationFrame(render);

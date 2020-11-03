@@ -193,3 +193,7 @@ table {
     column-count: 3;
     column-gap: 40px;
 }
+
+.text-muted {
+    color: #ddd !important;
+}

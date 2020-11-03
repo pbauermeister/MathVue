@@ -118,7 +118,7 @@ void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
   }
 }
 
-/*
+#if 1
 bool pre_draw(double t) { return true; }
 int compute_pixel(double x, double y, double t) {
       float radius = sqrt(x*x + y*y);  // cartesian to polar
@@ -132,7 +132,8 @@ int compute_pixel(double x, double y, double t) {
       int pixel = luma | luma <<8 | luma << 16;
       return pixel;
 }
-*/
+
+#else
 
 double cos_t;
 double sin_t;
@@ -163,3 +164,5 @@ int compute_pixel(double x, double y, double t) {
     double v = y1<0 ? 100 : 50*z;
     return convert_hsv_to_rgb(h, 78, v);
 }
+
+#endif
