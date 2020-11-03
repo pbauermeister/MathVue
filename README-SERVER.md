@@ -56,13 +56,13 @@ nano /etc/nginx/sites-available/default
 server {
   listen 80;
   server_name example.com;
-  
+
   # mathvue
   location /mathvue/ {
     proxy_pass http://localhost:3001/;
     #                               ^ this matters!
     # https://example.com/mathvue/xyz ==> http://localhost:3001/xyz
-    
+
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection 'upgrade';
@@ -95,4 +95,12 @@ pm2 stop server.js
 Start server sticky:
 ```
 nodejs server.js
+```
+
+## 7. Update npm packages
+
+```
+npm install -g npm-check-updates  # if ncu not yet installed sys-wide
+ncu -u
+npm update
 ```

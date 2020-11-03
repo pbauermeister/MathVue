@@ -31,7 +31,7 @@ bool preDraw(float t0) {
 
 color hsb(float x0, float y0, float t) {
     float x = x0 * cosT - y0 * sinT;
-    float y = y0 * cosT + x0 * sinT; 
+    float y = y0 * cosT + x0 * sinT;
     if(y==0) return color(0); // avoid zero-divide
 
     ay = abs(y);
