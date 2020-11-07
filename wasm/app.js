@@ -14,9 +14,12 @@ var app = new Vue({
 
   data: {
     program_nr: 0,
+    prolog_length: 0,
     running: false,
     loading: false,
     base64data: null, // Contains the actual webassembly
+    error: false,
+    error_text: null,
     formula: `
 double cos_t;
 double sin_t;
@@ -50,9 +53,46 @@ int compute_pixel(double x, double y, double t) {
   },
 
   methods: {
+    init_lines_numbering: function() {
+      $('#mytextarea').linedtextarea();
+    },
+
+    highlight_lines_numbering: function(selected_line) {
+      $('.lineno').removeClass('lineselect');
+      if (selected_line)
+	$('.lineno-' + selected_line).addClass('lineselect');
+    },
+
+    set_compile_status: function(message, line_nr) {
+      this.highlight_lines_numbering(line_nr);
+      if (message) {
+	this.error_text = message;
+	this.error = true;
+      }
+      else {
+	this.error_text = "OK";
+	this.error = false;
+      }
+    },
+
     //
     // Animation methods
     //
+
+    get_prolog_length: function() {
+      axios.get('/api/prolog_lines')
+	.then((response) => {
+	  console.log(response);
+          this.prolog_length = response.data.nb_lines;
+	})
+	.catch((error) => {
+	  console.error(error);
+	  console.error(error.response || error);
+	  console.error(error.response.data.error);
+	  console.error(error.response.data.stderr);
+          //onError(error);
+	});
+    },
 
     run: function() {
       this.compile_code();
@@ -64,6 +104,7 @@ int compute_pixel(double x, double y, double t) {
 	.then((response) => {
 	  console.log(response);
           this.base64data = response.data.base64data;
+	  this.set_compile_status();
 	  try {
 	    this.start_wasm();
 	  }
@@ -72,10 +113,19 @@ int compute_pixel(double x, double y, double t) {
 	  }
 	})
 	.catch((error) => {
-	  console.error(error);
-	  console.error(error.response || error);
-	  console.error(error.response.data.error);
-	  console.error(error.response.data.stderr);
+	  console.error(error && error.response &&
+			error.response.data && error.response.data.stderr);
+	  console.log(error.response);
+	  console.log(error.response.data.compilation);
+	  console.log(this.prolog_length);
+	  if (error.response.data && error.response.data.compilation &&
+	      this.prolog_length) {
+	    this.set_compile_status(
+	      error.response.data.compilation.msg.trim(),
+	      error.response.data.compilation.line - this.prolog_length
+	    );
+	  }
+
           //onError(error);
 	});
     },
@@ -215,6 +265,8 @@ int compute_pixel(double x, double y, double t) {
   mounted() {
     //this.compile_code();
     //this.start_wasm();
+    this.init_lines_numbering();
+    this.get_prolog_length();
     this.run();
   }
 });

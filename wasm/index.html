@@ -11,7 +11,10 @@
 
     <!-- Font Awesome -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
+
     <link rel="stylesheet" href="/common/css/style.css">
+    <link rel="stylesheet" href="/common/css/jquery-linedtextarea.css">
+
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   </head>
 
@@ -35,9 +38,19 @@
           <h2>Formula</h2>
           <textarea v-model="formula"
                     class="formula-textarea"
-                    v-on:input="onInput()"
-                    ></textarea>
-          <button class="btn btn-sm btn-primary"
+		    id="mytextarea"
+                    v-on:input="onInput()">
+	  </textarea>
+
+          <textarea v-model="error_text"
+                    class="error-textarea"
+		    :class="error ? 'error' : ''"
+		    disabled
+		    rows="5">
+	  </textarea>
+
+
+	  <button class="btn btn-sm btn-primary"
 		  v-on:click="run">Run</button>
           <button class="btn btn-sm btn-primary"
 		  v-on:click="pause"
@@ -112,6 +125,7 @@
     <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
     <script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
 
+    <script src="/common/js/jquery-linedtextarea2.js"></script>
     <script src="/common/js/component_help.js"></script>
     <script src="/common/js/component_discussion.js"></script>
 

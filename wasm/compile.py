@@ -7,6 +7,8 @@ import base64
 import os
 
 formula = sys.argv[1]
+with open('wasm/formula.c') as f:
+    prolog = f.read()
 
 CMD = ('emcc program.c '
 #       '-Os '  # avoid optim > 2 as it wil minify the identifiers.
@@ -16,14 +18,11 @@ CMD = ('emcc program.c '
        '-s WASM=1 '
        '-o out.js')
 
-with open('wasm/formula.c') as f:
-    code = f.read()
-
 with tempfile.TemporaryDirectory(prefix='wasmCompile') as d:
     os.chdir(d)
 
     with open('program.c', 'w') as f:
-        f.write(code)
+        f.write(prolog)
         f.write('\n')
         f.write(formula)
 

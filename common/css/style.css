@@ -9,11 +9,25 @@
     white-space: pre;
     overflow-wrap: normal;
 
-    width:100%;
-    min-height:300px;
-    font-size:0.75rem;
-    font-family:monospace;
+    width: 100%;
+    min-height: 300px;
+    font-size: 0.75rem;
+    font-family: monospace;
 }
+.error-textarea {
+    resize: none;
+    overflow-x: auto;
+    overflow-y: auto;
+
+    white-space: pre;
+    overflow-wrap: normal;
+
+    width: calc(100% - 64px);
+    font-size: 10pt;
+    font-family: monospace;
+    margin: 0 0 0 50px;
+}
+
 
 .badge-disabled {
     background-color: #ddd;
