@@ -5,17 +5,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="/common/lib/bootstrap4-dialog.css">
-
-    <!-- Font Awesome -->
-    <script defer src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/bootstrap4-dialog/dist/css/bootstrap-dialog.min.css">
+    <link rel="stylesheet" href="/node_modules/bootstrap-vue/dist/bootstrap-vue.css">
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
 
     <link rel="stylesheet" href="/common/css/style.css">
     <link rel="stylesheet" href="/common/css/jquery-linedtextarea.css">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   </head>
 
   <body class="p-md-3 p-1 mr-3 mr-md-0">
@@ -49,16 +46,17 @@
 		    rows="5">
 	  </textarea>
 
-
-	  <button class="btn btn-sm btn-primary"
-		  v-on:click="run">Run</button>
-          <button class="btn btn-sm btn-primary"
-		  v-on:click="pause"
-		  v-show="running">Pause</button>
-          <button class="btn btn-sm btn-primary"
+	  <div class="formula-controls">
+	    <button class="btn btn-sm btn-primary"
+		    v-on:click="run">Run</button>
+            <button class="btn btn-sm btn-primary"
+		    v-on:click="pause"
+		    v-show="running">Pause</button>
+            <button class="btn btn-sm btn-primary"
 		  v-on:click="resume"
-		  v-show="!running">Resume</button>
-        </div>
+		    v-show="!running">Resume</button>
+          </div>
+	</div>
 
         <!-- Canvas -->
         <div class="col-md-6 pt-3">
@@ -70,37 +68,41 @@
             <br/>
 
 	    <!-- buttons -->
-	    <span v-if="loading">
-              <a class="mx-1">
-		<i class="fas fa-hourglass-half" aria-hidden="true"></i>
-	      </a>
-	    </span>
-	    <span v-else>
-              <a style="cursor:pointer" class="mx-1"
-		 v-show="running"
-		 v-on:click="pause"
-		 >
-		<i class="fa fa-pause" aria-hidden="true"></i>
-	      </a>
-              <a style="cursor:pointer" class="mx-1"
-		 v-show="!running"
-		 v-on:click="resume">
-		<i class="fa fa-play" aria-hidden="true"></i>
-	      </a>
-	    </span>
-
-	    <div class="float-right">
-              <a id="fullScreenButton"
-		 class="mx-1"
-		 style="cursor:pointer" title="Full screen"
-		 v-on:click="fullScreen">
-		<i class="fa fa-expand" aria-hidden="true"></i>
-	      </a>
+	    <div class="canvas-controls">
+	      <span v-if="loading">
+		<a class="mx-1">
+		  <i class="fas fa-hourglass-half fa-spin"
+		     aria-hidden="true"></i>
+		</a>
+	      </span>
+	      <span v-else>
+		<a style="cursor:pointer" class="mx-1"
+		   v-show="running"
+		   v-on:click="pause"
+		   >
+		  <i class="fa fa-pause" aria-hidden="true"></i>
+		</a>
+		<a style="cursor:pointer" class="mx-1"
+		   v-show="!running"
+		   v-on:click="resume">
+		  <i class="fa fa-play" aria-hidden="true"></i>
+		</a>
+	      </span>
+	      <div class="float-right">
+		<a id="fullScreenButton"
+		   class="mx-1"
+		   style="cursor:pointer" title="Full screen"
+		   v-on:click="fullScreen">
+		  <i class="fa fa-expand" aria-hidden="true"></i>
+		</a>
+	      </div>
 	    </div>
 	  </div>
 	</div>
       </div>
       <br/>
+
+      <StatusDialog ref="status_dialog"></StatusDialog>
 
       <!-- Help Panel -->
       <Help markdown_path="/wasm/help.md"></Help>
@@ -113,21 +115,26 @@
       </div>
     </div>
 
-    <!-- jQuery first, then Tether, then Bootstrap JS. -->
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" crossorigin="anonymous"></script>
-    <script src="/common/lib/bootstrap4-dialog.js" crossorigin="anonymous"></script>
+    <!-- jQuery, bootstrap, vue, etc -->
+    <script src="/node_modules/jquery/dist/jquery.slim.min.js"></script>
+    <script src="/node_modules/tether/dist/js/tether.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/node_modules/bootstrap4-dialog/dist/js/bootstrap-dialog.min.js"></script>
 
-    <!-- Get Vue, and load our app's code -->
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
-    <script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
+    <script src="/node_modules/vue/dist/vue.min.js"></script>
+    <script src="/node_modules/vue-router/dist/vue-router.min.js"></script>
+    <script src="/node_modules/bootstrap-vue/dist/bootstrap-vue.min.js"></script>
 
+    <script src="/node_modules/@fortawesome/fontawesome-free/js/all.min.js"></script>
+
+    <script src="/node_modules/axios/dist/axios.min.js"></script>
+    <script src="/node_modules/showdown/dist/showdown.min.js"></script>
+
+    <!-- Our app's code -->
     <script src="/common/js/jquery-linedtextarea2.js"></script>
     <script src="/common/js/component_help.js"></script>
     <script src="/common/js/component_discussion.js"></script>
+    <script src="/common/js/component_statusdialog.js"></script>
 
     <script src="/wasm/app.js"></script>
   </body>

@@ -26,8 +26,14 @@
     font-size: 10pt;
     font-family: monospace;
     margin: 0 0 0 50px;
+
+    color: darkgreen;
+    margin-top: -8px;
 }
 
+.error {
+    color: red;
+}
 
 .badge-disabled {
     background-color: #ddd;
@@ -214,4 +220,12 @@ table {
 
 .card-header p {
     margin-bottom: 0 !important;
+}
+
+.formula-controls {
+    margin-left: 50px;
+}
+
+.canvas-controls a{
+    color: grey;
 }

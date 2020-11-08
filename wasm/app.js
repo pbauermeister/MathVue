@@ -66,6 +66,7 @@ int compute_pixel(double x, double y, double t) {
     set_compile_status: function(message, line_nr) {
       this.highlight_lines_numbering(line_nr);
       if (message) {
+	console.warn(`Compilation error: line ${line_nr}:\n${message}`);
 	this.error_text = message;
 	this.error = true;
       }
@@ -86,11 +87,7 @@ int compute_pixel(double x, double y, double t) {
           this.prolog_length = response.data.nb_lines;
 	})
 	.catch((error) => {
-	  console.error(error);
-	  console.error(error.response || error);
-	  console.error(error.response.data.error);
-	  console.error(error.response.data.stderr);
-          //onError(error);
+	  this.$refs.status_dialog.showError(error);
 	});
     },
 
@@ -103,31 +100,30 @@ int compute_pixel(double x, double y, double t) {
       axios.post('/api/compile_code', {code: this.formula})
 	.then((response) => {
 	  console.log(response);
-          this.base64data = response.data.base64data;
-	  this.set_compile_status();
 	  try {
-	    this.start_wasm();
+	    this.handle_compilation_response(response);
 	  }
 	  catch (e) {
 	    console.error(e);
 	  }
 	})
 	.catch((error) => {
-	  console.error(error && error.response &&
-			error.response.data && error.response.data.stderr);
-	  console.log(error.response);
-	  console.log(error.response.data.compilation);
-	  console.log(this.prolog_length);
-	  if (error.response.data && error.response.data.compilation &&
-	      this.prolog_length) {
-	    this.set_compile_status(
-	      error.response.data.compilation.msg.trim(),
-	      error.response.data.compilation.line - this.prolog_length
-	    );
-	  }
-
-          //onError(error);
+	  this.$refs.status_dialog.showError(error);
 	});
+    },
+
+    handle_compilation_response: function(response) {
+      if (response.data.success) {
+        this.base64data = response.data.base64data;
+	this.set_compile_status();
+	this.start_wasm();
+      }
+      else {
+	this.set_compile_status(
+	  response.data.compilation.msg.trim(),
+	  response.data.compilation.line - this.prolog_length
+	);
+      }
     },
 
     pause: function() {

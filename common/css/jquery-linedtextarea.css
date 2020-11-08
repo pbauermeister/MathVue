@@ -74,15 +74,3 @@
 .linedwrap .codelines .lineselect {
     color: red;
 }
-
-.error-textarea {
-    color: darkgreen;
-    margin-top: -8px;
-}
-
-.error {
-    color: red;
-}
-
-.formula-textarea {
-}

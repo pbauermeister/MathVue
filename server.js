@@ -166,16 +166,16 @@ app.post('/api/compile_code', jsonParser, async function(req, res) {
       let parts = stderr.split(':');
       let file = parts[0];
       let line = parseInt(parts[1]);
-      let pos = parseInt(parts[2];)
+      let pos = parseInt(parts[2]);
 
       let i = stderr.indexOf(' ');
       let rest = stderr.slice(i+1);
       i = rest.indexOf('emcc: error:');
       let msg = rest.slice(0,i);
 
-      res.status(500);
+      //res.status(500);
       res.send(JSON.stringify({
-	success:false,
+	success: false,
 	error, stdout, stderr,
 	compilation: {file, line, pos, msg}
       }));
@@ -183,6 +183,7 @@ app.post('/api/compile_code', jsonParser, async function(req, res) {
     }
     console.log('... compile_code done.');
     res.send(JSON.stringify({
+      success: true,
       base64data: stdout.trim()
     }));
   });
