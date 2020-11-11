@@ -88,7 +88,12 @@
 		  <i class="fa fa-play" aria-hidden="true"></i>
 		</a>
 	      </span>
+
 	      <div class="float-right">
+		<span class="mx-1 text-muted small">
+		  <span v-if="fps">{{ fps }} fps</span>
+		  <span v-else>Computing fps...</span>
+		</span>
 		<a id="fullScreenButton"
 		   class="mx-1"
 		   style="cursor:pointer" title="Full screen"

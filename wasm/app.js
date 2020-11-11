@@ -19,7 +19,9 @@ var app = new Vue({
     base64data: null, // Contains the actual webassembly
     error: false,
     errorText: null,
-    frameNr: 0,
+    fpsFrameNr: 0,
+    fpsStartTime: null,
+    fps: null,
     formula: `
 WIDTH = 505;
 HEIGHT = 303;
@@ -181,6 +183,21 @@ int compute_pixel(double x, double y, double t) {
       this.startWasmAsync();
     },
 
+    updateFps: function() {
+      if (!this.fpsFrameNr) {
+	this.fpsStartTime = Date.now();
+	++this.fpsFrameNr;
+      }
+      else if (this.fpsFrameNr < 50) {
+	++this.fpsFrameNr;
+      }
+      else {
+	let delta = (Date.now() - this.fpsStartTime) / 1000;
+	this.fps = Math.round(this.fpsFrameNr / delta);
+	this.fpsFrameNr = 0;
+      }
+    },
+
     startWasmAsync: async function() {
       const binary_code = this.decodeB64(this.base64data);
       console.log('*** start wasm: B64 code length:', this.base64data.length);
@@ -258,6 +275,7 @@ int compute_pixel(double x, double y, double t) {
       const render = (timestamp) => {
 	if (this.programNr != programNr)
 	  return;
+	this.updateFps();
 	if (this.running) {
 	  render_f(timestamp);
 	  ctx.putImageData(img, 0, 0);
