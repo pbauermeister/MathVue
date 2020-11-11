@@ -22,13 +22,11 @@
     white-space: pre;
     overflow-wrap: normal;
 
-    width: calc(100% - 64px);
+    width: 100%;
     font-size: 10pt;
     font-family: monospace;
-    margin: 0 0 0 50px;
 
     color: darkgreen;
-    margin-top: -8px;
 }
 
 .error {
@@ -228,4 +226,15 @@ table {
 
 .canvas-controls a{
     color: grey;
+}
+
+.ace_editor {
+    border: 1px solid grey;
+    font-size: 14px;
+    font-family: monospace, Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro;
+    line-height: 1.25em;
+}
+
+.ace_scroller.ace_scroll-left {
+    box-shadow: none;
 }

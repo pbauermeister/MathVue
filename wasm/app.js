@@ -1,7 +1,40 @@
+Vue.component('Editor', {
+  template: '<div :id="editorId" style="width: 100%; height: 100%;"></div>',
+  props: ['editorId', 'content', 'lang', 'theme'],
+  data () {
+    return {
+      editor: Object,
+      beforeContent: ''
+    }
+  },
+  watch: {
+    'content' (value) {
+      if (this.beforeContent !== value) {
+        this.editor.setValue(value, 1)
+      }
+    }
+  },
+  mounted () {
+    const lang = this.lang || 'text'
+    const theme = this.theme || 'github'
+
+    this.editor = window.ace.edit(this.editorId)
+    this.editor.setValue(this.content, 1)
+
+    this.editor.getSession().setMode(`ace/mode/${lang}`)
+    this.editor.setTheme(`ace/theme/${theme}`)
+
+    this.editor.on('change', () => {
+      this.beforeContent = this.editor.getValue()
+      this.$emit('change-content', this.editor.getValue())
+    })
+  }
+})
+
+
 /*
  * Vue.js app.
  */
-
 
 var router = new VueRouter({
   mode: 'history',
@@ -13,6 +46,7 @@ var app = new Vue({
   el: '#app',
 
   data: {
+    contentA: 'default content for Editor A',
     program_nr: 0,
     prolog_length: 0,
     running: false,
@@ -21,6 +55,9 @@ var app = new Vue({
     error: false,
     error_text: null,
     formula: `
+WIDTH = 505;
+HEIGHT = 303;
+
 double cos_t;
 double sin_t;
 bool pre_draw(double t0) {
@@ -53,20 +90,21 @@ int compute_pixel(double x, double y, double t) {
   },
 
   methods: {
-    init_lines_numbering: function() {
-      $('#mytextarea').linedtextarea();
-    },
-
-    highlight_lines_numbering: function(selected_line) {
-      $('.lineno').removeClass('lineselect');
-      if (selected_line)
-	$('.lineno-' + selected_line).addClass('lineselect');
+    changeEditorContent: function(val) {
+      if (this.formula !== val) {
+        this.formula = val
+      }
     },
 
     set_compile_status: function(message, line_nr) {
-      this.highlight_lines_numbering(line_nr);
       if (message) {
-	console.warn(`Compilation error: line ${line_nr}:\n${message}`);
+	if (line_nr) {
+	  let nr = line_nr - this.prolog_length;
+	  console.warn(`Compilation error: line ${nr}:\n${message}`);
+	}
+	else {
+	  console.warn(`Compilation error:\n${message}`);
+	}
 	this.error_text = message;
 	this.error = true;
       }
@@ -108,6 +146,7 @@ int compute_pixel(double x, double y, double t) {
 	  }
 	})
 	.catch((error) => {
+	  this.loading = false;
 	  this.$refs.status_dialog.showError(error);
 	});
     },
@@ -119,9 +158,10 @@ int compute_pixel(double x, double y, double t) {
 	this.start_wasm();
       }
       else {
+	this.loading = false;
 	this.set_compile_status(
 	  response.data.compilation.msg.trim(),
-	  response.data.compilation.line - this.prolog_length
+	  response.data.compilation.line
 	);
       }
     },
@@ -176,8 +216,6 @@ int compute_pixel(double x, double y, double t) {
     },
 
     start_wasm_async: async function() {
-      this.factor = -(this.factor||1);
-
       const binary_code = this.decode_b64(this.base64data);
       console.log('*** start_wasm');
       console.log('Code length (b64):', this.base64data.length);
@@ -215,26 +253,33 @@ int compute_pixel(double x, double y, double t) {
       var exports = WebAssembly.Module.exports(module);
       console.log({exports});
 
-      const instance = await WebAssembly.instantiate(module, importObject);
-
       // Get canvas
       // ----------
       const canvas = document.getElementById('canvas');
-      const height = canvas.height;
-      const width = canvas.width;
       const ctx = canvas.getContext(
 	'2d', {alpha: false, antialias: false, depth: false}
       );
       if (!ctx) {
 	throw 'Your browser does not support canvas';
       }
+      let height = canvas.height;
+      let width = canvas.width;
 
       // Bind WASM to canvas
       // -------------------
+      const instance = await WebAssembly.instantiate(module, importObject);
       const init_f = instance.exports._init || instance.exports.init;
       const render_f = instance.exports._render || instance.exports.render;
+      console.warn(instance.exports)
+      const formula_width = instance.exports.get_width();
+      const formula_height = instance.exports.get_height();
+      console.warn('formula size', formula_width, formula_height);
+      if (formula_width && formula_height) {
+	canvas.width = width = formula_width;
+	canvas.height = height = formula_height;
+      }
 
-      const pointer = init_f(width, height, this.factor);
+      const pointer = init_f(width, height);
       const data = new Uint8ClampedArray(memory.buffer, pointer,
 					 width * height * 4);
       const img = new ImageData(data, width, height);
@@ -261,7 +306,6 @@ int compute_pixel(double x, double y, double t) {
   mounted() {
     //this.compile_code();
     //this.start_wasm();
-    this.init_lines_numbering();
     this.get_prolog_length();
     this.run();
   }

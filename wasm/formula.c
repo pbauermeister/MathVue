@@ -3,17 +3,8 @@
 #include <stdbool.h>
 #include <emscripten.h>
 
-double X_MIN =   -1;
-double X_MAX =    1;
-double Y_MIN =  0.5;
-double Y_MAX = -0.5;
-
-int HEIGHT;
-int WIDTH;
-int PIXEL_COUNT;
-
-double X_SPAN;
-double Y_SPAN;
+////////////////////////////////////////////////////////////////////////////////
+// Math constants and functions
 
 #define PI 3.14159265358979323846
 #define TWO_PI (PI*2)
@@ -33,17 +24,8 @@ double customAtan2(float y, float x) {
   return y < 0 ? -angle : angle;
 }
 
-//int* data;
-int data[2000000];
-
-int* EMSCRIPTEN_KEEPALIVE init(int cWidth, int cHeight, int cFactor) {
-  WIDTH = cWidth;
-  HEIGHT = cHeight;
-  PIXEL_COUNT = WIDTH * HEIGHT;
-//  data = malloc(pixelCount * sizeof(int));
-  return data;
-}
-
+////////////////////////////////////////////////////////////////////////////////
+// Color functions
 
 int convert_hsv_to_rgb(float hue, float sat, float val) {
   hue = fmin(hue, 360);
@@ -86,8 +68,51 @@ int convert_hsv_to_rgb(float hue, float sat, float val) {
          (red        );
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Forward declaration of functions that must be implemented by user code
+
 int compute_pixel(double x, double y, double t);
 bool pre_draw(double t);
+
+////////////////////////////////////////////////////////////////////////////////
+// Variables
+
+//int* data;
+int data[2000000];
+
+double X_MIN =   -1;
+double X_MAX =    1;
+double Y_MIN =  0.5;
+double Y_MAX = -0.5;
+
+int HEIGHT;
+int WIDTH;
+int PIXEL_COUNT;
+
+double X_SPAN;
+double Y_SPAN;
+
+////////////////////////////////////////////////////////////////////////////////
+// Accessors
+
+int EMSCRIPTEN_KEEPALIVE get_width() {
+  return WIDTH;
+}
+
+int EMSCRIPTEN_KEEPALIVE get_height() {
+  return HEIGHT;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Functions that can be called by user
+
+int* EMSCRIPTEN_KEEPALIVE init(int cWidth, int cHeight) {
+  WIDTH = cWidth;
+  HEIGHT = cHeight;
+  PIXEL_COUNT = WIDTH * HEIGHT;
+//  data = malloc(pixelCount * sizeof(int));
+  return data;
+}
 
 void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
   X_SPAN = X_MAX - X_MIN;
@@ -115,6 +140,8 @@ void EMSCRIPTEN_KEEPALIVE render(double timestamp) {
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 #if 0
 bool pre_draw(double t) { return true; }
@@ -165,4 +192,4 @@ int compute_pixel(double x, double y, double t) {
 
 #endif
 
-//// User formula:
+// User formula:
