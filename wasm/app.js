@@ -12,14 +12,14 @@ var app = new Vue({
   el: '#app',
 
   data: {
-    contentA: 'default content for Editor A',
-    program_nr: 0,
-    prolog_length: 0,
+    programNr: 0,
+    prologLength: 0,
     running: false,
     loading: false,
     base64data: null, // Contains the actual webassembly
     error: false,
-    error_text: null,
+    errorText: null,
+    frameNr: 0,
     formula: `
 WIDTH = 505;
 HEIGHT = 303;
@@ -62,20 +62,20 @@ int compute_pixel(double x, double y, double t) {
       }
     },
 
-    set_compile_status: function(message, line_nr) {
+    setCompileStatus: function(message, line_nr) {
       if (message) {
 	if (line_nr) {
-	  let nr = line_nr - this.prolog_length;
+	  let nr = line_nr - this.prologLength;
 	  console.warn(`Compilation error: line ${nr}:\n${message}`);
 	}
 	else {
 	  console.warn(`Compilation error:\n${message}`);
 	}
-	this.error_text = message;
+	this.errorText = message;
 	this.error = true;
       }
       else {
-	this.error_text = "OK";
+	this.errorText = "OK";
 	this.error = false;
       }
     },
@@ -84,11 +84,11 @@ int compute_pixel(double x, double y, double t) {
     // Animation methods
     //
 
-    get_prolog_length: function() {
+    getPrologLength: function() {
       axios.get('/api/prolog_lines')
 	.then((response) => {
-	  console.log(response);
-          this.prolog_length = response.data.nb_lines;
+	  //console.log('getPrologLength():', response);
+          this.prologLength = response.data.nb_lines;
 	})
 	.catch((error) => {
 	  this.$refs.status_dialog.showError(error);
@@ -96,16 +96,16 @@ int compute_pixel(double x, double y, double t) {
     },
 
     run: function() {
-      this.compile_code();
+      this.compileCode();
     },
 
-    compile_code: function() {
+    compileCode: function() {
       this.loading = true;
       axios.post('/api/compile_code', {code: this.formula})
 	.then((response) => {
-	  console.log(response);
+	  console.log('compileCode():', response);
 	  try {
-	    this.handle_compilation_response(response);
+	    this.handleCompilationResponse(response);
 	  }
 	  catch (e) {
 	    console.error(e);
@@ -117,15 +117,15 @@ int compute_pixel(double x, double y, double t) {
 	});
     },
 
-    handle_compilation_response: function(response) {
+    handleCompilationResponse: function(response) {
       if (response.data.success) {
         this.base64data = response.data.base64data;
-	this.set_compile_status();
-	this.start_wasm();
+	this.setCompileStatus();
+	this.startWasm();
       }
       else {
 	this.loading = false;
-	this.set_compile_status(
+	this.setCompileStatus(
 	  response.data.compilation.msg.trim(),
 	  response.data.compilation.line
 	);
@@ -140,7 +140,7 @@ int compute_pixel(double x, double y, double t) {
       this.running = true;
     },
 
-    play_toggle: function() {
+    playToggle: function() {
       this.running = !this.running;
     },
 
@@ -168,7 +168,7 @@ int compute_pixel(double x, double y, double t) {
     // Wasm methods
     //
 
-    decode_b64: function(b64) {
+    decodeB64: function(b64) {
       const str = window.atob(b64);
       const array = new Uint8Array(str.length);
       for (let i = 0; i < str.length; i += 1) {
@@ -177,14 +177,13 @@ int compute_pixel(double x, double y, double t) {
       return array.buffer;
     },
 
-    start_wasm: function() {
-      this.start_wasm_async();
+    startWasm: function() {
+      this.startWasmAsync();
     },
 
-    start_wasm_async: async function() {
-      const binary_code = this.decode_b64(this.base64data);
-      console.log('*** start_wasm');
-      console.log('Code length (b64):', this.base64data.length);
+    startWasmAsync: async function() {
+      const binary_code = this.decodeB64(this.base64data);
+      console.log('*** start wasm: B64 code length:', this.base64data.length);
 
       // Compile WASM
       // ------------
@@ -206,7 +205,7 @@ int compute_pixel(double x, double y, double t) {
 	},
 	imports: {
 	  imported_func: function(arg) {
-	    console.log(arg);
+	    console.log('*** imported_func', arg);
 	  },
 	}
       };
@@ -215,9 +214,9 @@ int compute_pixel(double x, double y, double t) {
 
       const module = await WebAssembly.compile(buffer);
       var imports = WebAssembly.Module.imports(module);
-      console.log({imports});
+      //console.log('imports:', {imports});
       var exports = WebAssembly.Module.exports(module);
-      console.log({exports});
+      //console.log('exports:', {exports});
 
       // Get canvas
       // ----------
@@ -236,10 +235,10 @@ int compute_pixel(double x, double y, double t) {
       const instance = await WebAssembly.instantiate(module, importObject);
       const init_f = instance.exports._init || instance.exports.init;
       const render_f = instance.exports._render || instance.exports.render;
-      console.warn(instance.exports)
+      //console.warn('exports:', instance.exports)
       const formula_width = instance.exports.get_width();
       const formula_height = instance.exports.get_height();
-      console.warn('formula size', formula_width, formula_height);
+      console.log('Formula-defined size:', formula_width, formula_height);
       if (formula_width && formula_height) {
 	canvas.width = width = formula_width;
 	canvas.height = height = formula_height;
@@ -252,12 +251,12 @@ int compute_pixel(double x, double y, double t) {
 
       // Render
       // ------
-      this.program_nr++;
+      this.programNr++;
       this.loading = false;
       this.running = true;
-      let program_nr = this.program_nr;
+      let programNr = this.programNr;
       const render = (timestamp) => {
-	if (this.program_nr != program_nr)
+	if (this.programNr != programNr)
 	  return;
 	if (this.running) {
 	  render_f(timestamp);
@@ -270,9 +269,7 @@ int compute_pixel(double x, double y, double t) {
   },
 
   mounted() {
-    //this.compile_code();
-    //this.start_wasm();
-    this.get_prolog_length();
+    this.getPrologLength();
     this.run();
   }
 });
