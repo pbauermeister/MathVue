@@ -57,19 +57,26 @@
             <!-- buttons -->
             <div class="float-left">
               <a style="cursor:pointer" title="Play"
-                 v-bind:class="{ 'text-muted': running }"
-                 v-bind:disabled="running"
-                 v-on:click="resume"><i class="fa fa-play" aria-hidden="true"></i></a>
-
+                 v-show="!running"
+                 v-on:click="resume">
+		<i class="fa fa-play" aria-hidden="true"></i>
+	      </a>
               <a style="cursor:pointer" title="Pause"
-                 v-bind:class="{ 'text-muted': !running }"
-                 v-bind:disabled="!running"
-                 v-on:click="pause"><i class="fa fa-pause" aria-hidden="true"></i></a>
+                 v-show="running"
+                 v-on:click="pause">
+		<i class="fa fa-pause" aria-hidden="true"></i>
+	      </a>
             </div>
             <div class="float-right">
+	      <span class="mx-1 text-muted small">
+		<span v-if="fps">{{ fps }} fps</span>
+	      </span>
               <a id="fullScreenButton"
+		 class="ml-1"
                  style="cursor:pointer" title="Full screen"
-                 v-on:click="fullScreen"><i class="fa fa-expand" aria-hidden="true"></i></a>
+                 v-on:click="fullScreen">
+		<i class="fa fa-expand" aria-hidden="true"></i>
+	      </a>
             </div>
           </div>
         </div>

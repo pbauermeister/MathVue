@@ -158,11 +158,33 @@ void drawFrame(t, func) {
 	postDraw(t);
     }
 }
+
+var fpsFrameNr = 0;
+var fpsStartTime = null;
+var fps = null;
+void updateFps() {
+  if (!fpsFrameNr) {
+	fpsStartTime = Date.now();
+	++fpsFrameNr;
+  }
+  else if (fpsFrameNr < 50) {
+	++fpsFrameNr;
+  }
+  else {
+	let delta = (Date.now() - fpsStartTime) / 1000;
+	fps = Math.round(fpsFrameNr / delta);
+	fpsFrameNr = 0;
+  }
+}
+int getFps() {
+    return fps;
+}
 void draw() {
     if(TIME_INCREMENT==0) {
 	noLoop();
     }
     else {
+        updateFps();
 	t += TIME_INCREMENT;
 	drawFrame(t, FN);
     }

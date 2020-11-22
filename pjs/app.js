@@ -35,6 +35,7 @@ var app = new Vue({
     started: false,
     link: makeLink(false, pjs_formula.defaultFormula),
     linkToGithub: makeLink(true, pjs_formula.defaultFormula),
+    fps: null,
 
     dropbox: new DropboxStorage(),
     dropboxAllowed: true,
@@ -50,6 +51,17 @@ var app = new Vue({
   },
 
   methods: {
+    printFps: function() {
+      setTimeout(function() {
+	if (this.running) {
+	  this.fps = pjs_adaptor.processingInstance.getFps();
+	  this.printFps();
+	}
+	else {
+	  this.fps = null;
+	}
+      }.bind(this), 500);
+    },
     //
     // Animation methods
     //
@@ -58,6 +70,7 @@ var app = new Vue({
       this.running = true;
       this.started = true;
       pjs_adaptor.loadSketch(this.formula);
+      this.printFps();
     },
 
     pause: function(event) {
@@ -71,6 +84,7 @@ var app = new Vue({
       } else {
         this.running = true;
         pjs_adaptor.switchSketchState(true);
+	this.printFps();
       }
     },
 
