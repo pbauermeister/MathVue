@@ -24,6 +24,11 @@ Vue.component('Editor', {
     this.editor.getSession().setMode(`ace/mode/${lang}`)
     this.editor.setTheme(`ace/theme/${theme}`)
 
+    this.editor.setOptions({
+      fontFamily: "monospace",
+      fontSize: "0.75em"
+    });
+
     this.editor.on('change', () => {
       this.beforeContent = this.editor.getValue()
       this.$emit('change-content', this.editor.getValue())

@@ -14,6 +14,7 @@
     font-size: 0.75rem;
     font-family: monospace;
 }
+
 .error-textarea {
     resize: none;
     overflow-x: auto;
@@ -27,6 +28,11 @@
     font-family: monospace;
 
     color: darkgreen;
+}
+
+.textarea, .error-textarea {
+    font-size: 0.75rem;
+    font-family: monospace;
 }
 
 .error {
