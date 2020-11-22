@@ -26,6 +26,8 @@ var app = new Vue({
 WIDTH = 505;
 HEIGHT = 303;
 
+void initialize() {}
+
 double cos_t;
 double sin_t;
 bool pre_draw(double t0) {
@@ -54,7 +56,31 @@ int compute_pixel(double x, double y, double t) {
     double h = (z + color_shift) * 120; // 0..360
     double v = y1<0 ? 100 : 50*z;
     return convert_hsv_to_rgb(h, 78, v);
-}`.trim()
+}`.trim(),
+    formula: `
+#include "noise/open-simplex-noise.c"
+
+WIDTH = 505;
+HEIGHT = 303;
+
+double cos_t;
+double sin_t;
+
+struct osn_context *ctx;
+void initialize() {
+  open_simplex_noise(77374, &ctx);
+}
+
+bool pre_draw(double t0) {
+  return true;
+}
+
+int compute_pixel(double x, double y, double t) {
+
+  float f0 = open_simplex_noise3(ctx, x*5+t, y*5, t) *.6 + .4;
+  return convert_hsv_to_rgb(f0*360, 100,  100);
+}
+`.trim()
   },
 
   methods: {
@@ -102,6 +128,7 @@ int compute_pixel(double x, double y, double t) {
     },
 
     compileCode: function() {
+      this.pause();
       this.loading = true;
       axios.post('/api/compile_code', {code: this.formula})
 	.then((response) => {
@@ -180,7 +207,14 @@ int compute_pixel(double x, double y, double t) {
     },
 
     startWasm: function() {
-      this.startWasmAsync();
+      try {
+	this.startWasmAsync();
+      }
+      catch(error) {
+	console.error(error);
+	this.errorText = '' + error;
+	this.error = true;
+      }
     },
 
     updateFps: function() {
@@ -218,7 +252,10 @@ int compute_pixel(double x, double y, double t) {
 	  table: new WebAssembly.Table({
 	    initial: 0,
 	    element: 'anyfunc'
-	  })
+	  }),
+	  emscripten_resize_heap: function(size) {
+            return false; // always fail
+          }
 	},
 	imports: {
 	  imported_func: function(arg) {

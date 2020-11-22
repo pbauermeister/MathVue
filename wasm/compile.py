@@ -1,16 +1,24 @@
 #!/usr/bin/python3
 
+import base64
+import glob
+import os
+import shutil
+import subprocess
 import sys
 import tempfile
-import subprocess
-import base64
-import os
 
 formula = sys.argv[1]
-with open('wasm/formula.c') as f:
+PROGRAM = 'program.c'
+
+os.chdir('wasm')
+with open('formula.c') as f:
     prolog = f.read()
 
-CMD = ('emcc program.c '
+# find all subdirectories
+dirs = [os.path.split(d)[0] for d in glob.glob('*' + os.sep)]
+
+CMD = (f'emcc {PROGRAM} '
 #       '-Os '  # avoid optim > 2 as it wil minify the identifiers.
 #       '-O3 --profiling-funcs --profiling -g3 '  # no good
        '-O2 '
@@ -19,15 +27,20 @@ CMD = ('emcc program.c '
        '-o out.js')
 
 with tempfile.TemporaryDirectory(prefix='wasmCompile') as d:
-    os.chdir(d)
+    # copy subdirs to tempdir
+    for src in dirs:
+        shutil.copytree(src, os.path.join(d, src))
 
-    with open('program.c', 'w') as f:
+    # compile program
+    os.chdir(d)
+    # - assemble source file
+    with open(PROGRAM, 'w') as f:
         f.write(prolog)
         f.write('\n')
         f.write(formula)
-
+    # - compile
     subprocess.check_call(CMD.split())
-
+    # - read result
     with open('out.wasm', 'rb') as f:
         wasm = f.read()
 
