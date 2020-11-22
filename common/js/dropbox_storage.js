@@ -64,8 +64,15 @@ function DropboxStorage() {
         if (response.data.has_more)
           that.listFolder(response.data.cursor, onResponse, onError, entries)
         else {
-          var entries = entries.sort((a, b) => a.path_display.toUpperCase() > b.path_display.toUpperCase());
-          onResponse(entries);
+	  function fixup(s) {
+	    // append '/' if file is at root, to list files before dirs
+	    return (s.split('/').length == 2 && s[0] == '/') ? '/' + s : s;
+	  }
+          var sortedEntries = entries.sort(
+	    (a, b) => fixup(a.path_lower) > fixup(b.path_lower) ? 1 : -1
+	  );
+          console.log(sortedEntries);
+          onResponse(sortedEntries);
         }
       },
       (error) => {
@@ -73,7 +80,7 @@ function DropboxStorage() {
       });
   };
 
-  this.listPublicFolder = function(cursor, onResponse, onError, entries) {
+  this.listPublicFolder = function(cursor, onResponse, onError) {
     var that = this;
     var params = {
       method: 'GET',
@@ -81,7 +88,9 @@ function DropboxStorage() {
     };
     axios(params).then(
       (response) => {
-        var entries = response.data.entries.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase());
+        var entries = response.data.entries.sort(
+	  (a, b) => a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1
+	);
         console.log(entries);
         onResponse(entries);
       },
