@@ -177,13 +177,17 @@ var app = new Vue({
 
     dropboxLoadSampleDialog: function() {
       var busy = this.fileDialog.showBusyDialog('Reading files list...');
-      this.dropbox.listPublicFolder(null, function(entries) {
-        busy.close();
-        this.fileDialog.openFileGallery(entries, this.dropboxLoadFileGallery);
-      }.bind(this), function(error) {
-        busy.close();
-        this._dropboxError(error);
-      }.bind(this));
+      this.dropbox.listPublicFolder(
+	null,
+	function(entries) {
+          busy.close();
+          this.fileDialog.openFileGallery(entries, this.dropboxLoadFileGallery);
+	}.bind(this),
+	function(error) {
+          busy.close();
+          this._dropboxError(error);
+	}.bind(this)
+      );
     },
 
     dropboxLoadDialog: function() {
