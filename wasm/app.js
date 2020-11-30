@@ -146,9 +146,6 @@ int compute_pixel(double x, double y, double t) {
       else {
 	this.loading = false;
 	this.setCompileStatus(response.data.stderr);
-//	  response.data.compilation.msg.trim(),
-//	  response.data.compilation.line
-//		);
       }
     },
 
