@@ -1,5 +1,5 @@
 
-function DropboxStorage() {
+function DropboxStorage(ending) {
 
   this.getLoginUrl = function() {
     var mathvue_client_id = '65hebhcza1whb68';
@@ -84,7 +84,7 @@ function DropboxStorage() {
     var that = this;
     var params = {
       method: 'GET',
-      url: '/api/gallery',
+      url: '/api/gallery/' + ending,
     };
     axios(params).then(
       (response) => {
@@ -227,7 +227,7 @@ function DropboxStorage() {
     entries.forEach(function(entry) {
       var cached = this.thumbnailsCache[entry.id]; // use cache
       if (cached) thumbnailHandler(entry.id, cached);
-      this.getThumbnailDataUrl(entry, ending, function(dataUrl) {        
+      this.getThumbnailDataUrl(entry, ending, function(dataUrl) {
         this.thumbnailsCache[entry.id] = dataUrl; // set cache
         thumbnailHandler(entry.id, dataUrl);
       }.bind(this));

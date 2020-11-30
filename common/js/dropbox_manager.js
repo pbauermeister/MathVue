@@ -2,7 +2,7 @@ function DropboxManager(onLoginStateCB,
 			getFormulaCB, setFormulaCB,
 			grabImageCB,
 			ending, urlHash) {
-  this.dropboxStorage = new DropboxStorage();
+  this.dropboxStorage = new DropboxStorage(ending);
   this.dropboxLoginUrl = this.dropboxStorage.getLoginUrl();
   this.dropboxLoggedIn = this.dropboxStorage.isLoggedIn();
 
@@ -56,7 +56,7 @@ function DropboxManager(onLoginStateCB,
 
   this._dropboxFilterEntries = function(entries) {
     //return entries;
-    return entries.filter(entry => entry.name.endsWith('.formula'));
+    return entries.filter(entry => entry.name.endsWith('.' + ending));
   };
 
   this._dropboxError = function(error) {

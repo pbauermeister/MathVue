@@ -33,7 +33,6 @@ const message = 'MathVue app (a Node.js backend) listening on port 3001!';
 const GALLERY_PAGE_URL_BASE = 'https://www.dropbox.com/sh/18v296344ohwyiy/';
 const GALLERY_PAGE_URL = GALLERY_PAGE_URL_BASE + 'AADyygfek6SDwHbk6i4PS7Zya?dl=0';
 
-const EXT_FORMULA = 'formula';
 const EXT_THUMB = 'png';
 const PARTS_RX = new RegExp('.*?/([^/]+)[.]([^/]+)$');
 
@@ -70,13 +69,16 @@ function rxMatches(text, rx) {
 // It is implemented this way in the backend because the API does not
 // work as needed for public folders.
 //
-const GALLERY_FORMULA_RX = mkUrlRegExp(EXT_FORMULA);
 const GALLERY_THUMB_RX = mkUrlRegExp(EXT_THUMB);
-app.get('/api/gallery', async function(req, res) {
+
+app.get('/api/gallery/:ext', async function(req, res) {
   var options = {
     host: 'www.dropbox.com',
     path: GALLERY_PAGE_URL,
   };
+
+  let ext_formula = req.params.ext;
+  let gallery_formula_rx = mkUrlRegExp(ext_formula);
 
   //console.log('ask dropbox');
   var req2 = https.get(options, function(res2) {
@@ -90,7 +92,7 @@ app.get('/api/gallery', async function(req, res) {
       //console.log("----------------------");
 
       // formula and thumbnail urls
-      var formula_matches = rxMatches(body, GALLERY_FORMULA_RX);
+      var formula_matches = rxMatches(body, gallery_formula_rx);
       var thumb_matches = rxMatches(body, GALLERY_THUMB_RX);
       // assemble items list
       var entries = formula_matches.map(function(formula) {
@@ -102,7 +104,7 @@ app.get('/api/gallery', async function(req, res) {
         }, {thumb_rx: thumb_rx} );
         // make one item
         return {
-          name: unescape(parts[1]) + '.' + EXT_FORMULA,
+          name: unescape(parts[1]) + '.' + ext_formula,
           formula_url: formula, // + '?dl=1',
           thumb_url: thumbs && thumbs.length ? thumbs[0] + '?dl=1': null,
         };

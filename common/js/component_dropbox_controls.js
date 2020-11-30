@@ -35,7 +35,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
   template: `
 <span>
   <span v-if="control=='LoadSamples'"
-	class="badge badge-pill badge-default"
+	class="badge badge-pill badge-default badge-secondary"
         style="cursor:pointer"
         v-on:click="manager.dropboxLoadSampleDialog">
     Load sample
@@ -44,14 +44,14 @@ var dropbox_controls_component = Vue.component('Dropbox', {
 
   <span v-if="control=='Save'">
     <span v-if="dropboxLoggedIn">
-      <span class="badge badge-pill badge-default"
+      <span class="badge badge-pill badge-default badge-secondary"
 	    style="cursor:pointer"
 	    v-on:click="manager.dropboxSaveDialog">
         Save to Dropbox
       </span>
     </span>
     <span v-else>
-      <span class="badge badge-pill badge-disabled">
+      <span class="badge badge-pill badge-disabled badge-secondary">
         Save to Dropbox
       </span>
     </span>
@@ -60,14 +60,14 @@ var dropbox_controls_component = Vue.component('Dropbox', {
 
   <span v-if="control=='Load'">
     <span v-if="dropboxLoggedIn">
-      <span class="badge badge-pill badge-default"
+      <span class="badge badge-pill badge-default badge-secondary"
 	    style="cursor:pointer"
 	    v-on:click="manager.dropboxLoadDialog">
         Load from Dropbox
       </span>
     </span>
     <span v-else>
-      <span class="badge badge-pill badge-disabled">
+      <span class="badge badge-pill badge-disabled badge-secondary">
         Load from Dropbox
       </span>
     </span>
@@ -90,7 +90,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
         </small>
         |
         <small>
-          <div class="badge badge-pill badge-default"
+          <div class="badge badge-pill badge-default badge-secondary"
 	       style="cursor:pointer"
 	       v-on:click="manager.dropboxLogout">
             Logout
@@ -110,7 +110,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
     <!-- login link when logged out -->
     <div v-if="!dropboxLoggedIn">
       Please
-      <a class="badge badge-pill badge-default"
+      <a class="badge badge-pill badge-default badge-secondary"
 	 v-bind:href="manager.dropboxLoginUrl">
 	Login to Dropbox
       </a>

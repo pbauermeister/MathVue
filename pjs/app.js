@@ -9,8 +9,23 @@ var router = new VueRouter({
   routes: []
 });
 
-var pjs_adaptor = new ProcessingJsAdaptor();
-var pjs_formula = new ProcessingJsFormula()
+var processingjsAdaptor = new ProcessingJsAdaptor();
+var browserFormulaStorage = new BrowserFormulaStorage(ENDING,`
+WIDTH = 300;
+RATIO = 1;
+X_MIN = -20; X_MAX = 20;
+Y_MIN = -20; Y_MAX = 20;
+MOUSE_MOVE = true;
+
+color hsb(x, y) {
+  float d = dist(u, v, mouseX, mouseY) / WIDTH * 10;
+  float shift = mouseX / WIDTH;
+
+  float bright = (1/d) * 255;
+  float hue = shift * 255;
+
+  return color(hue, 255, bright);
+}`);
 
 var app = new Vue({
   router,
@@ -20,8 +35,8 @@ var app = new Vue({
     formula: null,
     running: false,
     started: false,
-    link: makeLink(false, pjs_formula.defaultFormula),
-    linkToGithub: makeLink(true, pjs_formula.defaultFormula),
+    link: makeLink(false, browserFormulaStorage.defaultFormula),
+    linkToGithub: makeLink(true, browserFormulaStorage.defaultFormula),
     fps: null,
     dropboxManager: null
   },
@@ -30,7 +45,7 @@ var app = new Vue({
     printFps: function() {
       setTimeout(function() {
 	if (this.running) {
-	  this.fps = pjs_adaptor.processingInstance.getFps();
+	  this.fps = processingjsAdaptor.processingInstance.getFps();
 	  this.printFps();
 	}
 	else {
@@ -46,13 +61,13 @@ var app = new Vue({
     run: function(event) {
       this.running = true;
       this.started = true;
-      pjs_adaptor.loadSketch(this.formula);
+      processingjsAdaptor.loadSketch(this.formula);
       this.printFps();
     },
 
     pause: function(event) {
       this.running = false;
-      pjs_adaptor.switchSketchState(false);
+      processingjsAdaptor.switchSketchState(false);
     },
 
     resume: function(event) {
@@ -60,7 +75,7 @@ var app = new Vue({
         this.run();
       } else {
         this.running = true;
-        pjs_adaptor.switchSketchState(true);
+        processingjsAdaptor.switchSketchState(true);
 	this.printFps();
       }
     },
@@ -93,7 +108,7 @@ var app = new Vue({
     onInput: function() {
       this.link = makeLink(false, this.formula);
       this.linkToGithub = makeLink(true, this.formula);
-      pjs_formula.save(this.formula);
+      browserFormulaStorage.save(this.formula);
     },
 
     //
@@ -106,7 +121,7 @@ var app = new Vue({
     setFormula: function(formula) {
       this.formula = formula;
       this.runOneFrame();
-      pjs_formula.save(this.formula);
+      browserFormulaStorage.save(this.formula);
     },
 
     grabImage: function() {
@@ -141,7 +156,7 @@ var app = new Vue({
     if (this.$route.query.formula) {
       this.formula = window.atob(this.$route.query.formula);
     } else {
-      this.formula = pjs_formula.defaultFormula;
+      this.formula = browserFormulaStorage.defaultFormula;
     }
     var play = typeof this.$route.query.play !== "undefined";
 

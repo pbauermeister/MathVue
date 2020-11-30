@@ -2,10 +2,48 @@
  * Vue.js app.
  */
 
+const ENDING = 'c';
+
 var router = new VueRouter({
   mode: 'history',
   routes: []
 });
+
+var browserFormulaStorage = new BrowserFormulaStorage(ENDING,`
+int WIDTH = 505;
+int HEIGHT = 303;
+
+void initialize() {}
+
+double cos_t;
+double sin_t;
+bool pre_draw(double t0) {
+    float t = sin(t0/320) * TWO_PI * 4 + sin(t0/20) * PI / 2 - cos(t0/40) * PI;
+    cos_t = cos(t/10);
+    sin_t = sin(t/10);
+    return true;
+}
+
+int compute_pixel(double x, double y, double t) {
+    double x1 = x * cos_t - y * sin_t;
+    double y1 = y * cos_t + x * sin_t;
+    if(y1==0) return -1; // avoid zero-divide
+
+    double x2 = x1;
+    double y2 = fabs(y1);
+
+    double val = cos(1/y2 + t) * cos(x2/y2);   // perspective spots raster
+    val = 1 - pow(val, 4);                     // increase contrast
+    double fade = y2/Y_SPAN*2;
+    val *= fade;                               // fade horizon to avoid moiree
+    double color_shift = cos(t/10)/2;
+
+    // pack all into HSV
+    double z = 1 + sin(val/2); // 0..2
+    double h = (z + color_shift) * 120; // 0..360
+    double v = y1<0 ? 100 : 50*z;
+    return convert_hsv_to_rgb(h, 78, v);
+}`);
 
 var app = new Vue({
   router,
@@ -13,14 +51,19 @@ var app = new Vue({
 
   data: {
     programNr: 0,
+    started: false,
     running: false,
     loading: false,
+    pauseAfterRun: false,
     base64data: null, // Contains the actual webassembly
     error: false,
     errorText: null,
     fpsFrameNr: 0,
     fpsStartTime: null,
     fps: null,
+
+    dropboxManager: null,
+
     formula: `
 int WIDTH = 505;
 int HEIGHT = 303;
@@ -92,12 +135,6 @@ int compute_pixel(double x, double y, double t) {
   },
 
   methods: {
-    changeEditorContent: function(val) {
-      if (this.formula !== val) {
-        this.formula = val
-      }
-    },
-
     setCompileStatus: function(message) {
       if (message) {
 	console.warn(`Compilation error:\n${message}`);
@@ -114,7 +151,14 @@ int compute_pixel(double x, double y, double t) {
     // Animation methods
     //
 
+    runOneFrame: function() {
+      this.pauseAfterRun = true;
+      this.compileCode();
+    },
+
     run: function() {
+      this.pauseAfterRun = false;
+      this.started = false;
       this.compileCode();
     },
 
@@ -175,11 +219,19 @@ int compute_pixel(double x, double y, double t) {
     // Formula methods
     //
 
-    onInput: function() {
-//      this.link = makeLink(false, this.formula);
-//      this.linkToGithub = makeLink(true, this.formula);
-//      pjs_formula.save(this.formula);
+    changeEditorContent: function(val) {
+      if (this.formula !== val) {
+        this.formula = val;
+	browserFormulaStorage.save(this.formula);
+      }
     },
+
+    /*
+    onInput: function() {
+      this.link = makeLink(false, this.formula);
+      this.linkToGithub = makeLink(true, this.formula);
+    },
+    */
 
     //
     // Wasm methods
@@ -304,14 +356,68 @@ int compute_pixel(double x, double y, double t) {
 	if (this.running) {
 	  render_f(timestamp);
 	  ctx.putImageData(img, 0, 0);
+	  this.started = true;
+
+	  if (this.pauseAfterRun) {
+	    this.pauseAfterRun = false;
+	    this.running = false;
+	  }
+
 	}
 	window.requestAnimationFrame(render);
       };
       window.requestAnimationFrame(render);
+    },
+
+    //
+    // Interface to Dropbox
+    //
+    getFormula: function() {
+      return this.formula;
+    },
+
+    setFormula: function(formula) {
+      this.formula = formula;
+      this.runOneFrame();
+      browserFormulaStorage.save(this.formula);
+    },
+
+    grabImage: function() {
+      if (!this.started) {
+        this.runOneFrame();
+
+	async function wait() {
+	  while (!this.started) {
+	    await new Promise(resolve => setTimeout(resolve, 100));
+	  }
+	}
+	wait();
+      }
+
+      var name = "canvas";
+      var canvas = document.getElementById(name);
+      var image = canvas.toDataURL('image/png');
+      var b64Data = image.replace(/^data:image\/(png|jpg);base64,/, '');
+      return b64Data;
+    },
+
+    onDropboxLoginState: function(dropboxManager) {
+      this.$emit('dropbox-login-state', dropboxManager);
+    }
+  },
+
+  created() {
+    // init Dropbox
+    if (!window.location.href.startsWith('file:')) {
+      this.dropboxManager = DropboxManager(this.onDropboxLoginState,
+					   this.getFormula, this.setFormula,
+					   this.grabImage, ENDING,
+					   this.$route.hash);
     }
   },
 
   mounted() {
+    this.formula = browserFormulaStorage.defaultFormula;
     this.run();
   }
 });

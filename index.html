@@ -96,9 +96,8 @@
           <h2>Gallery</h2>
         </div>
 
+        <!-- Dropbox public samples -->
         <div class="container ml-2 pl-2">
-
-          <!-- Dropbox public -->
           <div class="row">
             <div class="col-3">
 	      <Dropbox :manager="dropboxManager" control="LoadSamples"></Dropbox>
@@ -107,11 +106,10 @@
               Public samples.
             </div>
           </div>
-
         </div>
       </div>
 
-      <!-- Storage -->
+      <!-- Dropbox personal storage -->
       <div class="row pt-3">
         <div class="col-md-12">
           <h2>Storage</h2>
@@ -122,6 +120,7 @@
           <div class="row">
             <div class="col-3">
 	      <Dropbox :manager="dropboxManager" control="Save"></Dropbox>
+	      <br/>
 	      <Dropbox :manager="dropboxManager" control="Load"></Dropbox>
 	    </div>
             <div class="col-9">
@@ -228,9 +227,9 @@
     <script src="/common/js/component_dropbox_controls.js"></script>
     <script src="/common/js/component_help.js"></script>
     <script src="/common/js/component_discussion.js"></script>
+    <script src="/common/js/browser_storage.js"></script>
 
     <script src="/pjs/adaptor.js"></script>
-    <script src="/pjs/formula.js"></script>
     <script src="/pjs/app.js"></script>
 
     <noscript>Please enable JavaScript for MathVue to work.</noscript>

@@ -111,6 +111,49 @@
       <!-- Help Panel -->
       <Help markdown_path="/wasm/help.md"></Help>
 
+      <!-- Gallery -->
+      <!-- TODO no link to dialog, bur list of thumbnails-->
+      <div class="row pt-3">
+        <div class="col-md-12">
+          <h2>Gallery</h2>
+        </div>
+
+        <!-- Dropbox public samples -->
+        <div class="container ml-2 pl-2">
+          <div class="row">
+            <div class="col-3">
+	      <Dropbox :manager="dropboxManager" control="LoadSamples"></Dropbox>
+            </div>
+            <div class="col-9">
+              Public samples.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dropbox personal storage -->
+      <div class="row pt-3">
+        <div class="col-md-12">
+          <h2>Storage</h2>
+        </div>
+
+        <div class="container ml-2 pl-2">
+          <!-- Dropbox account -->
+          <div class="row">
+            <div class="col-3">
+	      <Dropbox :manager="dropboxManager" control="Save"></Dropbox>
+	      <br/>
+	      <Dropbox :manager="dropboxManager" control="Load"></Dropbox>
+	    </div>
+            <div class="col-9">
+	      <Dropbox :manager="dropboxManager" control="Status"></Dropbox>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
       <!-- Discussion -->
       <div class="row pt-3">
         <div class="col-md-12">
@@ -136,9 +179,16 @@
     <!-- script src="https://rawgit.com/ajaxorg/ace-builds/master/src-min-noconflict/ace.js"></script -->
     <script src="/assets/ace/ace.js"></script>
 
+    <!-- Dropbox -->
+    <script src="/common/js/dropbox_storage.js"></script>
+    <script src="/common/js/dropbox_manager.js"></script>
+
     <!-- Our app's code -->
+    <script src="/common/js/file_dialog.js"></script>
+    <script src="/common/js/component_dropbox_controls.js"></script>
     <script src="/common/js/component_help.js"></script>
     <script src="/common/js/component_discussion.js"></script>
+    <script src="/common/js/browser_storage.js"></script>
     <script src="/common/js/component_statusdialog.js"></script>
     <script src="/common/js/component_editor.js"></script>
     <script src="/wasm/app.js"></script>
