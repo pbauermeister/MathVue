@@ -9,11 +9,9 @@ import sys
 import tempfile
 
 formula = sys.argv[1]
-PROGRAM = 'program.c'
+PROGRAM = 'wrapper.c'
 
 os.chdir('wasm')
-with open('formula.c') as f:
-    prolog = f.read()
 
 # find all subdirectories
 dirs = [os.path.split(d)[0] for d in glob.glob('*' + os.sep)]
@@ -27,6 +25,7 @@ CMD = (f'emcc {PROGRAM} '
        '-o out.js')
 
 with tempfile.TemporaryDirectory(prefix='wasmCompile') as d:
+    shutil.copyfile(PROGRAM, os.path.join(d, PROGRAM))
     # copy subdirs to tempdir
     for src in dirs:
         shutil.copytree(src, os.path.join(d, src))
@@ -34,9 +33,7 @@ with tempfile.TemporaryDirectory(prefix='wasmCompile') as d:
     # compile program
     os.chdir(d)
     # - assemble source file
-    with open(PROGRAM, 'w') as f:
-        f.write(prolog)
-        f.write('\n')
+    with open('formula.c', 'w') as f:
         f.write(formula)
     # - compile
     subprocess.check_call(CMD.split())

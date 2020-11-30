@@ -13,7 +13,6 @@ var app = new Vue({
 
   data: {
     programNr: 0,
-    prologLength: 0,
     running: false,
     loading: false,
     base64data: null, // Contains the actual webassembly
@@ -23,8 +22,8 @@ var app = new Vue({
     fpsStartTime: null,
     fps: null,
     formula: `
-WIDTH = 505;
-HEIGHT = 303;
+int WIDTH = 505;
+int HEIGHT = 303;
 
 void initialize() {}
 
@@ -60,25 +59,34 @@ int compute_pixel(double x, double y, double t) {
     formula: `
 #include "noise/open-simplex-noise.c"
 
-WIDTH = 505;
-HEIGHT = 303;
-
-double cos_t;
-double sin_t;
+const int K = 1;
+int WIDTH  = 500 *K;
+int HEIGHT = 294 *K;
 
 struct osn_context *ctx;
 void initialize() {
   open_simplex_noise(77374, &ctx);
 }
 
-bool pre_draw(double t0) {
-  return true;
+bool pre_draw(double t0) { return true; }
+
+const double steps = 6;
+
+double val(double x, double y, double t) {
+  double f0 = open_simplex_noise3(ctx, x / 2 - t/2, y / 2 - t/2, t/2);
+  double f1 = open_simplex_noise3(ctx, x * 3 + t, y * 3 + t, t);
+
+  double value = fabs(f0 + f1) / 2;
+
+  return floor(value * steps) / steps;
 }
 
 int compute_pixel(double x, double y, double t) {
+  double v = val(x*3, y*3, t/7/K/K/K);
+  double h = (1.5-v) * 180;
+  h = fmod(h, 360);
 
-  float f0 = open_simplex_noise3(ctx, x*5+t, y*5, t) *.6 + .4;
-  return convert_hsv_to_rgb(f0*360, 100,  100);
+  return convert_hsv_to_rgb(h, 78, v * 200);
 }
 `.trim()
   },
@@ -90,15 +98,9 @@ int compute_pixel(double x, double y, double t) {
       }
     },
 
-    setCompileStatus: function(message, line_nr) {
+    setCompileStatus: function(message) {
       if (message) {
-	if (line_nr) {
-	  let nr = line_nr - this.prologLength;
-	  console.warn(`Compilation error: line ${nr}:\n${message}`);
-	}
-	else {
-	  console.warn(`Compilation error:\n${message}`);
-	}
+	console.warn(`Compilation error:\n${message}`);
 	this.errorText = message;
 	this.error = true;
       }
@@ -111,17 +113,6 @@ int compute_pixel(double x, double y, double t) {
     //
     // Animation methods
     //
-
-    getPrologLength: function() {
-      axios.get('/api/prolog_lines')
-	.then((response) => {
-	  //console.log('getPrologLength():', response);
-          this.prologLength = response.data.nb_lines;
-	})
-	.catch((error) => {
-	  this.$refs.status_dialog.showError(error);
-	});
-    },
 
     run: function() {
       this.compileCode();
@@ -154,10 +145,10 @@ int compute_pixel(double x, double y, double t) {
       }
       else {
 	this.loading = false;
-	this.setCompileStatus(
-	  response.data.compilation.msg.trim(),
-	  response.data.compilation.line
-	);
+	this.setCompileStatus(response.data.stderr);
+//	  response.data.compilation.msg.trim(),
+//	  response.data.compilation.line
+//		);
       }
     },
 
@@ -324,7 +315,6 @@ int compute_pixel(double x, double y, double t) {
   },
 
   mounted() {
-    this.getPrologLength();
     this.run();
   }
 });

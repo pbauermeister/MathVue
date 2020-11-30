@@ -8,7 +8,7 @@ Vue.component('Editor', {
     }
   },
   watch: {
-    'content' (value) {
+    'content'(value) {
       if (this.beforeContent !== value) {
         this.editor.setValue(value, 1)
       }

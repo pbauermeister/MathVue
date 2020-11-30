@@ -35,6 +35,7 @@
 
 	  <div style="height: 300px">
             <editor style="font-size: 0.75rem;"
+		    ref="formulaEditor"
 		    editor-id="formulaEditor"
 		    :content="formula"
 		    v-on:change-content="changeEditorContent">
@@ -47,7 +48,7 @@
 		    rows="5">
 	  </textarea>
 
-	  <div class="formula-controls">
+	  <div>
 	    <button class="btn btn-sm btn-primary"
 		    v-on:click="run">Run</button>
             <button class="btn btn-sm btn-primary"
@@ -132,7 +133,8 @@
 
     <script src="/node_modules/axios/dist/axios.min.js"></script>
     <script src="/node_modules/showdown/dist/showdown.min.js"></script>
-    <script src="https://rawgit.com/ajaxorg/ace-builds/master/src-min-noconflict/ace.js"></script>
+    <!-- script src="https://rawgit.com/ajaxorg/ace-builds/master/src-min-noconflict/ace.js"></script -->
+    <script src="/assets/ace/ace.js"></script>
 
     <!-- Our app's code -->
     <script src="/common/js/component_help.js"></script>

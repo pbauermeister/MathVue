@@ -154,7 +154,7 @@ app.post('/api/compile_code', jsonParser, async function(req, res) {
     }
     if (error) {
       console.error(`Compile: error: ${error.message}`);
-      stderr = stderr || '';
+      stderr = (stderr || '').trim();
       /* Parse error like this:
 	program.c:179:1: error: unknown type name 'xint'; did you mean 'int'?
 	xint compute_pixel(double x, double y, double t) {
@@ -163,6 +163,7 @@ app.post('/api/compile_code', jsonParser, async function(req, res) {
 	1 error generated.
 	emcc: error: .....
        */
+/*
       let parts = stderr.split(':');
       let file = parts[0];
       let line = parseInt(parts[1]);
@@ -172,12 +173,12 @@ app.post('/api/compile_code', jsonParser, async function(req, res) {
       let rest = stderr.slice(i+1);
       i = rest.indexOf('emcc: error:');
       let msg = rest.slice(0,i);
-
+*/
       //res.status(500);
       res.send(JSON.stringify({
 	success: false,
 	error, stdout, stderr,
-	compilation: {file, line, pos, msg}
+//	compilation: {file, line, pos, msg}
       }));
       return;
     }
@@ -185,20 +186,6 @@ app.post('/api/compile_code', jsonParser, async function(req, res) {
     res.send(JSON.stringify({
       success: true,
       base64data: stdout.trim()
-    }));
-  });
-});
-
-app.get('/api/prolog_lines', async function(req, res) {
-  execFile('wasm/count_prolog_lines.py', [], (error, stdout, stderr) => {
-    if (error) {
-      console.error(error);
-      res.status(500);
-      res.send(JSON.stringify({success:false,	error, stdout, stderr}));
-      return;
-    }
-    res.send(JSON.stringify({
-      nb_lines: parseInt(stdout.trim())
     }));
   });
 });
