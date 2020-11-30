@@ -40,9 +40,12 @@
                     class="formula-textarea"
                     v-on:input="onInput()"
                     ></textarea>
-          <button class="btn btn-sm btn-primary" v-on:click="run">Run</button>
-          <button class="btn btn-sm btn-primary" v-on:click="pause" v-show="started && running">Pause</button>
-          <button class="btn btn-sm btn-primary" v-on:click="resume" v-show="started && !running">Resume</button>
+          <button class="btn btn-sm btn-primary"
+		  v-on:click="run">Run</button>
+          <button class="btn btn-sm btn-primary"
+		  v-on:click="pause" v-show="started && running">Pause</button>
+          <button class="btn btn-sm btn-primary"
+		  v-on:click="resume" v-show="started && !running">Resume</button>
         </div>
 
         <!-- Canvas -->
@@ -98,9 +101,7 @@
           <!-- Dropbox public -->
           <div class="row">
             <div class="col-3">
-              <span class="badge badge-pill badge-default"
-                    style="cursor:pointer"
-                    v-on:click="dropboxLoadSampleDialog">Load sample</span>
+	      <Dropbox :manager="dropboxManager" control="LoadSamples"></Dropbox>
             </div>
             <div class="col-9">
               Public samples.
@@ -117,75 +118,21 @@
         </div>
 
         <div class="container ml-2 pl-2">
-
           <!-- Dropbox account -->
           <div class="row">
             <div class="col-3">
-              <!-- buttons when logged in -->
-              <div v-if="dropboxLoggedIn && dropboxDisplayname">
-                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxSaveDialog">
-                  Save to Dropbox
-                </span><br/>
-                <span class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLoadDialog">
-                  Load from Dropbox
-                </span>
-              </div>
-              <!-- buttons when logged out -->
-              <div v-if="!dropboxLoggedIn || !dropboxDisplayname">
-                <span class="badge badge-pill badge-disabled">
-                  Save to Dropbox
-                </span><br/>
-                <span class="badge badge-pill badge-disabled">
-                  Load from to Dropbox
-                </span>
-              </div>
-            </div>
+	      <Dropbox :manager="dropboxManager" control="Save"></Dropbox>
+	      <Dropbox :manager="dropboxManager" control="Load"></Dropbox>
+	    </div>
             <div class="col-9">
-              <!-- links when logged in -->
-              <div v-if="dropboxLoggedIn">
-                <div v-if="dropboxDisplayname">
-                  <img style="height: 20px" v-bind:src="dropboxProfilePhotoUrl">
-
-                  <small>
-                    {{dropboxDisplayname}}
-                  </small>
-                  |
-                  <small>
-                    <a href="https://www.dropbox.com/home/Apps/MathVue" target="_blank">
-                      MathVue folder <i class="fas fa-external-link-alt"></i></a>
-                  </small>
-                  |
-                  <small>
-                    <div class="badge badge-pill badge-default" style="cursor:pointer" v-on:click="dropboxLogout">
-                      Logout
-                    </div>
-                  </small>
-
-                </div>
-                <div v-if="!dropboxDisplayname" style="display: inline-block;" class="progress">
-                  <div class="progress-bar progress-bar-striped progress-bar-animated"
-                       role="progressbar" style="width: 100%; padding: 0 10px;">
-                    Getting account infos...
-                  </div>
-                </div>
-              </div>
-              <!-- login link when logged out -->
-              <div v-if="!dropboxLoggedIn && dropboxAllowed">
-                Please
-                <a class="badge badge-pill badge-default" v-bind:href="dropboxLoginUrl">Login to Dropbox</a>
-                to access your Dropbox account.
-              </div>
-              <!-- hint when noi Dropbox possible -->
-              <div v-if="!dropboxAllowed">
-                Cannot access Dropbox when running from file://
-              </div>
+	      <Dropbox :manager="dropboxManager" control="Status"></Dropbox>
             </div>
           </div>
         </div>
-
       </div>
 
       <!-- Exports -->
+      <!--
       <div class="row pt-3">
         <div class="col-md-12">
           <h2>Export</h2>
@@ -195,7 +142,10 @@
 
           <div class="row">
             <div class="col-3">
-              <a class="badge badge-pill badge-default" v-bind:href="link">Link</a>
+              <a class="badge badge-pill badge-default"
+		 v-bind:href="link">
+		Link
+	      </a>
             </div>
             <div class="col-9">
               Link to current page, with formula as URL. Can be bookmarked.
@@ -239,7 +189,9 @@
           </div>
         </div>
       </div>
+      -->
 
+      <div class="p-5"></div>
       <!-- Discussion -->
       <div class="row pt-3">
         <div class="col-md-12">
@@ -263,6 +215,7 @@
 
     <!-- Dropbox -->
     <script src="/common/js/dropbox_storage.js"></script>
+    <script src="/common/js/dropbox_manager.js"></script>
 
     <!-- Get Vue, and load our app's code -->
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
@@ -272,6 +225,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
 
     <script src="/common/js/file_dialog.js"></script>
+    <script src="/common/js/component_dropbox_controls.js"></script>
     <script src="/common/js/component_help.js"></script>
     <script src="/common/js/component_discussion.js"></script>
 
