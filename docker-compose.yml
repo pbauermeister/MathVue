@@ -1,0 +1,9 @@
+version: '3.4'
+services:
+  mathvue:
+    container_name: mathvue
+    build:
+      context: .
+    ports:
+      - "3001:3001"
+    restart: always
