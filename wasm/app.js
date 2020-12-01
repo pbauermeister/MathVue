@@ -270,6 +270,8 @@ var app = new Vue({
 	      this.capturer.stop();
 	      this.capturer.save();
 	      this.capturer = null;
+	      this.pause();
+	      return;
 	    }
 	  }
 	}
