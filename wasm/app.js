@@ -16,19 +16,22 @@ var app = new Vue({
   el: '#app',
 
   data: {
-    programNr: 0,
-    started: false,
-    running: false,
-    loading: false,
-    pauseAfterRun: false,
     base64data: null, // Contains the actual webassembly
+    capturer: null,
+    captureDuration: 15,  // between 10s and 20s for Instagram
+    captureFramesToGo:0,
+    dropboxManager: null,
     error: false,
     errorText: null,
+    formula: '',
+    fps: null,
     fpsFrameNr: 0,
     fpsStartTime: null,
-    fps: null,
-    dropboxManager: null,
-    formula: ''
+    isLoading: false,
+    isRunning: false,
+    isStarted: false,
+    mustPauseAfterRun: false,
+    programNr: 0,
   },
 
   methods: {
@@ -49,20 +52,20 @@ var app = new Vue({
     //
 
     runOneFrame: function() {
-      this.pauseAfterRun = true;
+      this.mustPauseAfterRun = true;
       this.compileCode();
     },
 
     run: function() {
-      this.pauseAfterRun = false;
-      this.started = false;
+      this.mustPauseAfterRun = false;
+      this.isStarted = false;
       this.compileCode();
     },
 
     compileCode: function() {
       this.errorText = 'Starting emscripten compilation...';
       this.error = false;
-      this.loading = true;
+      this.isLoading = true;
       this.pause();
       axios.post('/api/compile_code', {code: this.formula})
 	.then((response) => {
@@ -75,7 +78,7 @@ var app = new Vue({
 	  }
 	})
 	.catch((error) => {
-	  this.loading = false;
+	  this.isLoading = false;
 	  this.$refs.status_dialog.showError(error);
 	});
     },
@@ -87,21 +90,21 @@ var app = new Vue({
 	this.startWasm();
       }
       else {
-	this.loading = false;
+	this.isLoading = false;
 	this.setCompileStatus(response.data.stderr);
       }
     },
 
     pause: function() {
-      this.running = false;
+      this.isRunning = false;
     },
 
     resume: function() {
-      this.running = true;
+      this.isRunning = true;
     },
 
     playToggle: function() {
-      this.running = !this.running;
+      this.isRunning = !this.isRunning;
     },
 
     fullScreen: function(event) {
@@ -124,13 +127,6 @@ var app = new Vue({
 	browserFormulaStorage.save(this.formula);
       }
     },
-
-    /*
-    onInput: function() {
-      this.link = makeLink(false, this.formula);
-      this.linkToGithub = makeLink(true, this.formula);
-    },
-    */
 
     //
     // Wasm methods
@@ -248,23 +244,34 @@ var app = new Vue({
       // Render
       // ------
       this.programNr++;
-      this.loading = false;
-      this.running = true;
+      this.isLoading = false;
+      this.isRunning = true;
       let programNr = this.programNr;
       const render = (timestamp) => {
 	if (this.programNr != programNr)
 	  return;
 	this.updateFps();
-	if (this.running) {
+	if (this.isRunning) {
 	  render_f(timestamp);
 	  ctx.putImageData(img, 0, 0);
-	  this.started = true;
+	  this.isStarted = true;
 
-	  if (this.pauseAfterRun) {
-	    this.pauseAfterRun = false;
-	    this.running = false;
+	  if (this.mustPauseAfterRun) {
+	    this.mustPauseAfterRun = false;
+	    this.isRunning = false;
+	    return;
 	  }
 
+	  if (this.capturer) {
+	    this.capturer.capture(canvas);
+	    if (this.captureFramesToGo >= 0)
+	      this.captureFramesToGo--;
+	    else {
+	      this.capturer.stop();
+	      this.capturer.save();
+	      this.capturer = null;
+	    }
+	  }
 	}
 	window.requestAnimationFrame(render);
       };
@@ -286,11 +293,11 @@ var app = new Vue({
     },
 
     grabImage: function() {
-      if (!this.started) {
+      if (!this.isStarted) {
         this.runOneFrame();
 
 	async function wait() {
-	  while (!this.started) {
+	  while (!this.isStarted) {
 	    await new Promise(resolve => setTimeout(resolve, 100));
 	  }
 	}
@@ -306,6 +313,30 @@ var app = new Vue({
 
     onDropboxLoginState: function(dropboxManager) {
       this.$emit('dropbox-login-state', dropboxManager);
+    },
+
+    //
+    // Recording
+    //
+
+    toggleRecording: function() {
+      if (this.capturer) {
+	this.captureFramesToGo = 0;
+	// let render() finish, stop and save.
+      } else {
+	this.capturer = new CCapture({
+	  verbose: false,
+	  display: true,
+	  framerate: 60,
+	  quality: 99,
+	  format: 'webm',
+	  frameLimit: 0,
+	  autoSaveTime: 0,
+	  onProgress: function(p) {console.log('>', p)}
+	})
+	this.captureFramesToGo = 60 * this.captureDuration;
+	this.capturer.start();
+      }
     }
   },
 

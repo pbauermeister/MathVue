@@ -24,7 +24,7 @@
     </a>
 
     <h1>MathVue Webassembly</h1>
-    <small>
+    <small class="text-muted">
       With Bootstrap v4, Vue.js v2.5, Node.js v8,
       WebAssembly (Wasm), Enscripten (emcc).
     </small>
@@ -56,10 +56,10 @@
 		    v-on:click="run">Run</button>
             <button class="btn btn-sm btn-primary"
 		    v-on:click="pause"
-		    v-show="running">Pause</button>
+		    v-show="isRunning">Pause</button>
             <button class="btn btn-sm btn-primary"
 		  v-on:click="resume"
-		    v-show="!running">Resume</button>
+		    v-show="!isRunning">Resume</button>
           </div>
 	</div>
 
@@ -72,34 +72,63 @@
             </canvas>
             <br/>
 
-	    <!-- buttons -->
 	    <div class="canvas-controls">
-	      <a class="mr-1"
-		 v-show="loading">
-		<i class="fas fa-circle-notch fa-spin"
-		   aria-hidden="true"></i>
-	      </a>
-	      <a style="cursor:pointer" class="mr-1"
-		 v-show="!loading && running"
-		 v-on:click="pause"
-		 >
-		<i class="fa fa-pause" aria-hidden="true"></i>
-	      </a>
-	      <a style="cursor:pointer" class="mr-1"
-		 v-show="!loading && !running"
-		 v-on:click="resume">
-		<i class="fa fa-play" aria-hidden="true"></i>
-	      </a>
+	      <!-- Play/pause -->
+	      <span v-show="!capturer" class="mr-3">
+		<a class="mr-1"
+		   v-show="isLoading">
+		  <i class="fas fa-circle-notch fa-spin"
+		     aria-hidden="true"></i>
+		</a>
+		<a v-on:click="pause"
+		   v-show="!isLoading && isRunning"
+		   title="Pause"
+		   style="cursor:pointer" class="mr-1">
+		  <i class="fa fa-pause" aria-hidden="true"></i>
+		</a>
+		<a v-on:click="resume"
+		   v-show="!isLoading && !isRunning"
+		   title="Resume"
+		   style="cursor:pointer" class="mr-1">
+		  <i class="fa fa-play" aria-hidden="true"></i>
+		</a>
+	      </span>
 
+	      <!-- Recording -->
+	      <button v-on:click="toggleRecording"
+		      type="button"
+		      style="font-size: 60%"
+		      :title="capturer ? 'Stop recording': 'Start recording'"
+		      class="btn btn-outline-secondary btn-sm py-0 px-1">
+		<span :class="capturer ? 'text-danger' : ''">
+		  Rec <i class="small fas fa-circle"></i>
+		</span>
+	      </button>
+	      <b-form-input v-if="!capturer"
+			    type="number"
+			    size="sm"
+			    style="font-size: 70%; width: 4em; display: inline;
+				   border: none"
+			    class="py-0 px-1"
+			    title="Duration in seconds"
+			    v-model.number="captureDuration"
+			    step="1" min="1" max="60" >
+	      </b-form-input>
+	      <span v-else style="font-size: 70%" class="text-secondary">
+		{{ captureFramesToGo }} to go =
+		{{ Math.round(captureFramesToGo / 6) / 10 }}s
+	      </span>
+
+	      <!-- Full-screen -->
 	      <div class="float-right">
 		<span class="mx-1 text-muted small">
 		  <span v-if="fps">{{ fps }} fps</span>
 		  <span v-else>Computing fps...</span>
 		</span>
-		<a id="fullScreenButton"
+		<a v-on:click="fullScreen"
+		   id="fullScreenButton"
 		   class="ml-1"
-		   style="cursor:pointer" title="Full screen"
-		   v-on:click="fullScreen">
+		   style="cursor:pointer" title="Full screen">
 		  <i class="fa fa-expand" aria-hidden="true"></i>
 		</a>
 	      </div>
@@ -181,6 +210,8 @@
     <script src="/node_modules/showdown/dist/showdown.min.js"></script>
     <!-- script src="https://rawgit.com/ajaxorg/ace-builds/master/src-min-noconflict/ace.js"></script -->
     <script src="/assets/ace/ace.js"></script>
+
+    <script src="/node_modules/ccapture.js/build/CCapture.all.min.js"></script>
 
     <!-- Dropbox -->
     <script src="/common/js/dropbox_storage.js"></script>

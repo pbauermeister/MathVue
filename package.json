@@ -9,6 +9,7 @@
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.10.1",
     "bootstrap4-dialog": "^4.3.8",
+    "ccapture.js": "^1.1.0",
     "express": "^4.17.1",
     "install": "^0.13.0",
     "jquery": "^3.5.1",
