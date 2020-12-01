@@ -5,7 +5,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     nodejs npm \
     python3 python3-pip \
-    git tar xz-utils lbzip2
+    git tar xz-utils lbzip2 curl
 
 # Finalize npm
 #RUN npm i npm@latest -g
