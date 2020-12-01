@@ -100,8 +100,9 @@ function DropboxStorage(ending) {
   };
 
   this.getThumbnailDataUrl = function(entry, ending, onResponse) {
-    var re = new RegExp('[.]' + ending + '$');
-    var thumbPath = entry.path_display.replace(re, '.png');
+    //var re = new RegExp('[.]' + ending + '$');
+    //var thumbPath = entry.path_display.replace(re, '.png');
+    var thumbPath = entry.path_display + '.png';
     var format = 'png';
     var params = {
       method: 'POST',
@@ -180,9 +181,9 @@ function DropboxStorage(ending) {
     };
     axios(params).then(
       function(response) {
-        //onResponse(response);
-        var re = new RegExp('[.]' + ending + '$');
-        var filename2 = filename.replace(re, '.png');
+        //var re = new RegExp('[.]' + ending + '$');
+        //var filename2 = filename.replace(re, '.png');
+	var filename2 = filename + '.png';
         this.uploadImage(filename2, b64Image, onResponse, onError);
       }.bind(this),
       (error) => {

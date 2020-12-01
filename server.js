@@ -98,7 +98,7 @@ app.get('/api/gallery/:ext', async function(req, res) {
       var entries = formula_matches.map(function(formula) {
         // look for corresponding thumb
         var parts = formula.match(PARTS_RX);
-        var thumb_rx = new RegExp('.*?/' + parts[1] + '.' + EXT_THUMB);
+        var thumb_rx = new RegExp('.*?/' + parts[1] + '.' + parts[2] + '.' +EXT_THUMB);
         var thumbs = this.thumb_matches.filter(function f(thumb) {
           return thumb.match(this. thumb_rx);
         }, {thumb_rx: thumb_rx} );

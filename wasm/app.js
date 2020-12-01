@@ -27,77 +27,8 @@ var app = new Vue({
     fpsFrameNr: 0,
     fpsStartTime: null,
     fps: null,
-
     dropboxManager: null,
-
-    formula: `
-int WIDTH = 505;
-int HEIGHT = 303;
-
-void initialize() {}
-
-double cos_t;
-double sin_t;
-bool pre_draw(double t0) {
-    float t = sin(t0/320) * TWO_PI * 4 + sin(t0/20) * PI / 2 - cos(t0/40) * PI;
-    cos_t = cos(t/10);
-    sin_t = sin(t/10);
-    return true;
-}
-
-int compute_pixel(double x, double y, double t) {
-    double x1 = x * cos_t - y * sin_t;
-    double y1 = y * cos_t + x * sin_t;
-    if(y1==0) return -1; // avoid zero-divide
-
-    double x2 = x1;
-    double y2 = fabs(y1);
-
-    double val = cos(1/y2 + t) * cos(x2/y2);   // perspective spots raster
-    val = 1 - pow(val, 4);                     // increase contrast
-    double fade = y2/Y_SPAN*2;
-    val *= fade;                               // fade horizon to avoid moiree
-    double color_shift = cos(t/10)/2;
-
-    // pack all into HSV
-    double z = 1 + sin(val/2); // 0..2
-    double h = (z + color_shift) * 120; // 0..360
-    double v = y1<0 ? 100 : 50*z;
-    return convert_hsv_to_rgb(h, 78, v);
-}`.trim(),
-    formula: `
-#include "noise/open-simplex-noise.c"
-
-const int K = 1;
-int WIDTH  = 500 *K;
-int HEIGHT = 294 *K;
-
-struct osn_context *ctx;
-void initialize() {
-  open_simplex_noise(77374, &ctx);
-}
-
-bool pre_draw(double t0) { return true; }
-
-const double steps = 6;
-
-double val(double x, double y, double t) {
-  double f0 = open_simplex_noise3(ctx, x / 2 - t/2, y / 2 - t/2, t/2);
-  double f1 = open_simplex_noise3(ctx, x * 3 + t, y * 3 + t, t);
-
-  double value = fabs(f0 + f1) / 2;
-
-  return floor(value * steps) / steps;
-}
-
-int compute_pixel(double x, double y, double t) {
-  double v = val(x*3, y*3, t/7/K/K/K);
-  double h = (1.5-v) * 180;
-  h = fmod(h, 360);
-
-  return convert_hsv_to_rgb(h, 78, v * 200);
-}
-`.trim()
+    formula: ''
   },
 
   methods: {
@@ -108,7 +39,7 @@ int compute_pixel(double x, double y, double t) {
 	this.error = true;
       }
       else {
-	this.errorText = "OK";
+	this.errorText += ' OK';
 	this.error = false;
       }
     },
@@ -129,8 +60,10 @@ int compute_pixel(double x, double y, double t) {
     },
 
     compileCode: function() {
-      this.pause();
+      this.errorText = 'Starting emscripten compilation...';
+      this.error = false;
       this.loading = true;
+      this.pause();
       axios.post('/api/compile_code', {code: this.formula})
 	.then((response) => {
 	  console.log('compileCode():', response);
@@ -218,7 +151,7 @@ int compute_pixel(double x, double y, double t) {
       }
       catch(error) {
 	console.error(error);
-	this.errorText = '' + error;
+	this.errorText = '\n' + error;
 	this.error = true;
       }
     },
@@ -239,6 +172,7 @@ int compute_pixel(double x, double y, double t) {
     },
 
     startWasmAsync: async function() {
+      this.errorText += '\nStarting WASM compilation...';
       const binary_code = this.decodeB64(this.base64data);
       console.log('*** start wasm: B64 code length:', this.base64data.length);
 
@@ -277,6 +211,7 @@ int compute_pixel(double x, double y, double t) {
       //console.log('imports:', {imports});
       var exports = WebAssembly.Module.exports(module);
       //console.log('exports:', {exports});
+      this.errorText += ' OK';
 
       // Get canvas
       // ----------
@@ -292,22 +227,23 @@ int compute_pixel(double x, double y, double t) {
 
       // Bind WASM to canvas
       // -------------------
+      this.errorText += '\nBinding WASM to canvas...';
       const instance = await WebAssembly.instantiate(module, importObject);
       const init_f = instance.exports._init || instance.exports.init;
       const render_f = instance.exports._render || instance.exports.render;
       //console.warn('exports:', instance.exports)
       const formula_width = instance.exports.get_width();
       const formula_height = instance.exports.get_height();
-      console.log('Formula-defined size:', formula_width, formula_height);
-      if (formula_width && formula_height) {
-	canvas.width = width = formula_width;
-	canvas.height = height = formula_height;
-      }
 
-      const pointer = init_f(width, height);
+      console.log('Formula-defined size:', formula_width, formula_height);
+      canvas.width = width = formula_width;
+      canvas.height = height = formula_height;
+
+      const pointer = init_f();
       const data = new Uint8ClampedArray(memory.buffer, pointer,
 					 width * height * 4);
       const img = new ImageData(data, width, height);
+      this.errorText += ' OK';
 
       // Render
       // ------
@@ -332,6 +268,7 @@ int compute_pixel(double x, double y, double t) {
 	}
 	window.requestAnimationFrame(render);
       };
+      this.errorText += '\nFiring up animation.';
       window.requestAnimationFrame(render);
     },
 

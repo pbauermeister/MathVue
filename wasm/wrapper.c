@@ -81,13 +81,13 @@ bool pre_draw(double t);
 //int* data;
 int data[2000000];
 
-double X_MIN =   -1;
-double X_MAX =    1;
-double Y_MIN =  0.5;
-double Y_MAX = -0.5;
+const double X_MIN;
+const double X_MAX;
+const double Y_MIN;
+const double Y_MAX;
 
-int HEIGHT;
-int WIDTH;
+const int HEIGHT;
+const int WIDTH;
 int PIXEL_COUNT;
 
 double X_SPAN;
@@ -107,9 +107,7 @@ int EMSCRIPTEN_KEEPALIVE get_height() {
 ////////////////////////////////////////////////////////////////////////////////
 // Functions that can be called by user
 
-int* EMSCRIPTEN_KEEPALIVE init(int cWidth, int cHeight) {
-  WIDTH = cWidth;
-  HEIGHT = cHeight;
+int* EMSCRIPTEN_KEEPALIVE init() {
   PIXEL_COUNT = WIDTH * HEIGHT;
 //  data = malloc(pixelCount * sizeof(int));
   return data;
