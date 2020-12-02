@@ -244,3 +244,29 @@ table {
 .ace_scroller.ace_scroll-left {
     box-shadow: none;
 }
+
+.pointer {
+    cursor: pointer;
+}
+
+.github-banner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 0;
+}
+
+.font-75 {
+    font-size: 0.75rem;
+}
+
+.font-60 {
+    font-size: 0.60rem;
+}
+
+.small-input {
+    font-size: 0.60rem;
+    width: 4em;
+    display: inline;
+    border: none;
+}

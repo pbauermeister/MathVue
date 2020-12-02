@@ -18,7 +18,7 @@
 
     <!-- Github -->
     <a href="https://github.com/pbauermeister/MathVue" target="_blank">
-      <img style="position: absolute; top: 0; right: 0; border: 0;"
+      <img class="github-banner"
 	   src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"
 	   alt="Fork me on GitHub">
     </a>
@@ -37,7 +37,7 @@
           <h2>Formula</h2>
 
 	  <div style="height: 300px">
-            <editor style="font-size: 0.75rem;"
+            <editor class="font-75"
 		    ref="formulaEditor"
 		    editor-id="formulaEditor"
 		    :content="formula"
@@ -53,7 +53,7 @@
 
 	  <div>
 	    <button class="btn btn-sm btn-primary"
-		    v-on:click="run">Run</button>
+		    v-on:click="run">Compile and Run</button>
             <button class="btn btn-sm btn-primary"
 		    v-on:click="pause"
 		    v-show="isRunning">Pause</button>
@@ -74,61 +74,62 @@
 
 	    <div class="canvas-controls">
 	      <!-- Play/pause -->
-	      <span v-show="!capturer" class="mr-3">
+	      <span class="mr-2">
 		<a class="mr-1"
-		   v-show="isLoading">
+		   v-show="isLoading || capturer">
 		  <i class="fas fa-circle-notch fa-spin"
 		     aria-hidden="true"></i>
 		</a>
 		<a v-on:click="pause"
-		   v-show="!isLoading && isRunning"
+		   v-show="!isLoading && isRunning && !capturer"
 		   title="Pause"
-		   style="cursor:pointer" class="mr-1">
+		   class="pointer mr-1">
 		  <i class="fa fa-pause" aria-hidden="true"></i>
 		</a>
 		<a v-on:click="resume"
-		   v-show="!isLoading && !isRunning"
+		   v-show="!isLoading && !isRunning && !capturer"
 		   title="Resume"
-		   style="cursor:pointer" class="mr-1">
+		   class="pointer mr-1">
 		  <i class="fa fa-play" aria-hidden="true"></i>
 		</a>
 	      </span>
 
 	      <!-- Recording -->
 	      <button v-on:click="toggleRecording"
-		      type="button"
-		      style="font-size: 60%"
+		      :disabled="programNr==0 || error"
 		      :title="capturer ? 'Stop recording': 'Start recording'"
-		      class="btn btn-outline-secondary btn-sm py-0 px-1">
+		      type="button"
+		      class="btn btn-outline-secondary btn-sm font-60 py-0 px-1">
 		<span :class="capturer ? 'text-danger' : ''">
 		  Rec <i class="small fas fa-circle"></i>
 		</span>
 	      </button>
+	      <span v-if="!capturer" class="font-60">
+		secs:
+	      </span>
 	      <b-form-input v-if="!capturer"
 			    type="number"
 			    size="sm"
-			    style="font-size: 70%; width: 4em; display: inline;
-				   border: none"
-			    class="py-0 px-1"
+			    class="small-input py-0 px-1 ml-n1"
 			    title="Duration in seconds"
 			    v-model.number="captureDuration"
 			    step="1" min="1" max="60" >
 	      </b-form-input>
-	      <span v-else style="font-size: 70%" class="text-secondary">
+	      <span v-else class="font-60 text-secondary">
 		{{ captureFramesToGo }} to go =
 		{{ Math.round(captureFramesToGo / 6) / 10 }}s
 	      </span>
 
 	      <!-- Full-screen -->
 	      <div class="float-right">
-		<span class="mx-1 text-muted small">
+		<span class="font-60 mx-1 text-muted small">
 		  <span v-if="fps">{{ fps }} fps</span>
 		  <span v-else>Computing fps...</span>
 		</span>
 		<a v-on:click="fullScreen"
 		   id="fullScreenButton"
-		   class="ml-1"
-		   style="cursor:pointer" title="Full screen">
+		   class="pointer canvas-controls"
+		   title="Full screen">
 		  <i class="fa fa-expand" aria-hidden="true"></i>
 		</a>
 	      </div>

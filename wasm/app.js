@@ -35,32 +35,10 @@ var app = new Vue({
   },
 
   methods: {
-    setCompileStatus: function(message) {
-      if (message) {
-	console.warn(`Compilation error:\n${message}`);
-	this.errorText = message;
-	this.error = true;
-      }
-      else {
-	this.errorText += ' OK';
-	this.error = false;
-      }
-    },
 
     //
-    // Animation methods
+    // Emcc compilation methods
     //
-
-    runOneFrame: function() {
-      this.mustPauseAfterRun = true;
-      this.compileCode();
-    },
-
-    run: function() {
-      this.mustPauseAfterRun = false;
-      this.isStarted = false;
-      this.compileCode();
-    },
 
     compileCode: function() {
       this.errorText = 'Starting emscripten compilation...';
@@ -86,13 +64,41 @@ var app = new Vue({
     handleCompilationResponse: function(response) {
       if (response.data.success) {
         this.base64data = response.data.base64data;
-	this.setCompileStatus();
+	this.setCompilationStatus();
 	this.startWasm();
       }
       else {
 	this.isLoading = false;
-	this.setCompileStatus(response.data.stderr);
+	this.setCompilationStatus(response.data.stderr);
       }
+    },
+
+    setCompilationStatus: function(message) {
+      if (message) {
+	console.warn(`Compilation error:\n${message}`);
+	this.errorText = message;
+	this.error = true;
+      }
+      else {
+	this.errorText += ' OK';
+	this.error = false;
+      }
+    },
+
+    //
+    // Animation methods
+    //
+
+    run: function() {
+      this.mustPauseAfterRun = false;
+      this.isStarted = false;
+      this.stopCapture();
+      this.compileCode();
+    },
+
+    runOneFrame: function() {
+      this.mustPauseAfterRun = true;
+      this.compileCode();
     },
 
     pause: function() {
@@ -254,31 +260,36 @@ var app = new Vue({
 	if (this.isRunning) {
 	  render_f(timestamp);
 	  ctx.putImageData(img, 0, 0);
-	  this.isStarted = true;
-
-	  if (this.mustPauseAfterRun) {
-	    this.mustPauseAfterRun = false;
-	    this.isRunning = false;
-	    return;
-	  }
-
-	  if (this.capturer) {
-	    this.capturer.capture(canvas);
-	    if (this.captureFramesToGo >= 0)
-	      this.captureFramesToGo--;
-	    else {
-	      this.capturer.stop();
-	      this.capturer.save();
-	      this.capturer = null;
-	      this.pause();
-	      return;
-	    }
-	  }
+	  this.afterRender();
+	}
+	else {
+	  // if not running, keep on dry-looping
 	}
 	window.requestAnimationFrame(render);
       };
       this.errorText += '\nFiring up animation.';
       window.requestAnimationFrame(render);
+    },
+
+    afterRender: function() {
+      this.isStarted = true;
+
+      if (this.mustPauseAfterRun) {
+	this.mustPauseAfterRun = false;
+	this.isRunning = false;
+	return;
+      }
+
+      if (this.capturer) {
+	this.capturer.capture(canvas);
+	if (this.captureFramesToGo >= 0)
+	  this.captureFramesToGo--;
+	else {
+	  this.stopCapture();
+	  this.pause();
+	  return;
+	}
+      }
     },
 
     //
@@ -333,13 +344,27 @@ var app = new Vue({
 	  quality: 99,
 	  format: 'webm',
 	  frameLimit: 0,
-	  autoSaveTime: 0,
-	  onProgress: function(p) {console.log('>', p)}
+	  autoSaveTime: 0
 	})
 	this.captureFramesToGo = 60 * this.captureDuration;
+	this.resume();
 	this.capturer.start();
       }
+    },
+
+    stopCapture: function() {
+      if (this.capturer) {
+	this.capturer.stop();
+	try {
+	  this.capturer.save();
+	}
+	catch (e) {
+	}
+	// TODO: remove capturer status display
+	this.capturer = null;
+      }
     }
+
   },
 
   created() {

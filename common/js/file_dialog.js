@@ -5,14 +5,14 @@
 function makeFileDialogVue(dialog, entries, ending, onChanged, onReady, onItemSelected) {
     return new Vue({
       el: '#fileDialog',
-      
+
       data: {
         entries: entries,
         filename: "",
         dialog: dialog,
         ending: ending,
       },
-      
+
       methods: {
         loadClicked: function(entry) {
           onItemSelected(entry, this);
@@ -22,7 +22,7 @@ function makeFileDialogVue(dialog, entries, ending, onChanged, onReady, onItemSe
           onChanged && onChanged(this.filename);
         },
       },
-      
+
       mounted() {
         onReady && onReady();
       }
@@ -37,7 +37,7 @@ function FileDialog(ending) {
       ? entry.path_display.substring(1)
       : entry.path_display;
   };
-  
+
   this.showBusyDialog = function(message) {
     var dlg = BootstrapDialog.show({
       title: 'Dropbox',
@@ -59,7 +59,7 @@ function FileDialog(ending) {
     if (elem)
       elem.setAttribute('src', dataUrl);
   };
-  
+
   this.openFile = function(entries, onItemSelected, storageManager) {
     var that = this;
     var dlg = BootstrapDialog.show({
@@ -154,7 +154,7 @@ function FileDialog(ending) {
       var hint = $(hint_selector);
 
       name = (name || input.val()).trim();
-      
+
       var exists = names.indexOf(name)>-1;
       if (exists)
         button.html('Overwrite');
@@ -192,8 +192,8 @@ function FileDialog(ending) {
         '                  v-model:value="filename"' +
         '                  placeholder="Enter file name here or choose from list" autofocus />' +
         '           <span style="display:none" id="dialog-file-save-hint">Name must end with .{{ending}}' +
-        '             <span class="badge badge-pill badge-default" style="cursor:pointer"' +
-        '               v-on:click="fixName()">Fix it</span>' +
+        '             <span class="badge badge-pill badge-danger" style="cursor:pointer"' +
+        '               v-on:click="fixName()">Click to fix</span>' +
         '           </span>&nbsp;' +
         '         </div>' +
         '       </div>',
