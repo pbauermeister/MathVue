@@ -36,7 +36,7 @@
         <div class="col-md-6 pt-3">
           <h2>Formula</h2>
 
-	  <div style="height: 300px">
+	  <div style="height: 498px">
             <editor class="font-75"
 		    ref="formulaEditor"
 		    editor-id="formulaEditor"
@@ -72,68 +72,94 @@
             </canvas>
             <br/>
 
-	    <div class="canvas-controls">
-	      <!-- Play/pause -->
-	      <span class="mr-2">
-		<a class="mr-1"
-		   v-show="isLoading || capturer">
-		  <i class="fas fa-circle-notch fa-spin"
-		     aria-hidden="true"></i>
-		</a>
-		<a v-on:click="pause"
-		   v-show="!isLoading && isRunning && !capturer"
-		   title="Pause"
-		   class="pointer mr-1">
-		  <i class="fa fa-pause" aria-hidden="true"></i>
-		</a>
-		<a v-on:click="resume"
-		   v-show="!isLoading && !isRunning && !capturer"
-		   title="Resume"
-		   class="pointer mr-1">
-		  <i class="fa fa-play" aria-hidden="true"></i>
-		</a>
-	      </span>
+	    <!-- Controls -->
+	    <table width="100%">
+	      <tr valign="top" style="line-height: 1">
+		<td class="canvas-controls" width="1">
+		  <!-- Play/pause -->
+		  <a class="mr-1"
+		     v-show="isLoading || capturer">
+		    <i class="fas fa-circle-notch fa-spin"
+		       aria-hidden="true"></i>
+		  </a>
+		  <a v-on:click="pause"
+		     v-show="!isLoading && isRunning && !capturer"
+		     title="Pause"
+		     class="pointer mr-1">
+		    <i class="fa fa-pause" aria-hidden="true"></i>
+		  </a>
+		  <a v-on:click="resume"
+		     v-show="!isLoading && !isRunning && !capturer"
+		     title="Resume"
+		     class="pointer mr-1">
+		    <i class="fa fa-play" aria-hidden="true"></i>
+		  </a>
+		</td>
 
-	      <!-- Recording -->
-	      <button v-on:click="toggleRecording"
-		      :disabled="programNr==0 || error"
-		      :title="capturer ? 'Stop recording': 'Start recording'"
-		      type="button"
-		      class="btn btn-outline-secondary btn-sm font-60 py-0 px-1">
-		<span :class="capturer ? 'text-danger' : ''">
-		  Rec <i class="small fas fa-circle"></i>
-		</span>
-	      </button>
-	      <span v-if="!capturer" class="font-60">
-		secs:
-	      </span>
-	      <b-form-input v-if="!capturer"
-			    type="number"
-			    size="sm"
-			    class="small-input py-0 px-1 ml-n1"
-			    title="Duration in seconds"
-			    v-model.number="captureDuration"
-			    step="1" min="1" max="60" >
-	      </b-form-input>
-	      <span v-else class="font-60 text-secondary">
-		{{ captureFramesToGo }} to go =
-		{{ Math.round(captureFramesToGo / 6) / 10 }}s
-	      </span>
+		<!-- Recording -->
+		<td class="canvas-controls">
+		  <!-- - button -->
+		  <button v-on:click="toggleRecording"
+			  :disabled="programNr==0 || error"
+			  :title="capturer ? 'Stop recording': 'Start recording'"
+			  type="button"
+			  class="btn btn-outline-secondary btn-sm font-60 py-0 px-1">
+		    <span :class="capturer ? 'text-danger' : ''">
+		      Rec <i class="small fas fa-circle"></i>
+		    </span>
+		  </button>
+		</td>
 
-	      <!-- Full-screen -->
-	      <div class="float-right">
-		<span class="font-60 mx-1 text-muted small">
-		  <span v-if="fps">{{ fps }} fps</span>
-		  <span v-else>Computing fps...</span>
-		</span>
-		<a v-on:click="fullScreen"
-		   id="fullScreenButton"
-		   class="pointer canvas-controls"
-		   title="Full screen">
-		  <i class="fa fa-expand" aria-hidden="true"></i>
-		</a>
-	      </div>
-	    </div>
+		<!-- Full-screen -->
+		<td class="canvas-controls text-right">
+		  <span class="font-60 mx-1 text-muted small">
+		    <span v-if="fps">{{ fps }} fps</span>
+		    <span v-else>Computing fps...</span>
+		  </span>
+		  <a v-on:click="fullScreen"
+		     id="fullScreenButton"
+		     class="pointer canvas-controls"
+		     title="Full screen">
+		    <i class="fa fa-expand" aria-hidden="true"></i>
+		  </a>
+		</td>
+	      </tr>
+	      <tr style="line-height: 1">
+		<td></td>
+		<!-- Recording params -->
+		<td colspan="2">
+		  <!-- - duration -->
+		  <span v-if="!capturer" class="font-60">
+		    secs:
+		  </span>
+		  <b-form-input v-if="!capturer"
+				type="number"
+				size="sm"
+				class="small-input py-0 px-1 ml-n1 my-0"
+				title="Duration in seconds"
+				v-model.number="captureDuration"
+				step="1" min="1" max="60" >
+		  </b-form-input>
+		  <!-- - rate -->
+		  <span v-if="!capturer" class="font-60">
+		    rate:
+		  </span>
+		  <b-form-input v-if="!capturer"
+				type="number"
+				size="sm"
+				class="small-input py-0 px-1 ml-n1"
+				title="Frame rate"
+			      v-model.number="captureFrameRate"
+				step="15" min="15">
+		  </b-form-input>
+		  <!-- - progress -->
+		  <span v-if="capturer" class="font-60 text-secondary">
+		    {{ captureFramesToGo }} to go =
+		    {{ Math.round(captureFramesToGo / captureFrameRate * 10) / 10 }}s
+		  </span>
+		</td>
+	      </tr>
+	    </table>
 	  </div>
 	</div>
       </div>

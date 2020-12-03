@@ -24,10 +24,19 @@ double customAtan2(float y, float x) {
   return y < 0 ? -angle : angle;
 }
 
+double r2p_angle(double x, double y) {
+  return customAtan2(x, y);
+}
+
+double r2p_distance(double x, double y) {
+  return sqrt(x*x + y*y);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Color functions
 
-int convert_hsv_to_rgb(float hue, float sat, float val) {
+void hsv_to_rgb(float hue, float sat, float val,
+		int *red, int *green, int *blue) {
   hue = fmin(hue, 360);
   hue = fmax(hue, 0);
   sat = fmin(sat, 100);
@@ -59,20 +68,39 @@ int convert_hsv_to_rgb(float hue, float sat, float val) {
   else{
     r = c, g = 0, b = x;
   }
-  int red   = (r + m) * 255;
-  int green = (g + m) * 255;
-  int blue  = (b + m) * 255;
+  *red   = (r + m) * 255;
+  *green = (g + m) * 255;
+  *blue  = (b + m) * 255;
+}
 
+int convert_hsv_to_rgb(float hue, float sat, float val) {
+  int red, green, blue;
+  hsv_to_rgb(hue, sat, val, &red, &green, &blue);
   return (blue  << 16)  |
          (green <<  8)  |
          (red        );
+}
+
+int make_hsv(float hue, float sat, float val) {
+  return convert_hsv_to_rgb(hue, sat, val);
+}
+
+int make_rgb(int r, int g, int b) {
+  return (b << 16) | (g << 8) | (r);
+}
+
+inline int max(a, b) { return a>b ? a : b; }
+inline int min(a, b) { return a<b ? a : b; }
+
+double frand() {
+  return (float)rand()/(float)RAND_MAX;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Forward declaration of functions that must be implemented by user code
 
 int compute_pixel(double x, double y, double t);
-void initialize();
+EMSCRIPTEN_KEEPALIVE void initialize();
 bool pre_draw(double t);
 
 ////////////////////////////////////////////////////////////////////////////////

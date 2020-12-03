@@ -15,7 +15,7 @@ Vue.component('Editor', {
     }
   },
   mounted () {
-    const lang = this.lang || 'text'
+    const lang = this.lang || 'c'
     const theme = this.theme || 'github'
 
     this.editor = window.ace.edit(this.editorId)

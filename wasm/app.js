@@ -20,6 +20,7 @@ var app = new Vue({
     capturer: null,
     captureDuration: 15,  // between 10s and 20s for Instagram
     captureFramesToGo:0,
+    captureFrameRate: 60,
     dropboxManager: null,
     error: false,
     errorText: null,
@@ -282,7 +283,7 @@ var app = new Vue({
 
       if (this.capturer) {
 	this.capturer.capture(canvas);
-	if (this.captureFramesToGo >= 0)
+	if (this.captureFramesToGo > 0)
 	  this.captureFramesToGo--;
 	else {
 	  this.stopCapture();
@@ -340,15 +341,16 @@ var app = new Vue({
 	this.capturer = new CCapture({
 	  verbose: false,
 	  display: true,
-	  framerate: 60,
+	  framerate: this.captureFrameRate,
 	  quality: 99,
 	  format: 'webm',
 	  frameLimit: 0,
 	  autoSaveTime: 0
 	})
-	this.captureFramesToGo = 60 * this.captureDuration;
+	this.captureFramesToGo = this.captureFrameRate * this.captureDuration;
 	this.resume();
 	this.capturer.start();
+	this.startWasmAsync();
       }
     },
 

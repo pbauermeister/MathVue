@@ -270,3 +270,7 @@ table {
     display: inline;
     border: none;
 }
+
+.form-control-sm {
+    height: 1em;
+}
