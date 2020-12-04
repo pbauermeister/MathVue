@@ -21,6 +21,8 @@ var app = new Vue({
     captureDuration: 15,  // between 10s and 20s for Instagram
     captureFramesToGo:0,
     captureFrameRate: 60,
+    compiled: false,
+    countdown: 4,
     dropboxManager: null,
     error: false,
     errorText: null,
@@ -36,6 +38,20 @@ var app = new Vue({
   },
 
   methods: {
+    countDown: function() {
+      if (this.formula.trim() && this.countdown>0) {
+	if (this.countdown == 1)
+	  this.run();
+	if (this.countdown>0) {
+	  this.countdown--;
+	  setTimeout(() => { this.countDown();}, 1000)
+	}
+      }
+    },
+
+    abortCountdown: function() {
+      this.countdown = 0;
+    },
 
     //
     // Emcc compilation methods
@@ -91,8 +107,10 @@ var app = new Vue({
     //
 
     run: function() {
-      this.mustPauseAfterRun = false;
+      this.compiled = false;
+      this.countdown = 0;
       this.isStarted = false;
+      this.mustPauseAfterRun = false;
       this.stopCapture();
       this.compileCode();
     },
@@ -253,6 +271,7 @@ var app = new Vue({
       this.programNr++;
       this.isLoading = false;
       this.isRunning = true;
+      this.compiled = true;
       let programNr = this.programNr;
       const render = (timestamp) => {
 	if (this.programNr != programNr)
@@ -381,6 +400,6 @@ var app = new Vue({
 
   mounted() {
     this.formula = browserFormulaStorage.defaultFormula;
-    this.run();
+    this.countDown();
   }
 });

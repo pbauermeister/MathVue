@@ -29,7 +29,7 @@
       WebAssembly (Wasm), Enscripten (emcc).
     </small>
 
-    <div id="app">
+    <div id="app" v-cloak>
 
       <!-- Formula -->
       <div class="row">
@@ -56,17 +56,30 @@
 		    v-on:click="run">Compile and Run</button>
             <button class="btn btn-sm btn-primary"
 		    v-on:click="pause"
-		    v-show="isRunning">Pause</button>
+		    v-show="isRunning && compiled">Pause</button>
             <button class="btn btn-sm btn-primary"
 		  v-on:click="resume"
-		    v-show="!isRunning">Resume</button>
+		    v-show="!isRunning && compiled">Resume</button>
           </div>
 	</div>
 
         <!-- Canvas -->
         <div class="col-md-6 pt-3">
           <h2>Canvas</h2>
-          <div style="display: inline-block">
+
+	  <div v-if="countdown"
+	       class="text-light"
+	       style="width: 500px; height: 300px;
+		      display: flex;
+		      justify-content: center;
+		      background-color: black;
+		      align-items: center;">
+	    Auto-start in {{ countdown }}
+	    <button class="btn btn-sm btn-primary m-2"
+		    v-on:click="abortCountdown">Abort</button>
+	  </div>
+
+	  <div v-else style="display: inline-block">
 	    <canvas id="canvas" width="500" height="300"
 		    style="max-width:100%; background-color: #000;">
             </canvas>
