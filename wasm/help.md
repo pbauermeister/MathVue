@@ -1,5 +1,4 @@
 WebAssembly and Emscripten!
 __________
 
-##### WASM
-##### Happy math'ing!
+Program structure and APIs coming soon!

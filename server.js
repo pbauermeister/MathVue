@@ -197,11 +197,17 @@ app.post('/api/compile_code', jsonParser, async function(req, res) {
 // Static files
 //
 
+app.get('/pjs', function(req, res) {
+  res.sendfile('pjs/index.html');
+});
+
 app.get('/webassembly', function(req, res) {
   res.sendfile('wasm/index.html');
 });
-
 app.get('/wasm', function(req, res) {
+  res.sendfile('wasm/index.html');
+});
+app.get('/', function(req, res) {
   res.sendfile('wasm/index.html');
 });
 
