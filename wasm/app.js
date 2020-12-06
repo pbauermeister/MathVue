@@ -410,7 +410,23 @@ var app = new Vue({
   },
 
   mounted() {
-    this.formula = browserFormulaStorage.defaultFormula;
-    this.countDown();
+    console.log('Mounted:', this.$route.query);
+    let args = this.$route.query;
+
+    // valueless args are taken as samples
+    let samples = Object.keys(args).filter((k) => args[k] === null)
+    let sample = samples.length ? samples[samples.length-1] : null;
+    if (sample){
+      this.dropboxManager.dropboxLoadSampleLike(sample, () => {
+	router.replace({});
+	this.run();
+      });
+    }
+    // normal start
+    else {
+      this.countdown = 4;
+      this.formula = browserFormulaStorage.defaultFormula;
+      this.countDown();
+    }
   }
 });

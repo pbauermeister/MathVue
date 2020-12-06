@@ -137,15 +137,35 @@ function DropboxManager(onLoginStateCB,
     }.bind(this));
   };
 
-  this.dropboxLoadFileGallery = function(entry) {
+  this.dropboxLoadFileGallery = function(entry, then) {
     var busy = this.fileDialog.showBusyDialog('Loading file...');
     this.dropboxStorage.downloadFilePublic(entry.formula_url, function(data) {
       busy.close();
       setFormulaCB(data.formula);
+      if (then) then();
     }.bind(this), function(error) {
       busy.close();
       this._dropboxError(error);
     }.bind(this));
+  };
+
+  this.dropboxLoadSampleLike = function(startswith, then) {
+    var busy = this.fileDialog.showBusyDialog('Reading files list...');
+    this.dropboxStorage.listPublicFolder(
+      null,
+      function(entries) {
+        busy.close();
+	let filtered = entries.filter((entry) => entry.name.startsWith(startswith));
+	if (filtered.length) {
+	  this.dropboxLoadFileGallery(filtered[filtered.length-1], then);
+	}
+	else alert('No gallery formula starting with "'+startswith+'"');
+      }.bind(this),
+      function(error) {
+        busy.close();
+        this._dropboxError(error);
+      }.bind(this)
+    );
   };
 
   return this;
