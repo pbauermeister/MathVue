@@ -22,7 +22,7 @@ var app = new Vue({
     captureFramesToGo:0,
     captureFrameRate: 60,
     compiled: false,
-    countdown: 4,
+    countdown: 0,
     dropboxManager: null,
     error: false,
     errorText: null,
@@ -34,6 +34,7 @@ var app = new Vue({
     isRunning: false,
     isStarted: false,
     mustPauseAfterRun: false,
+    mustReinit: false,
     programNr: 0,
   },
 
@@ -51,6 +52,13 @@ var app = new Vue({
 
     abortCountdown: function() {
       this.countdown = 0;
+    },
+
+    sleep: function(delay) {
+      async function wait() {
+	await new Promise(resolve => setTimeout(resolve, delay));
+      }
+      wait();
     },
 
     //
@@ -252,6 +260,7 @@ var app = new Vue({
       const instance = await WebAssembly.instantiate(module, importObject);
       const init_f = instance.exports._init || instance.exports.init;
       const render_f = instance.exports._render || instance.exports.render;
+      const initialize_f = instance.exports._initialize || instance.exports.initialize;
       //console.warn('exports:', instance.exports)
       const formula_width = instance.exports.get_width();
       const formula_height = instance.exports.get_height();
@@ -278,6 +287,10 @@ var app = new Vue({
 	  return;
 	this.updateFps();
 	if (this.isRunning) {
+	  if (this.mustReinit) {
+	    initialize_f();
+	    this.mustReinit = false;
+	  }
 	  render_f(timestamp);
 	  ctx.putImageData(img, 0, 0);
 	  this.afterRender();
@@ -366,10 +379,11 @@ var app = new Vue({
 	  frameLimit: 0,
 	  autoSaveTime: 0
 	})
-	this.captureFramesToGo = this.captureFrameRate * this.captureDuration;
+	this.captureFramesToGo = this.captureFrameRate * this.captureDuration -1;
 	this.resume();
-	this.capturer.start();
 	this.startWasmAsync();
+	this.mustReinit = true;
+	this.capturer.start();
       }
     },
 
@@ -389,13 +403,10 @@ var app = new Vue({
   },
 
   created() {
-    // init Dropbox
-    if (!window.location.href.startsWith('file:')) {
-      this.dropboxManager = DropboxManager(this.onDropboxLoginState,
-					   this.getFormula, this.setFormula,
-					   this.grabImage, ENDING,
-					   this.$route.hash);
-    }
+    this.dropboxManager = DropboxManager(this.onDropboxLoginState,
+					 this.getFormula, this.setFormula,
+					 this.grabImage, ENDING,
+					 this.$route.hash);
   },
 
   mounted() {
