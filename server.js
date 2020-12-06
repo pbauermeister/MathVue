@@ -201,6 +201,10 @@ app.get('/webassembly', function(req, res) {
   res.sendfile('wasm/index.html');
 });
 
+app.get('/wasm', function(req, res) {
+  res.sendfile('wasm/index.html');
+});
+
 app.use(express.static('.'));
 
 ////////////////////////////////////////////////////////////////////////////////
