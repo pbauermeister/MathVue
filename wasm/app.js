@@ -34,8 +34,10 @@ var app = new Vue({
     isRunning: false,
     isStarted: false,
     mustPauseAfterRun: false,
-    mustReinit: false,
-    programNr: 0,
+    wCtx: null,
+    wRenderF: null,
+    wInitializeF: null,
+    wImg: null,
   },
 
   methods: {
@@ -134,6 +136,7 @@ var app = new Vue({
 
     resume: function() {
       this.isRunning = true;
+      this.render();
     },
 
     playToggle: function() {
@@ -245,10 +248,10 @@ var app = new Vue({
       // Get canvas
       // ----------
       const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext(
+      this.wCtx = canvas.getContext(
 	'2d', {alpha: false, antialias: false, depth: false}
       );
-      if (!ctx) {
+      if (!this.wCtx) {
 	throw 'Your browser does not support canvas';
       }
       let height = canvas.height;
@@ -258,9 +261,9 @@ var app = new Vue({
       // -------------------
       this.errorText += '\nBinding WASM to canvas...';
       const instance = await WebAssembly.instantiate(module, importObject);
-      const init_f = instance.exports._init || instance.exports.init;
-      const render_f = instance.exports._render || instance.exports.render;
-      const initialize_f = instance.exports._initialize || instance.exports.initialize;
+      const wasmInitF = instance.exports._init || instance.exports.init;
+      this.wRenderF = instance.exports._render || instance.exports.render;
+      this.wInitializeF = instance.exports._initialize || instance.exports.initialize;
       //console.warn('exports:', instance.exports)
       const formula_width = instance.exports.get_width();
       const formula_height = instance.exports.get_height();
@@ -269,39 +272,40 @@ var app = new Vue({
       canvas.width = width = formula_width;
       canvas.height = height = formula_height;
 
-      const pointer = init_f();
+      const pointer = wasmInitF();
       const data = new Uint8ClampedArray(memory.buffer, pointer,
 					 width * height * 4);
-      const img = new ImageData(data, width, height);
+      this.wImg = new ImageData(data, width, height);
       this.errorText += ' OK';
 
       // Render
       // ------
-      this.programNr++;
       this.isLoading = false;
       this.isRunning = true;
       this.compiled = true;
-      let programNr = this.programNr;
-      const render = (timestamp) => {
-	if (this.programNr != programNr)
-	  return;
-	this.updateFps();
-	if (this.isRunning) {
-	  if (this.mustReinit) {
-	    initialize_f();
-	    this.mustReinit = false;
-	  }
-	  render_f(timestamp);
-	  ctx.putImageData(img, 0, 0);
-	  this.afterRender();
-	}
-	else {
-	  // if not running, keep on dry-looping
-	}
-	window.requestAnimationFrame(render);
-      };
       this.errorText += '\nFiring up animation.';
-      window.requestAnimationFrame(render);
+      this.render();
+    },
+
+    render: function(timestamp) {
+      if (!this.isRunning) return;
+      this.updateFps();
+
+      if (!timestamp && this.capturer) {
+	//console.log('>> initialize_f');
+	this.wInitializeF();
+      }
+      if (this.capturer)
+	timestamp =  Date.now();
+
+      //console.log('>> render', timestamp);
+      window.requestAnimationFrame(this.render);
+      if(!timestamp) return;
+
+      //console.log('>> render_f');
+      this.wRenderF(timestamp);
+      this.wCtx.putImageData(this.wImg, 0, 0);
+      this.afterRender();
     },
 
     afterRender: function() {
@@ -314,12 +318,14 @@ var app = new Vue({
       }
 
       if (this.capturer) {
+	//console.log('>> capture');
 	this.capturer.capture(canvas);
 	if (this.captureFramesToGo > 0)
 	  this.captureFramesToGo--;
 	else {
+	  //console.log('>> stop capture');
 	  this.stopCapture();
-	  this.pause();
+	  this.isRunning = false;
 	  return;
 	}
       }
@@ -380,10 +386,10 @@ var app = new Vue({
 	  autoSaveTime: 0
 	})
 	this.captureFramesToGo = this.captureFrameRate * this.captureDuration -1;
-	this.resume();
-	this.startWasmAsync();
-	this.mustReinit = true;
+	this.isRunning = true;
+	//console.log('>> start capture');
 	this.capturer.start();
+	this.render();
       }
     },
 

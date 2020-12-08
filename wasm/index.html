@@ -113,7 +113,7 @@
 		<td class="canvas-controls">
 		  <!-- - button -->
 		  <button v-on:click="toggleRecording"
-			  :disabled="programNr==0 || error"
+			  :disabled="!wImg || error"
 			  :title="capturer ? 'Stop recording': 'Start recording'"
 			  type="button"
 			  class="btn btn-outline-secondary btn-sm font-60 py-0 px-1">
