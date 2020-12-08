@@ -167,8 +167,8 @@
 		  </b-form-input>
 		  <!-- - progress -->
 		  <span v-if="capturer" class="font-60 text-secondary">
-		    {{ captureFramesToGo }} to go =
-		    {{ Math.round(captureFramesToGo / captureFrameRate * 10) / 10 }}s
+		    To go:
+		    {{ Math.round(captureFramesToGo / captureFrameRate * 10) / 10 }}s / {{ captureDuration }}s = {{ captureFramesToGo }} frames
 		  </span>
 		</td>
 	      </tr>
