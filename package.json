@@ -5,7 +5,7 @@
   "main": "server.js",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.1",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.10.1",
     "bootstrap4-dialog": "^4.3.8",
