@@ -4,24 +4,26 @@
   "description": "MathVue server",
   "main": "server.js",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.1",
-    "axios": "^0.19.0",
-    "bootstrap": "^4.4.1",
-    "bootstrap-vue": "^2.10.1",
+    "@fortawesome/fontawesome-free": "^5.15.3",
+    "axios": "^0.21.1",
+    "bootstrap-vue": "^2.21.2",
     "bootstrap4-dialog": "^4.3.8",
     "ccapture.js": "^1.1.0",
     "express": "^4.17.1",
     "install": "^0.13.0",
-    "jquery": "^3.5.1",
-    "npm": "^7.0.9",
+    "jquery": "^3.6.0",
+    "npm": "^7.14.0",
     "request": "^2.88.2",
     "showdown": "^1.9.1",
-    "tether": "^1.4.7",
-    "vue": "^2.6.11",
-    "vue-router": "^3.0.7",
-    "vuex": "^3.1.1"
+    "tether": "^2.0.0",
+    "vue": "^2.6.12",
+    "vue-router": "^3.5.1",
+    "vuex": "^3.6.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@popperjs/core": "^2.9.2",
+    "bootstrap": "^5.0.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "DEBUG=http,https,express:* node server.js"
