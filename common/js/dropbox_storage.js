@@ -149,7 +149,7 @@ function DropboxStorage(ending) {
   this.downloadFilePublic = function(url, onResponse, onError) {
     var params = {
       method: 'GET',
-      url: '/api/gallery/url/' + encodeURIComponent(url),
+      url: '/api/galleryurl/' + encodeURIComponent(url),
     };
     console.log(params.url);
     axios(params).then(
