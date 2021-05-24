@@ -20,7 +20,7 @@ which may be ok since re-builds are quite fast.
 
 ```
 docker-compose down
-docker-compose up --build -d
+docker-compose up --build -d && docker-compose logs -f
 ```
 
 Please note that the web server will be at port 3001 using HTTP. You
