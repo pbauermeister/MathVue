@@ -21,7 +21,7 @@ Vue.component('Editor', {
     this.editor = window.ace.edit(this.editorId)
     this.editor.setValue(this.content, 1)
 
-    this.editor.getSession().setMode(`ace/mode/${lang}`)
+    //this.editor.getSession().setMode(`ace/mode/${lang}`)
     this.editor.setTheme(`ace/theme/${theme}`)
 
     this.editor.setOptions({
