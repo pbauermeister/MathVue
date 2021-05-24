@@ -151,13 +151,13 @@ function DropboxManager(onLoginStateCB,
 
   this.dropboxLoadSampleLike = function(startswith, then) {
     var busy = this.fileDialog.showBusyDialog('Reading files list...');
-    this.dropboxStorage.listPublicFolder(
-      null,
+    this.dropboxStorage.listPublicFolderLike(
+      startswith,
       function(entries) {
         busy.close();
-	let filtered = entries.filter((entry) => entry.name.startsWith(startswith));
-	if (filtered.length) {
-	  this.dropboxLoadFileGallery(filtered[filtered.length-1], then);
+	if (entries.length) {
+	  let entry = entries[entries.length-1];
+	  this.dropboxLoadFileGallery(entry, then);
 	}
 	else alert('No gallery formula starting with "'+startswith+'"');
       }.bind(this),
