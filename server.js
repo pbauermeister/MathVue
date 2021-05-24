@@ -72,20 +72,6 @@ function rxMatches(text, rx) {
 const GALLERY_THUMB_RX = mkUrlRegExp(EXT_THUMB);
 
 app.get('/api/gallery/:ext', async function(req, res) {
-  let cmd = './get_gallery.py --links --suffix=.'+req.params.ext;
-  exec(cmd, function(error, stdout, stderr) {
-    if (error) {
-      console.log('ERROR: ' + error);
-      res.status(502);
-      res.end(JSON.stringify({success:false, error, stdout, stderr}));
-    } else {
-      //console.log(stdout);
-      res.send(stdout);
-    }
-  });
-  return;
-
-  /*
   var options = {
     host: 'www.dropbox.com',
     path: GALLERY_PAGE_URL,
@@ -95,7 +81,6 @@ app.get('/api/gallery/:ext', async function(req, res) {
   let gallery_formula_rx = mkUrlRegExp(ext_formula);
 
   //console.log('ask dropbox');
-  console.log("URL", options);
   var req2 = https.get(options, function(res2) {
     var bodyChunks = [];
     res2.on('data', function(chunk) {
@@ -115,7 +100,7 @@ app.get('/api/gallery/:ext', async function(req, res) {
         var parts = formula.match(PARTS_RX);
         var thumb_rx = new RegExp('.*?/' + parts[1] + '.' + parts[2] + '.' +EXT_THUMB);
         var thumbs = this.thumb_matches.filter(function f(thumb) {
-          return thumb.match(thumb_rx);
+          return thumb.match(this. thumb_rx);
         }, {thumb_rx: thumb_rx} );
         // make one item
         return {
@@ -134,29 +119,14 @@ app.get('/api/gallery/:ext', async function(req, res) {
     res.status(502);
     res.end(JSON.stringify({success:false, error:e}));
   });
-  */
-});
-
-app.get('/api/gallery/:ext/:like', async function(req, res) {
-  let cmd = './get_gallery.py --suffix=.' + req.params.ext + ' --startswith=' + req.params.like;
-  exec(cmd, function(error, stdout, stderr) {
-    if (error) {
-      console.log('ERROR: ' + error);
-      res.status(502);
-      res.end(JSON.stringify({success:false, error, stdout, stderr}));
-    } else {
-      //console.log(stdout);
-      res.send(stdout);
-    }
-  });
-  return;
 });
 
 // This enpoinds loads a formula text file on behalf of the web
 // browser (to avoid CORS denial)
-app.get('/api/galleryurl/:url', async function(req, res) {
+app.get('/api/gallery/url/:url', async function(req, res) {
   var url = req.params.url;
   var command = 'curl -L -X GET \'' + url + '\'';
+  //console.log(command);
   exec(command, function(error, stdout, stderr) {
     if (error) {
       console.log('ERROR: ' + error);

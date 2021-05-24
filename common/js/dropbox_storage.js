@@ -99,25 +99,6 @@ function DropboxStorage(ending) {
       });
   };
 
-  this.listPublicFolderLike = function(like, onResponse, onError) {
-    var that = this;
-    var params = {
-      method: 'GET',
-      url: '/api/gallery/' + ending + '/' + like,
-    };
-    axios(params).then(
-      (response) => {
-        var entries = response.data.entries.sort(
-	  (a, b) => a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1
-	);
-        console.log(entries);
-        onResponse(entries);
-      },
-      (error) => {
-        onError(error);
-      });
-  };
-
   this.getThumbnailDataUrl = function(entry, ending, onResponse) {
     //var re = new RegExp('[.]' + ending + '$');
     //var thumbPath = entry.path_display.replace(re, '.png');
@@ -168,8 +149,9 @@ function DropboxStorage(ending) {
   this.downloadFilePublic = function(url, onResponse, onError) {
     var params = {
       method: 'GET',
-      url: '/api/galleryurl/' + encodeURIComponent(url),
+      url: '/api/gallery/url/' + encodeURIComponent(url),
     };
+    console.log(params.url);
     axios(params).then(
       (response) => {
         onResponse(response.data);

@@ -8,9 +8,8 @@ RUN apt-get update && \
     git tar xz-utils lbzip2 curl
 
 # Finalize npm
-RUN npm i npm@latest -g
+#RUN npm i npm@latest -g
 RUN nodejs --version
-RUN pip3 install requests
 
 # Create user
 RUN useradd --no-log-init user

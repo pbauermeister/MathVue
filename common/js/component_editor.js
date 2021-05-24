@@ -15,13 +15,13 @@ Vue.component('Editor', {
     }
   },
   mounted () {
-    const lang = this.lang || 'c_cpp'
+    const lang = this.lang || 'c'
     const theme = this.theme || 'github'
 
     this.editor = window.ace.edit(this.editorId)
     this.editor.setValue(this.content, 1)
 
-    //this.editor.getSession().setMode(`ace/mode/${lang}`)
+    this.editor.getSession().setMode(`ace/mode/${lang}`)
     this.editor.setTheme(`ace/theme/${theme}`)
 
     this.editor.setOptions({

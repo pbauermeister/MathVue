@@ -7,5 +7,3 @@ services:
     ports:
       - "3001:3001"
     restart: always
-    environment:
-      - TOKEN
