@@ -24,8 +24,9 @@ RUN git clone https://github.com/emscripten-core/emsdk.git && \
     (cd emsdk && git pull && ./emsdk install latest && ./emsdk activate latest)
 
 # Install application
-COPY --chown=user:user . ./
+COPY --chown=user:user package*.json ./
 RUN npm install
+COPY --chown=user:user . ./
 
 RUN pip3 install requests
 
