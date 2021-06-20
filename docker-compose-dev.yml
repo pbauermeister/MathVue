@@ -1,0 +1,13 @@
+# docker-compose -f docker-compose-dev.yml up --build
+
+version: '3.4'
+services:
+  mathvue-dev:
+    container_name: mathvue-dev
+    build:
+      context: .
+    ports:
+      - "3002:3001"
+    restart: always
+    environment:
+      - TOKEN
