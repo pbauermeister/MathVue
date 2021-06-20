@@ -43,7 +43,7 @@
       <tr><td colspan="2" class="m-0">
 	  <small class="text-secondary">
 	    WebAssembly, Enscripten, Bootstrap v4, Vue.js v2.5, Node.js v8. &nbsp;
-	    <u><a href="/pjs" class="text-muted">Go to the (old) Processing.js version.</a></u>
+	    <a href="/pjs" class="text-muted">Go to the (old) Processing.js version.</a>
 	  </small>
       </td></tr>
     </table>
@@ -52,11 +52,11 @@
 
       <!-- Formula -->
       <div class="row">
-        <div class="col-md-6 pt-3">
+        <div class="pt-3 formula-or-canvas" style="width: 600px; max-width: 600px;">
           <h2>Formula</h2>
 
-	  <div style="height: 498px">
-            <editor class="font-75"
+	  <div style="height: 498px;">
+            <editor class="font-editor"
 		    ref="formulaEditor"
 		    editor-id="formulaEditor"
 		    :content="formula"
@@ -70,6 +70,9 @@
 		    rows="5">
 	  </textarea>
 
+	  <!-- Help Panel -->
+	  <Help markdown_path="/wasm/help.md" class="mt-1"></Help>
+
 	  <div>
 	    <button class="btn btn-sm btn-primary"
 		    v-on:click="run">Compile and Run</button>
@@ -80,10 +83,14 @@
 		  v-on:click="resume"
 		    v-show="!isRunning && compiled">Resume</button>
           </div>
+
+	  <!-- Help Panel -->
+	  <!-- Help markdown_path="/wasm/help.md"></Help -->
+
 	</div>
 
         <!-- Canvas -->
-        <div class="col-md-6 pt-3">
+        <div class="pt-3 formula-or-canvas">
           <h2>Canvas</h2>
 
 	  <div v-if="countdown"
@@ -99,8 +106,7 @@
 	  </div>
 
 	  <div v-else style="display: inline-block">
-	    <canvas id="canvas" width="500" height="300"
-		    style="max-width:100%; background-color: #000;">
+	    <canvas id="canvas" width="500" height="300">
             </canvas>
             <br/>
 
@@ -136,7 +142,7 @@
 			  :disabled="!compiled || error"
 			  :title="capturer ? 'Stop recording': 'Start recording'"
 			  type="button"
-			  class="btn btn-outline-secondary btn-sm font-60 py-0 px-1">
+			  class="btn btn-outline-secondary btn-sm font-controls py-0 px-1">
 		    <span :class="capturer ? 'text-danger' : ''">
 		      Rec <i class="small fas fa-circle"></i>
 		    </span>
@@ -150,7 +156,7 @@
 
 		<!-- Full-screen -->
 		<td class="canvas-controls text-right">
-		  <span class="font-60 mx-1 text-muted small">
+		  <span class="font-controls mx-1 text-muted small">
 		    <span v-if="fps">{{ fps }} fps</span>
 		    <span v-else>Computing fps...</span>
 		  </span>
@@ -168,7 +174,7 @@
 		<!-- Recording params -->
 		<td colspan="2">
 		  <!-- - duration -->
-		  <span v-if="!capturer" class="font-60">
+		  <span v-if="!capturer" class="font-controls">
 		    secs:
 		  </span>
 		  <b-form-input v-if="!capturer"
@@ -180,7 +186,7 @@
 				step="1" min="1" max="60" >
 		  </b-form-input>
 		  <!-- - rate -->
-		  <span v-if="!capturer" class="font-60">
+		  <span v-if="!capturer" class="font-controls">
 		    rate:
 		  </span>
 		  <b-form-input v-if="!capturer"
@@ -192,7 +198,7 @@
 				step="15" min="15">
 		  </b-form-input>
 		  <!-- - progress -->
-		  <span v-if="capturer" class="font-60 text-secondary">
+		  <span v-if="capturer" class="font-controls text-secondary">
 		    To go:
 		    {{ Math.round(captureFramesToGo / captureFrameRate * 10) / 10 }}s / {{ captureDuration }}s = {{ captureFramesToGo }} frames
 		  </span>
@@ -205,9 +211,6 @@
       <br/>
 
       <StatusDialog ref="status_dialog"></StatusDialog>
-
-      <!-- Help Panel -->
-      <Help markdown_path="/wasm/help.md"></Help>
 
       <!-- Gallery -->
       <!-- TODO no link to dialog, bur list of thumbnails-->

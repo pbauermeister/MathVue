@@ -38,8 +38,8 @@ var help_component = Vue.component('Help', {
   template: `
 <div class="wrap-collabsible">
   <input id="collapsible" class="toggle" type="checkbox">
-  <label for="collapsible" class="lbl-toggle">Formula syntax</label>
-  <div class="collapsible-content">
+  <label for="collapsible" class="lbl-toggle collapsible-header">Formula syntax</label>
+  <div class="collapsible-content mb-2">
     <div class="content-inner">
 
       <div class="card">

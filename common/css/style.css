@@ -163,6 +163,10 @@ input[type='checkbox'] {
     transition: max-height .25s ease-in-out;
 }
 
+.collapsible-header {
+    font-size: 0.75rem;
+}
+
 .toggle:checked + .lbl-toggle + .collapsible-content {
     max-height: 1350px;
 }
@@ -265,21 +269,32 @@ table {
     border: 0;
 }
 
-.font-75 {
+.font-editor {
     font-size: 0.75rem;
 }
 
-.font-60 {
-    font-size: 0.60rem;
+.font-controls {
+    /* font-size: 0.60rem; */
+    font-size: 0.75rem;
 }
 
 .small-input {
-    font-size: 0.60rem;
-    width: 4em;
+    font-size: 0.75rem;
+    width: 4.5em;
     display: inline;
     border: none;
 }
 
 .form-control-sm {
     height: 3em;
+}
+
+#canvas {
+    /* max-width:100%; */
+    background-color: #000;
+}
+
+.formula-or-canvas {
+    padding: 0 15px;
+    display: block;
 }
