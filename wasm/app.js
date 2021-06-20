@@ -16,6 +16,7 @@ var app = new Vue({
   el: '#app',
 
   data: {
+    isChrome: browserDetect().name == "chrome",
     base64data: null, // Contains the actual webassembly
     capturer: null,
     captureDuration: 15,  // between 10s and 20s for Instagram

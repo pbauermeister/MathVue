@@ -129,7 +129,8 @@
 		</td>
 
 		<!-- Recording -->
-		<td class="canvas-controls">
+		<td v-if="isChrome"
+		    class="canvas-controls">
 		  <!-- - button -->
 		  <button v-on:click="toggleRecording"
 			  :disabled="!compiled || error"
@@ -140,6 +141,11 @@
 		      Rec <i class="small fas fa-circle"></i>
 		    </span>
 		  </button>
+		</td>
+		<td v-else class="pl-3">
+		  <small class="text-secondary">
+		    To record animations, please use Chrome.
+		  </small>
 		</td>
 
 		<!-- Full-screen -->
@@ -156,7 +162,8 @@
 		  </a>
 		</td>
 	      </tr>
-	      <tr style="line-height: 1">
+	      <tr v-if="isChrome"
+		  style="line-height: 1">
 		<td></td>
 		<!-- Recording params -->
 		<td colspan="2">
@@ -271,6 +278,7 @@
     <script src="/assets/ace/ace.js"></script>
 
     <script src="/node_modules/ccapture.js/build/CCapture.all.min.js"></script>
+    <script src="/node_modules/browser-detect/dist/browser-detect.umd.js"></script>
 
     <!-- Dropbox -->
     <script src="/common/js/dropbox_storage.js"></script>
