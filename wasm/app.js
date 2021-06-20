@@ -18,6 +18,7 @@ var app = new Vue({
   data: {
     isChrome: browserDetect().name == "chrome",
     base64data: null, // Contains the actual webassembly
+    noAnimation: false,
     capturer: null,
     captureDuration: 15,  // between 10s and 20s for Instagram
     captureFramesToGo:0,
@@ -268,6 +269,8 @@ var app = new Vue({
       //console.warn('exports:', instance.exports)
       const formula_width = instance.exports.get_width();
       const formula_height = instance.exports.get_height();
+      const formula_no_animation = instance.exports.get_no_animation();
+      this.noAnimation = formula_no_animation;
 
       console.log('Formula-defined size:', formula_width, formula_height);
       canvas.width = width = formula_width;
@@ -306,7 +309,11 @@ var app = new Vue({
       //console.log('>> render_f');
       this.wRenderF(timestamp);
       this.wCtx.putImageData(this.wImg, 0, 0);
-      this.afterRender();
+
+      if (this.noAnimation)
+	this.pause();
+      else
+	this.afterRender();
     },
 
     afterRender: function() {

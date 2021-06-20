@@ -121,6 +121,8 @@ int PIXEL_COUNT;
 double X_SPAN;
 double Y_SPAN;
 
+const bool NO_ANIMATION;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Accessors
 
@@ -130,6 +132,10 @@ int EMSCRIPTEN_KEEPALIVE get_width() {
 
 int EMSCRIPTEN_KEEPALIVE get_height() {
   return HEIGHT;
+}
+
+bool EMSCRIPTEN_KEEPALIVE get_no_animation() {
+  return NO_ANIMATION;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
