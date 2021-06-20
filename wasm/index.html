@@ -148,15 +148,10 @@
 		    </span>
 		  </button>
 		</td>
-		<td v-else class="pl-3">
-		  <small class="text-secondary">
-		    To record animations, please use Chrome.
-		  </small>
-		</td>
 
 		<!-- Full-screen -->
 		<td class="canvas-controls text-right">
-		  <span class="font-controls mx-1 text-muted small">
+		  <span class="font-controls mx-1 text-secondary small">
 		    <span v-if="fps">{{ fps }} fps</span>
 		    <span v-else>Computing fps...</span>
 		  </span>
@@ -168,6 +163,7 @@
 		  </a>
 		</td>
 	      </tr>
+
 	      <tr v-if="isChrome"
 		  style="line-height: 1">
 		<td></td>
@@ -206,6 +202,13 @@
 	      </tr>
 	    </table>
 	  </div>
+
+	  <div v-if="!isChrome">
+	    <small class="text-secondary font-controls">
+	      To record animations, please use the Chrome browser.
+	    </small>
+	  </div>
+
 	</div>
       </div>
       <br/>
