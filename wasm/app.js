@@ -342,7 +342,20 @@ var app = new Vue({
     //
     // Interface to Dropbox
     //
-    getFormula: function() {
+    getFormula: function(filename) {
+      // (Re-)create leading comment: // file: ...
+      if (this.formula.startsWith('// file:')) {
+	// remove comment
+	var lines = this.formula.split('\n');
+	lines.splice(0,1);
+	this.formula = lines.join('\n');
+      }
+      // add comment
+      this.formula = '// file: ' + filename + '\n' + this.formula;
+
+      // save to browser storage
+      browserFormulaStorage.save(this.formula);
+      // provide to Dropbox saver
       return this.formula;
     },
 
