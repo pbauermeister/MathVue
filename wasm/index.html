@@ -79,8 +79,14 @@
             <button class="btn btn-sm btn-primary"
 		    v-on:click="pause"
 		    v-show="isRunning && compiled">Pause</button>
-            <button class="btn btn-sm btn-primary"
-		  v-on:click="resume"
+
+            <button v-if="noAnimation"
+		    class="btn btn-sm btn-primary"
+		    v-on:click="resume"
+		    v-show="!isRunning && compiled">Refresh</button>
+            <button v-else
+		    class="btn btn-sm btn-primary"
+		    v-on:click="resume"
 		    v-show="!isRunning && compiled">Resume</button>
           </div>
 
@@ -151,7 +157,8 @@
 
 		<!-- Full-screen -->
 		<td class="canvas-controls text-right">
-		  <span class="font-controls mx-1 text-secondary small">
+		  <span v-if="!noAnimation"
+			class="font-controls mx-1 text-secondary small">
 		    <span v-if="fps">{{ fps }} fps</span>
 		    <span v-else>Computing fps...</span>
 		  </span>
