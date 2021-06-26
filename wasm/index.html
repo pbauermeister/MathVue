@@ -260,7 +260,8 @@
           <!-- Dropbox account -->
           <div class="row">
             <div class="col-3">
-	      <Dropbox :manager="dropboxManager" control="Save"></Dropbox>
+	      <Dropbox :manager="dropboxManager" control="Save"
+		       :filename="metaData.file"></Dropbox>
 	      <br/>
 	      <Dropbox :manager="dropboxManager" control="Load"></Dropbox>
 	    </div>

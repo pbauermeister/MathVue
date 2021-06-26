@@ -72,12 +72,13 @@ function DropboxManager(onLoginStateCB,
     onLoginStateCB(this);
   };
 
-  this.dropboxSaveDialog = function() {
+  this.dropboxSaveDialog = function(initialFilename) {
     var busy = this.fileDialog.showBusyDialog('Reading files list...');
     this.dropboxStorage.listFolder(null, function(entries) {
       busy.close();
       entries = this._dropboxFilterEntries(entries);
-      this.fileDialog.saveFile(entries, this.dropboxSaveFile, this.dropboxStorage);
+      this.fileDialog.saveFile(entries, this.dropboxSaveFile, this.dropboxStorage,
+			       initialFilename);
     }.bind(this), function(error) {
       busy.close();
       this._dropboxError(error);

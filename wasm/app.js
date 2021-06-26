@@ -29,6 +29,7 @@ var app = new Vue({
     error: false,
     errorText: null,
     formula: '',
+    metaData: {},
     fps: null,
     fpsFrameNr: 0,
     fpsStartTime: null,
@@ -158,12 +159,34 @@ var app = new Vue({
     //
     // Formula methods
     //
-
+    loadFormula: function(formula) {
+        this.formula = formula;
+	this.extractMetadata(formula);
+    },
+    
     changeEditorContent: function(val) {
       if (this.formula !== val) {
-        this.formula = val;
+	this.loadFormula(val);
 	browserFormulaStorage.save(this.formula);
       }
+    },
+
+    //
+    // Metadata
+    //
+    extractMetadata: function(text) {
+      let decl = '// *(?<name>[a-z][a-z0-9_]*?) *: *(?<value>[^\n]*)';
+      let rx1 = new RegExp('^(?<meta>(' + decl + '\n)*)(?<rest>.*)', 'si');
+      let rx2 = new RegExp(decl, 'i');
+      let match = text.match(rx1);
+      let vars = {};
+      match.groups.meta.trim().split('\n').forEach(s => {
+	let m = s.match(rx2);
+	if (m && m.groups.name)
+	  vars[m.groups.name] = (m.groups.value || '').trim();
+      });
+      this.metaData = vars;
+      return match.groups.rest;
     },
 
     //
@@ -352,7 +375,8 @@ var app = new Vue({
       }
       // add comment
       this.formula = '// file: ' + filename + '\n' + this.formula;
-
+      this.loadFormula(this.formula);
+      
       // save to browser storage
       browserFormulaStorage.save(this.formula);
       // provide to Dropbox saver
@@ -360,7 +384,7 @@ var app = new Vue({
     },
 
     setFormula: function(formula) {
-      this.formula = formula;
+      this.loadFormula(formula);
       this.runOneFrame();
       browserFormulaStorage.save(this.formula);
     },
@@ -443,7 +467,7 @@ var app = new Vue({
     // valueless args are taken as samples
     let samples = Object.keys(args).filter((k) => args[k] === null)
     let sample = samples.length ? samples[samples.length-1] : null;
-    if (sample){
+    if (sample) {
       this.dropboxManager.dropboxLoadSampleLike(sample, () => {
 	router.replace({});
 	this.run();
@@ -452,7 +476,7 @@ var app = new Vue({
     // normal start
     else {
       this.countdown = 4;
-      this.formula = browserFormulaStorage.defaultFormula;
+      this.loadFormula(browserFormulaStorage.defaultFormula);
       this.countDown();
     }
   }

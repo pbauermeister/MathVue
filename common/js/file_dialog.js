@@ -2,13 +2,14 @@
  * Mini Vue.js app for file dialogs
  */
 
-function makeFileDialogVue(dialog, entries, ending, onChanged, onReady, onItemSelected) {
+function makeFileDialogVue(dialog, entries, ending, onChanged, onReady, onItemSelected,
+			  initialFilename) {
     return new Vue({
       el: '#fileDialog',
 
       data: {
         entries: entries,
-        filename: "",
+        filename: initialFilename || "",
         dialog: dialog,
         ending: ending,
       },
@@ -136,7 +137,7 @@ function FileDialog(ending) {
     dlg.getModal().removeClass('fade');
   };
 
-  this.saveFile = function(entries, onSave, storageManager) {
+  this.saveFile = function(entries, onSave, storageManager, initialFilename) {
     var input_selector = '#dropbox-input-filename';
     var button_selector = '#dialog-file-save-button-save';
     var hint_selector = '#dialog-file-save-hint';
@@ -234,7 +235,8 @@ function FileDialog(ending) {
               app.filename = path;
               setFocus();
               checkChange(path);
-            });
+            },
+	    initialFilename);
         });
 
         defer(function() {

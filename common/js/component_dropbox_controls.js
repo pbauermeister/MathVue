@@ -1,5 +1,5 @@
 var dropbox_controls_component = Vue.component('Dropbox', {
-  props: { manager: Object, control: String },
+  props: { manager: Object, control: String, filename: String },
 
   data: {
     dropboxLoggedIn: false,
@@ -12,7 +12,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
       this.manager.dropboxLoadSampleDialog();
     },
     saveDialog: function() {
-      this.manager.dropboxSaveDialog();
+      this.manager.dropboxSaveDialog(this.filename);
     },
     loadDialog: function() {
       this.manager.dropboxLoadDialog();
@@ -37,7 +37,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
   <span v-if="control=='LoadSamples'"
 	class="badge badge-pill badge-default badge-secondary"
         style="cursor:pointer"
-        v-on:click="manager.dropboxLoadSampleDialog">
+        v-on:click="loadSamplesDialog">
     Load sample
   </span>
 
@@ -46,7 +46,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
     <span v-if="dropboxLoggedIn">
       <span class="badge badge-pill badge-default badge-secondary"
 	    style="cursor:pointer"
-	    v-on:click="manager.dropboxSaveDialog">
+	    v-on:click="saveDialog">
         Save to Dropbox
       </span>
     </span>
@@ -62,7 +62,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
     <span v-if="dropboxLoggedIn">
       <span class="badge badge-pill badge-default badge-secondary"
 	    style="cursor:pointer"
-	    v-on:click="manager.dropboxLoadDialog">
+	    v-on:click="loadDialog">
         Load from Dropbox
       </span>
     </span>
