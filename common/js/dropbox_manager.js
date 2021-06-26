@@ -88,7 +88,7 @@ function DropboxManager(onLoginStateCB,
     var busy = this.fileDialog.showBusyDialog('Saving file...');
     var b64Image = grabImageCB();
     this.dropboxStorage.uploadFile(
-      filename, ending, getFormulaCB(filename), b64Image,
+      filename, ending, getFormulaCB(), b64Image,
       function(response) {
         busy.close();
       }.bind(this),
