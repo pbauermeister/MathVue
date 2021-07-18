@@ -201,7 +201,9 @@ function FileDialog(ending) {
         {
           label: 'Cancel',
           cssClass: 'btn-sm',
-          action: function(dlg) { dlg.close() }
+          action: function(dlg) {
+	    dlg.close();
+	  }
         },
         {
           id: 'dialog-file-save-button-save',

@@ -8,7 +8,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
   },
 
   methods: {
-    loadSamplesDialog: function() {
+    loadSampleDialog: function() {
       this.manager.dropboxLoadSampleDialog();
     },
     saveDialog: function() {
@@ -16,6 +16,9 @@ var dropbox_controls_component = Vue.component('Dropbox', {
     },
     loadDialog: function() {
       this.manager.dropboxLoadDialog();
+    },
+    logout: function() {
+      this.manager.dropboxLogout();
     },
     sync: function() {
       this.dropboxLoggedIn = this.manager.dropboxLoggedIn;
@@ -37,7 +40,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
   <span v-if="control=='LoadSamples'"
 	class="badge badge-pill badge-default badge-secondary"
         style="cursor:pointer"
-        v-on:click="manager.dropboxLoadSampleDialog">
+        v-on:click="loadSampleDialog">
     Load sample
   </span>
 
@@ -46,7 +49,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
     <span v-if="dropboxLoggedIn">
       <span class="badge badge-pill badge-default badge-secondary"
 	    style="cursor:pointer"
-	    v-on:click="manager.dropboxSaveDialog">
+	    v-on:click="saveDialog">
         Save to Dropbox
       </span>
     </span>
@@ -62,7 +65,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
     <span v-if="dropboxLoggedIn">
       <span class="badge badge-pill badge-default badge-secondary"
 	    style="cursor:pointer"
-	    v-on:click="manager.dropboxLoadDialog">
+	    v-on:click="loadDialog">
         Load from Dropbox
       </span>
     </span>
@@ -92,7 +95,7 @@ var dropbox_controls_component = Vue.component('Dropbox', {
         <small>
           <div class="badge badge-pill badge-default badge-secondary"
 	       style="cursor:pointer"
-	       v-on:click="manager.dropboxLogout">
+	       v-on:click="logout">
             Logout
           </div>
         </small>
