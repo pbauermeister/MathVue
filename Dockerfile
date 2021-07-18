@@ -20,8 +20,12 @@ USER user
 
 # Install emscripten for user as per
 # https://emscripten.org/docs/getting_started/downloads.html
+# We need the 1.x version, as we have unexplained issue with 2.x
 RUN git clone https://github.com/emscripten-core/emsdk.git && \
-    (cd emsdk && git pull && ./emsdk install latest && ./emsdk activate latest)
+    cd emsdk && \
+    git checkout 1.40.1 && \
+    ./emsdk install latest && \
+    ./emsdk activate latest
 
 # Install application
 COPY --chown=user:user package*.json ./
@@ -31,4 +35,6 @@ COPY --chown=user:user . ./
 RUN pip3 install requests
 
 # Run server
-CMD cd emsdk; . ./emsdk_env.sh; cd; nodejs server.js
+CMD export PATH=$PATH:/home/user/.local/bin; \
+    cd emsdk && . ./emsdk_env.sh && \
+    cd && nodejs server.js
