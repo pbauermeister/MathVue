@@ -412,6 +412,12 @@ var app = new Vue({
 	// TODO: remove capturer status display
 	this.capturer = null;
       }
+    },
+
+    // Misc
+    refocus: function() {
+      let el = $('#formulaEditor > textarea');
+      el.focus();
     }
 
   },
@@ -426,6 +432,7 @@ var app = new Vue({
   mounted() {
     console.log('Mounted:', this.$route.query);
     let args = this.$route.query;
+    this.refocus();
 
     // valueless args are taken as samples
     let samples = Object.keys(args).filter((k) => args[k] === null)
@@ -444,3 +451,15 @@ var app = new Vue({
     }
   }
 });
+
+// refocus editor
+$('body').on("click dblclick mousedown mouseup show",
+	     function(e) {
+	       console.log('>', e.type, e.target.localName, e);
+	       let disabled = e.target.attributes.getNamedItem('disabled');
+	       if (!disabled) {
+		 if (e.target.localName == 'textarea') return;
+		 if (e.target.localName == 'input') return;
+	       }
+	       app.refocus();
+	     });
