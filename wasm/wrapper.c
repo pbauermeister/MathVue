@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <complex.h>
 #include <emscripten.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,7 +12,7 @@
 
 #define COEFF_1 0.7853981633974483
 #define COEFF_2 2.356194490192345
-double customAtan2(float y, float x) {
+double _custom_atan2(double y, double x) {
   double abs_y = fabs(y) + 1e-10;
   double angle;
   if (x >= 0) {
@@ -25,7 +26,7 @@ double customAtan2(float y, float x) {
 }
 
 double r2p_angle(double x, double y) {
-  return customAtan2(x, y);
+  return _custom_atan2(x, y);
 }
 
 double r2p_distance(double x, double y) {
@@ -35,7 +36,7 @@ double r2p_distance(double x, double y) {
 ////////////////////////////////////////////////////////////////////////////////
 // Color functions
 
-void hsv_to_rgb(float hue, float sat, float val,
+void _hsv_to_rgb(double hue, double sat, double val,
 		int *red, int *green, int *blue) {
   hue = fmin(hue, 360);
   hue = fmax(hue, 0);
@@ -44,12 +45,12 @@ void hsv_to_rgb(float hue, float sat, float val,
   val = fmin(val, 100);
   val = fmax(val, 0);
 
-  float s = sat / 100;
-  float v = val / 100;
-  float c = s * v;
-  float x = c * (1 - fabs(fmod(hue / 60.0, 2) - 1));
-  float m = v - c;
-  float r, g, b;
+  double s = sat / 100;
+  double v = val / 100;
+  double c = s * v;
+  double x = c * (1 - fabs(fmod(hue / 60.0, 2) - 1));
+  double m = v - c;
+  double r, g, b;
   if(hue >= 0 && hue < 60){
     r = c, g = x, b = 0;
   }
@@ -73,16 +74,16 @@ void hsv_to_rgb(float hue, float sat, float val,
   *blue  = (b + m) * 255;
 }
 
-int convert_hsv_to_rgb(float hue, float sat, float val) {
+int _convert_hsv_to_rgb(double hue, double sat, double val) {
   int red, green, blue;
-  hsv_to_rgb(hue, sat, val, &red, &green, &blue);
+  _hsv_to_rgb(hue, sat, val, &red, &green, &blue);
   return (blue  << 16)  |
          (green <<  8)  |
          (red        );
 }
 
-int make_hsv(float hue, float sat, float val) {
-  return convert_hsv_to_rgb(hue, sat, val);
+int make_hsv(double hue, double sat, double val) {
+  return _convert_hsv_to_rgb(hue, sat, val);
 }
 
 int make_rgb(int r, int g, int b) {
@@ -93,7 +94,31 @@ inline int max(a, b) { return a>b ? a : b; }
 inline int min(a, b) { return a<b ? a : b; }
 
 double frand() {
-  return (float)rand()/(float)RAND_MAX;
+  return (double)rand()/(double)RAND_MAX;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Complex domain coloring
+
+double _complex_domain_coloring_modulate_r(double r) {
+  double r2 = log(r*10+1)/log(2);
+  double val = fmod(r2, 1);
+  double val2 = sin(pow(1 - val, .35) * PI);  // smooth transitions
+  return val2 / 2 + .5;
+}
+
+double _complex_domain_coloring_modulate_a(double a) {
+  return 1 - pow(sin(a * 5), 100) /2;
+}
+
+int make_hsv_complex(double complex z) {
+  double a = carg(z);
+  double r = cabs(z);
+
+  double hue = fmod(360 * 3 + a / TWO_PI * 360, 360);
+  double sat = _complex_domain_coloring_modulate_a(a) * 100;
+  double val = _complex_domain_coloring_modulate_r(r) * 100;
+  return make_hsv(hue, sat, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
