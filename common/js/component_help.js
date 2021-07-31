@@ -61,7 +61,7 @@ var help_component = Vue.component('Help', {
 	    <div class="md columns-2" v-html="help[1]"></div>
 	  </div>
 	  <div class="d-none d-xl-block"> <!-- XL -->
-	    <div class="md columns-3" v-html="help[1]"></div>
+	    <div class="md columns-2" v-html="help[1]"></div>
 	  </div>
         </div>
       </div>
