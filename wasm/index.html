@@ -73,18 +73,18 @@
 	  <!-- Main Buttons -->
 	  <div>
 	    <button class="btn btn-sm btn-primary"
-		    v-on:click="run">Compile and Run</button>
+		    v-on:click="runClicked">Compile and Run</button>
             <button class="btn btn-sm btn-primary"
-		    v-on:click="pause"
+		    v-on:click="pauseClicked"
 		    v-show="isRunning && compiled">Pause</button>
 
             <button v-if="noAnimation"
 		    class="btn btn-sm btn-primary"
-		    v-on:click="resume"
+		    v-on:click="resumeClicked"
 		    v-show="!isRunning && compiled">Refresh</button>
             <button v-else
 		    class="btn btn-sm btn-primary"
-		    v-on:click="resume"
+		    v-on:click="resumeClicked"
 		    v-show="!isRunning && compiled">Resume</button>
           </div>
 

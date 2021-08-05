@@ -414,12 +414,25 @@ var app = new Vue({
       }
     },
 
+    // buttons
+    runClicked: function() {
+      this.refocus();
+      this.run();
+    },
+    pauseClicked: function() {
+      this.refocus();
+      this.pause();
+    },
+    resumeClicked: function() {
+      this.refocus();
+      this.resume();
+    },
+
     // Misc
     refocus: function() {
       let el = $('#formulaEditor > textarea');
       el.focus();
     }
-
   },
 
   created() {
@@ -453,6 +466,7 @@ var app = new Vue({
 });
 
 // refocus editor
+/*
 $('body').on("click dblclick mousedown mouseup show",
 	     function(e) {
 	       console.log('>', e.type, e.target.localName, e);
@@ -463,3 +477,4 @@ $('body').on("click dblclick mousedown mouseup show",
 	       }
 	       app.refocus();
 	     });
+*/
