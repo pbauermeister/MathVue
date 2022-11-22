@@ -35,6 +35,11 @@ COPY --chown=user:user . ./
 RUN pip3 install requests
 
 # Run server
-CMD export PATH=$PATH:/home/user/.local/bin; \
+CMD set -e; \
+    echo "Testing TOKEN..."; \
+    test ! -z "$TOKEN"; \
+    echo "TOKEN is set."; \
+    set -x; \
+    export PATH=$PATH:/home/user/.local/bin; \
     cd emsdk && . ./emsdk_env.sh && \
     cd && nodejs server.js

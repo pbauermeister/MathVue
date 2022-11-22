@@ -13,7 +13,8 @@ if not token:
     print(json.dumps(dict(error='Missing DropBox token as env var TOKEN')))
     sys.exit(1)
 
-shared_url = 'https://www.dropbox.com/sh/18v296344ohwyiy/AADyygfek6SDwHbk6i4PS7Zya?dl=0'
+shared_url = 'https://www.dropbox.com/sh/7yva8osxs2mwuln/AABsf_PXDheqxGySYW4n2uV1a?dl=0'
+
 headers = {
     'Authorization': 'Bearer ' + token,
     'Content-Type': 'application/json',
