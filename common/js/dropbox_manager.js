@@ -74,23 +74,39 @@ function DropboxManager(onLoginStateCB,
 
   this.dropboxSaveDialog = function() {
     var busy = this.fileDialog.showBusyDialog('Reading files list...');
+    const text = getFormulaCB();
+    const ch = new CommentHeader();
+    const initial_filename = ch.extractFilenameFromFormula(text);
+
     this.dropboxStorage.listFolder(null, function(entries) {
       busy.close();
       entries = this._dropboxFilterEntries(entries);
-      this.fileDialog.saveFile(entries, this.dropboxSaveFile, this.dropboxStorage);
+      this.fileDialog.saveFile(initial_filename, entries,
+			       this.dropboxSaveFile, this.dropboxStorage,
+			       function(filename) {
+				 this.patchFormula(filename);
+			       });
     }.bind(this), function(error) {
       busy.close();
       this._dropboxError(error);
     }.bind(this));
   };
 
-  this.dropboxSaveFile = function(entries, filename) {
+  this.patchFormula = function(filename) {
+    var text = getFormulaCB();
+    const ch = new CommentHeader();
+    text = ch.patchCommentFromFilename(text, filename);
+    setFormulaCB(text);
+  },
+
+  this.dropboxSaveFile = function(entries, filename, onDone) {
     var busy = this.fileDialog.showBusyDialog('Saving file...');
     var b64Image = grabImageCB();
     this.dropboxStorage.uploadFile(
       filename, ending, getFormulaCB(), b64Image,
-      function(response) {
+      function(response, filename) {
         busy.close();
+	onDone(filename);
       }.bind(this),
       function(error) {
         busy.close();

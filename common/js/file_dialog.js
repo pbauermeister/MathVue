@@ -2,13 +2,14 @@
  * Mini Vue.js app for file dialogs
  */
 
-function makeFileDialogVue(dialog, entries, ending, onChanged, onReady, onItemSelected) {
+function makeFileDialogVue(initial_filename,
+			   dialog, entries, ending, onChanged, onReady, onItemSelected) {
     return new Vue({
       el: '#fileDialog',
 
       data: {
         entries: entries,
-        filename: "",
+        filename: initial_filename,
         dialog: dialog,
         ending: ending,
       },
@@ -81,6 +82,7 @@ function FileDialog(ending) {
         setTimeout(function() {
           // hack: run after dialog really created
           makeFileDialogVue(
+	    "",
             that,
             entries,
             that.ending,
@@ -121,6 +123,7 @@ function FileDialog(ending) {
         setTimeout(function() {
           // hack: run after dialog really created
           makeFileDialogVue(
+	    "",
             that,
             entries,
             that.ending,
@@ -136,7 +139,7 @@ function FileDialog(ending) {
     dlg.getModal().removeClass('fade');
   };
 
-  this.saveFile = function(entries, onSave, storageManager) {
+  this.saveFile = function(initial_filename, entries, onSave, storageManager, onDone) {
     var input_selector = '#dropbox-input-filename';
     var button_selector = '#dialog-file-save-button-save';
     var hint_selector = '#dialog-file-save-hint';
@@ -182,7 +185,8 @@ function FileDialog(ending) {
         '           <div class="dialog-file-save-list">' +
         '             <button v-for="entry in entries"' +
         '                     class="btn btn-sm button-list-item"' +
-        '                     v-on:click="loadClicked(entry)">' +
+        '                     :class="dialog.formatPath(entry) == filename ? \'active\' : \'\' "' +
+	'                     v-on:click="loadClicked(entry)">' +
         '               <div class="float-left  button-list-item-text">{{ dialog.formatPath(entry) }}</div>' +
         '               <div class="float-right button-list-item-image"><img v-bind:id="entry.id"></div>' +
         '             </button>' +
@@ -213,7 +217,7 @@ function FileDialog(ending) {
             var filename = that.app.filename.trim();
             if (filename) {
               dlg.close();
-              onSave(entries, filename);
+              onSave(entries, filename, onDone);
             } else {
               setFocus();
             }
@@ -224,6 +228,7 @@ function FileDialog(ending) {
         defer(function() {
           // hack: run after dialog really created
           that.app = makeFileDialogVue(
+	    initial_filename,
             that,
             entries,
             ending,

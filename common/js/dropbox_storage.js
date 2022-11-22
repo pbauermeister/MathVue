@@ -181,6 +181,9 @@ function DropboxStorage(ending) {
 
   this.uploadFile = function(filename, ending, text, b64Image,
                              onResponse, onError) {
+    const ch = new CommentHeader();
+    text = ch.patchCommentFromFilename(text, filename);
+
     var uploadParams = {
       mode: 'overwrite',
       path: '/' + filename,
@@ -199,10 +202,7 @@ function DropboxStorage(ending) {
     };
     axios(params).then(
       function(response) {
-        //var re = new RegExp('[.]' + ending + '$');
-        //var filename2 = filename.replace(re, '.png');
-	var filename2 = filename + '.png';
-        this.uploadImage(filename2, b64Image, onResponse, onError);
+        this.uploadImage(filename, b64Image, onResponse, onError);
       }.bind(this),
       (error) => {
         console.log(error);
@@ -210,11 +210,10 @@ function DropboxStorage(ending) {
       });
   };
 
-  this.uploadImage = function(filename, b64Image,
-                              onResponse, onError) {
+  this.uploadImage = function(filename, b64Image, onResponse, onError) {
     var uploadParams = {
       mode: 'overwrite',
-      path: '/' + filename,
+      path: '/' + filename + '.png',
       autorename: false,
     };
     var params = {
@@ -236,7 +235,9 @@ function DropboxStorage(ending) {
       var byteArray = new Int8Array(e.target.response);
 
       params.data = byteArray;
-      axios(params).then(onResponse, onError);
+      axios(params).then(
+	function(response) { onResponse(response, filename); },
+	onError);
     }
     req.send();
   };

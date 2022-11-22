@@ -298,3 +298,7 @@ table {
     padding: 0 15px;
     display: block;
 }
+
+button.active {
+    background-color: #ddd;
+}
