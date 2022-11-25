@@ -91,7 +91,6 @@ function DropboxStorage(ending) {
         var entries = response.data.entries.sort(
 	  (a, b) => a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1
 	);
-        console.log(entries);
         onResponse(entries);
       },
       (error) => {
@@ -110,7 +109,6 @@ function DropboxStorage(ending) {
         var entries = response.data.entries.sort(
 	  (a, b) => a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1
 	);
-        console.log(entries);
         onResponse(entries);
       },
       (error) => {
