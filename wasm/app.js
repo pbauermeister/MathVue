@@ -23,6 +23,7 @@ var app = new Vue({
     captureDuration: 15,  // between 10s and 20s for Instagram
     captureFramesToGo:0,
     captureFrameRate: 60,
+    debugValue: 0.0,
     compiled: false,
     countdown: 0,
     dropboxManager: null,
@@ -39,6 +40,7 @@ var app = new Vue({
     wCtx: null,
     wRenderF: null,
     wInitializeF: null,
+    wGetDebugValueF: null,
     wImg: null,
   },
 
@@ -266,6 +268,7 @@ var app = new Vue({
       const wasmInitF = instance.exports._init || instance.exports.init;
       this.wRenderF = instance.exports._render || instance.exports.render;
       this.wInitializeF = instance.exports._initialize || instance.exports.initialize;
+      this.wGetDebugValueF = instance.exports._get_debug_value || instance.exports.get_debug_value;
       //console.warn('exports:', instance.exports)
       const formula_width = instance.exports.get_width();
       const formula_height = instance.exports.get_height();
@@ -309,6 +312,7 @@ var app = new Vue({
       //console.log('>> render_f');
       this.wRenderF(timestamp);
       this.wCtx.putImageData(this.wImg, 0, 0);
+      this.debugValue = this.wGetDebugValueF();
 
       if (this.noAnimation)
 	this.pause();

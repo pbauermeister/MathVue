@@ -106,3 +106,8 @@ __________
 
 - `double X_SPAN`, `double Y_SPAN` :
   horizontal and vertical sizes in parametric space.
+
+###### Debugging
+
+- The `double debug_value` variable can be written by the formula, and
+  gets displayed by the web page, updated once per frame.

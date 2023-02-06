@@ -148,6 +148,8 @@ double Y_SPAN;
 
 const bool NO_ANIMATION;
 
+double debug_value;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Accessors
 
@@ -161,6 +163,10 @@ int EMSCRIPTEN_KEEPALIVE get_height() {
 
 bool EMSCRIPTEN_KEEPALIVE get_no_animation() {
   return NO_ANIMATION;
+}
+
+double EMSCRIPTEN_KEEPALIVE get_debug_value() {
+  return debug_value;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
