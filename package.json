@@ -6,6 +6,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.1",
     "axios": "^0.21.2",
+    "body-parser": "^1.20.1",
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.10.1",
     "bootstrap4-dialog": "^4.3.8",
@@ -22,7 +23,6 @@
     "vue-router": "^3.0.7",
     "vuex": "^3.1.1"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "DEBUG=http,https,express:* node server.js"
