@@ -2,7 +2,7 @@
 
 ## Summary
 
-Make animated art by means of math.
+Make animated art by means of math and C code in your web browser.
 
 This project implements a backend providing a web page, in which a formula can be developed (in C),
 then compiled by the backend as Webassembly, and returned to the browser for real-time rendering.
