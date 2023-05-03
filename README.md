@@ -28,7 +28,7 @@ const double Y_MAX =  4;
 const int FPS      = 60;
 
 double t0 = 0;
-void initialize() {}
+void initialize() { t0 = 0; }
 
 bool pre_draw(double t) {
     if (t0 == 0) t0 = t;
