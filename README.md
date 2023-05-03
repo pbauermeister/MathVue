@@ -13,10 +13,11 @@ There is no backend. Sharing formulas will be done using APIs of cloud file host
 1. Visit https://mathvue.com/
 2. Click the Play button to play the boring default formula.
 
-You can also try this formula:
+## Example formula
+Paste this formula into the MathVue formula box:
 ```
 #include <complex.h>
-const int K        = 4;  // set to 1 for full size when recording
+const int K        = 3;  // set to 1 for full size when recording
 
 const double RATIO = 16. / 9.;
 const int WIDTH    = 1080/K;  // 1920 would cause mem error
@@ -38,9 +39,14 @@ bool pre_draw(double t) {
 int compute_pixel(double x, double y, double t) {
     double complex z  = x - y * I;
 
+    // these are the 3 significant lines of code:
     double tt = cos((t - t0) * TWO_PI / FPS);
     double complex z1 = z + 4*tt;
     double complex z2 = 1 / (z - 4*tt);
+
     return make_hsv_complex(z1 + z2);
 }
 ```
+The canvas will display:  
+![simple example](https://raw.githubusercontent.com/pbauermeister/MathVue/master/example.gif "Simple example")
+
