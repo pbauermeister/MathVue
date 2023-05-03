@@ -50,3 +50,4 @@ int compute_pixel(double x, double y, double t) {
 The canvas will display:  
 ![simple example](https://raw.githubusercontent.com/pbauermeister/MathVue/master/example.gif "Simple example")
 
+You can record a video in WEBM format (better quality than in the above GIF).
