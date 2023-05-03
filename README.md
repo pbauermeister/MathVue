@@ -15,43 +15,32 @@ There is no backend. Sharing formulas will be done using APIs of cloud file host
 
 You can also try this formula:
 ```
-WIDTH = 600; RATIO = 2;
-X_MIN =  -1; X_MAX = 1;
-Y_MIN = 0.5; Y_MAX = -0.5;
-TIME_INCREMENT = 0.5;
-OUT_PAUSE = false;
-float cosT, sinT;
+#include <complex.h>
+const int K        = 4;  // set to 1 for full size when recording
 
-bool preDraw(float t0) {
-    float t = sin(t0/320) * TWO_PI * 4 + sin(t0/20) * PI / 2 - cos(t0/40) * PI;
-    cosT = cos(t/10);
-    sinT = sin(t/10);
+const double RATIO = 16. / 9.;
+const int WIDTH    = 1080/K;  // 1920 would cause mem error
+const int HEIGHT   = (int)(1080/RATIO/K) & 0xfffe;
+const double X_MIN = -4 * RATIO;
+const double X_MAX =  4 * RATIO;
+const double Y_MIN = -4;
+const double Y_MAX =  4;
+const int FPS      = 60;
+
+double t0 = 0;
+void initialize() {}
+
+bool pre_draw(double t) {
+    if (t0 == 0) t0 = t;
     return true;
 }
 
-color hsb(float x0, float y0, float t) {
-    float x = x0 * cosT - y0 * sinT;
-    float y = y0 * cosT + x0 * sinT;
-    if(y==0) return color(0); // avoid zero-divide
+int compute_pixel(double x, double y, double t) {
+    double complex z  = x - y * I;
 
-    ay = abs(y);
-    float x1 = x;
-    float y1 = ay;
-
-    float val = cos(1/y1+t) * cos(x1/y1);             // perspective spots raster
-    val = 1 - pow(val, 4);                            // increase contrast
-    float fade = y1/Y_SPAN*2;
-    val *= fade;                                      // fade horizon to avoid moiree
-    float color_shift = cos(t/10)/2;
-
-    // pack all into HSV
-    float z = 1+sin(val/2); // 0..2
-    float h = (z + color_shift) * 85;
-    h = min(max(h, 0), 255);
-    float v = y<0 ? 250 : 128*z;
-    return color(h, 200, v);
+    double tt = cos((t - t0) * TWO_PI / FPS);
+    double complex z1 = z + 4*tt;
+    double complex z2 = 1 / (z - 4*tt);
+    return make_hsv_complex(z1 + z2);
 }
 ```
-
-## Tips & Tricks
-- Full-screen canvas: https://h3manth.com/content/html5-canvas-full-screen-and-full-page
