@@ -1,5 +1,12 @@
 # MathVue
 
+## Summary
+
+Make animated art by means of math.
+
+This project implements a backend providing a web page, in which a formula can be developed (in C),
+then compiled by the backend as Webassembly, and returned to the browser for real-time rendering.
+
 ## About
 Re-implementation of [MathVision](https://github.com/pbauermeister/MathVision) with these technologies:
 - [Vue](https://vuejs.org/)
@@ -7,7 +14,7 @@ Re-implementation of [MathVision](https://github.com/pbauermeister/MathVision) w
 - [Processing.js](http://processingjs.org/)
 - [asm.js](http://asmjs.org/) (planned)
 
-There is no backend. Sharing formulas will be done using APIs of cloud file hosting services (e.g. Dropbox).
+Sharing formulas will be done using Dropbox.
 
 ## To try it
 1. Visit https://mathvue.com/
