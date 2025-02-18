@@ -1,38 +1,41 @@
-var dropbox_controls_component = Vue.component('Dropbox', {
+var dropbox_controls_component = Vue.component("Dropbox", {
   props: { manager: Object, control: String },
 
   data: {
     dropboxLoggedIn: false,
     dropboxDisplayName: null,
-    dropboxProfilePhotoUrl: null
+    dropboxProfilePhotoUrl: null,
   },
 
   methods: {
-    loadSampleDialog: function() {
+    loadSampleDialog: function () {
       this.manager.dropboxLoadSampleDialog();
     },
-    saveDialog: function() {
+    saveDialog: function () {
       this.manager.dropboxSaveDialog();
     },
-    loadDialog: function() {
+    loadDialog: function () {
       this.manager.dropboxLoadDialog();
     },
-    logout: function() {
+    logout: function () {
       this.manager.dropboxLogout();
     },
-    sync: function() {
+    sync: function () {
       this.dropboxLoggedIn = this.manager.dropboxLoggedIn;
       this.dropboxDisplayName = this.manager.dropboxDisplayName;
       this.dropboxProfilePhotoUrl = this.manager.dropboxProfilePhotoUrl;
-    }
+    },
   },
 
-  mounted: function() {
+  mounted: function () {
     this.sync();
-    this.$parent.$on('dropbox-login-state', function(){
-      this.sync();
-      this.$forceUpdate();
-    }.bind(this))
+    this.$parent.$on(
+      "dropbox-login-state",
+      function () {
+        this.sync();
+        this.$forceUpdate();
+      }.bind(this)
+    );
   },
 
   template: `
@@ -125,5 +128,5 @@ var dropbox_controls_component = Vue.component('Dropbox', {
     </div>
   </span>
 </span>
-`
+`,
 });

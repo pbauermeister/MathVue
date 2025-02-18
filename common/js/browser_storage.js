@@ -2,8 +2,7 @@
  * Formula
  */
 
-var BrowserFormulaStorage = function(ending, defaultFormula) {
-
+var BrowserFormulaStorage = function (ending, defaultFormula) {
   //
   // Default formula, embeded one, or retrieved from browser storage
   //
@@ -17,17 +16,16 @@ var BrowserFormulaStorage = function(ending, defaultFormula) {
     if (autoSavedFormula && autoSavedFormula.trim()) {
       this.defaultFormula = autoSavedFormula;
     }
-  } catch(e) {}
+  } catch (e) {}
 
   //
   // Save formula into browser storage
   //
 
-  this.save = function(text) {
-    console.log('*save');
+  this.save = function (text) {
+    console.log("*save");
     try {
       localStorage.setItem(this.itemName, text.trim());
-    } catch(e) {}
-  }
-}
-
+    } catch (e) {}
+  };
+};
