@@ -1,5 +1,5 @@
-var discussion_component = Vue.component('Discussion', {
-  mounted: function() {
+var discussion_component = Vue.component("Discussion", {
+  mounted: function () {
     /**
      *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE
      *  SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR
@@ -12,10 +12,12 @@ var discussion_component = Vue.component('Discussion', {
       this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
       };
     */
-    (function() { // DON'T EDIT BELOW THIS LINE
-      var d = document, s = d.createElement('script');
-      s.src = 'https://mathvue.disqus.com/embed.js';
-      s.setAttribute('data-timestamp', +new Date());
+    (function () {
+      // DON'T EDIT BELOW THIS LINE
+      var d = document,
+        s = d.createElement("script");
+      s.src = "https://mathvue.disqus.com/embed.js";
+      s.setAttribute("data-timestamp", +new Date());
       (d.head || d.body).appendChild(s);
     })();
   },
@@ -25,5 +27,5 @@ var discussion_component = Vue.component('Discussion', {
   <!-- Disqus -->
   <div id="disqus_thread"></div>
 </div>
-`
+`,
 });

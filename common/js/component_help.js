@@ -1,34 +1,33 @@
-var help_component = Vue.component('Help', {
-
+var help_component = Vue.component("Help", {
   props: { markdown_path: String },
 
-  data: function() {
+  data: function () {
     return {
-      md: null
+      md: null,
     };
   },
 
   computed: {
-    help: function() {
-      if (!this.md)
-	return ["", ""];
+    help: function () {
+      if (!this.md) return ["", ""];
 
-      let md = this.md.replace(/[«»]/g, '`');
-      let parts = md.split('__________');
+      let md = this.md.replace(/[«»]/g, "`");
+      let parts = md.split("__________");
 
       let head = parts[0].trim();
       let body = parts[1].trim();
       return [this.conv.makeHtml(head), this.conv.makeHtml(body)];
-    }
+    },
   },
 
-  mounted: function() {
+  mounted: function () {
     this.conv = new showdown.Converter();
-    this.conv.setOption('tables', true);
+    this.conv.setOption("tables", true);
 
-    axios.get(this.markdown_path)
+    axios
+      .get(this.markdown_path)
       .then((response) => {
-	this.md = response.data;
+        this.md = response.data;
       })
       .catch((error) => {
         console.error(error);
@@ -68,5 +67,5 @@ var help_component = Vue.component('Help', {
     </div>
   </div>
 </div>
-`
+`,
 });
