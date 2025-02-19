@@ -28,13 +28,15 @@ FileInfo = namedtuple('FileInfo', ('name', 'formula_url', 'thumb_url'))
 def get_all_files(items=None, cursor=None):
     items = items or []
     if cursor:
+        url = 'https://api.dropboxapi.com/2/files/list_folder/continue'
         response = requests.post(
-            'https://api.dropboxapi.com/2/files/list_folder/continue',
+            url,
             headers=headers,
             json=dict(cursor=cursor))
     else:
+        url = 'https://api.dropboxapi.com/2/files/list_folder'
         response = requests.post(
-            'https://api.dropboxapi.com/2/files/list_folder',
+            url,
             headers=headers,
             json=dict(
                 path='',
@@ -45,6 +47,12 @@ def get_all_files(items=None, cursor=None):
                   include_mounted_folders=False,
                 shared_link=dict(url=shared_url)
             ))
+
+    print(file=sys.stderr)
+    print(url, file=sys.stderr)
+    print(response.text, file=sys.stderr)
+    print(response.headers, file=sys.stderr)
+    print(file=sys.stderr)
 
     response.raise_for_status()
     data = response.json()
