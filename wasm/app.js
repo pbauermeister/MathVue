@@ -2,26 +2,26 @@
  * Vue.js app.
  */
 
-const ENDING = 'c';
+const ENDING = "c";
 
 var router = new VueRouter({
-  mode: 'history',
-  routes: []
+  mode: "history",
+  routes: [],
 });
 
 var browserFormulaStorage = new BrowserFormulaStorage(ENDING, DEFAULT_FORMULA);
 
 var app = new Vue({
   router,
-  el: '#app',
+  el: "#app",
 
   data: {
     isChrome: browserDetect().name == "chrome",
     base64data: null, // Contains the actual webassembly
     noAnimation: false,
     capturer: null,
-    captureDuration: 15,  // between 10s and 20s for Instagram
-    captureFramesToGo:0,
+    captureDuration: 15, // between 10s and 20s for Instagram
+    captureFramesToGo: 0,
     captureFrameRate: 60,
     debugValue: 0.0,
     compiled: false,
@@ -29,7 +29,7 @@ var app = new Vue({
     dropboxManager: null,
     error: false,
     errorText: null,
-    formula: '',
+    formula: "",
     fps: null,
     fpsFrameNr: 0,
     fpsStartTime: null,
@@ -45,24 +45,25 @@ var app = new Vue({
   },
 
   methods: {
-    countDown: function() {
-      if (this.formula.trim() && this.countdown>0) {
-	if (this.countdown == 1)
-	  this.run();
-	if (this.countdown>0) {
-	  this.countdown--;
-	  setTimeout(() => { this.countDown();}, 1000)
-	}
+    countDown: function () {
+      if (this.formula.trim() && this.countdown > 0) {
+        if (this.countdown == 1) this.run();
+        if (this.countdown > 0) {
+          this.countdown--;
+          setTimeout(() => {
+            this.countDown();
+          }, 1000);
+        }
       }
     },
 
-    abortCountdown: function() {
+    abortCountdown: function () {
       this.countdown = 0;
     },
 
-    sleep: function(delay) {
+    sleep: function (delay) {
       async function wait() {
-	await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
       wait();
     },
@@ -71,48 +72,46 @@ var app = new Vue({
     // Emcc compilation methods
     //
 
-    compileCode: function() {
-      this.errorText = 'Starting emscripten compilation...';
+    compileCode: function () {
+      this.errorText = "Starting emscripten compilation...";
       this.error = false;
       this.isLoading = true;
       this.pause();
-      axios.post('/api/compile_code', {code: this.formula})
-	.then((response) => {
-	  console.log('compileCode():', response);
-	  try {
-	    this.handleCompilationResponse(response);
-	  }
-	  catch (e) {
-	    console.error(e);
-	  }
-	})
-	.catch((error) => {
-	  this.isLoading = false;
-	  this.$refs.status_dialog.showError(error);
-	});
+      axios
+        .post("/api/compile_code", { code: this.formula })
+        .then((response) => {
+          console.log("compileCode():", response);
+          try {
+            this.handleCompilationResponse(response);
+          } catch (e) {
+            console.error(e);
+          }
+        })
+        .catch((error) => {
+          this.isLoading = false;
+          this.$refs.status_dialog.showError(error);
+        });
     },
 
-    handleCompilationResponse: function(response) {
+    handleCompilationResponse: function (response) {
       if (response.data.success) {
         this.base64data = response.data.base64data;
-	this.setCompilationStatus();
-	this.startWasm();
-      }
-      else {
-	this.isLoading = false;
-	this.setCompilationStatus(response.data.stderr);
+        this.setCompilationStatus();
+        this.startWasm();
+      } else {
+        this.isLoading = false;
+        this.setCompilationStatus(response.data.stderr);
       }
     },
 
-    setCompilationStatus: function(message) {
+    setCompilationStatus: function (message) {
       if (message) {
-	console.warn(`Compilation error:\n${message}`);
-	this.errorText = message;
-	this.error = true;
-      }
-      else {
-	this.errorText += ' OK';
-	this.error = false;
+        console.warn(`Compilation error:\n${message}`);
+        this.errorText = message;
+        this.error = true;
+      } else {
+        this.errorText += " OK";
+        this.error = false;
       }
     },
 
@@ -120,7 +119,7 @@ var app = new Vue({
     // Animation methods
     //
 
-    run: function() {
+    run: function () {
       this.compiled = false;
       this.countdown = 0;
       this.isStarted = false;
@@ -129,28 +128,28 @@ var app = new Vue({
       this.compileCode();
     },
 
-    runOneFrame: function() {
+    runOneFrame: function () {
       this.mustPauseAfterRun = true;
       this.compileCode();
     },
 
-    pause: function() {
+    pause: function () {
       this.isRunning = false;
     },
 
-    resume: function() {
+    resume: function () {
       this.isRunning = true;
       this.render();
     },
 
-    playToggle: function() {
+    playToggle: function () {
       this.isRunning = !this.isRunning;
     },
 
-    fullScreen: function(event) {
+    fullScreen: function (event) {
       // full screen
-      var el = document.getElementById('canvas');
-      if(el.webkitRequestFullScreen) {
+      var el = document.getElementById("canvas");
+      if (el.webkitRequestFullScreen) {
         el.webkitRequestFullScreen();
       } else {
         el.mozRequestFullScreen();
@@ -161,10 +160,10 @@ var app = new Vue({
     // Formula methods
     //
 
-    changeEditorContent: function(val) {
+    changeEditorContent: function (val) {
       if (this.formula !== val) {
         this.formula = val;
-	browserFormulaStorage.save(this.formula);
+        browserFormulaStorage.save(this.formula);
       }
     },
 
@@ -172,72 +171,69 @@ var app = new Vue({
     // Wasm methods
     //
 
-    decodeB64: function(b64) {
+    decodeB64: function (b64) {
       const str = window.atob(b64);
       const array = new Uint8Array(str.length);
       for (let i = 0; i < str.length; i += 1) {
-	array[i] = str.charCodeAt(i);
+        array[i] = str.charCodeAt(i);
       }
       return array.buffer;
     },
 
-    startWasm: function() {
+    startWasm: function () {
       try {
-	this.startWasmAsync();
-      }
-      catch(error) {
-	console.error(error);
-	this.errorText = '\n' + error;
-	this.error = true;
+        this.startWasmAsync();
+      } catch (error) {
+        console.error(error);
+        this.errorText = "\n" + error;
+        this.error = true;
       }
     },
 
-    updateFps: function() {
+    updateFps: function () {
       if (!this.fpsFrameNr) {
-	this.fpsStartTime = Date.now();
-	++this.fpsFrameNr;
-      }
-      else if (this.fpsFrameNr < 50) {
-	++this.fpsFrameNr;
-      }
-      else {
-	let delta = (Date.now() - this.fpsStartTime) / 1000;
-	this.fps = Math.round(this.fpsFrameNr / delta);
-	this.fpsFrameNr = 0;
+        this.fpsStartTime = Date.now();
+        ++this.fpsFrameNr;
+      } else if (this.fpsFrameNr < 50) {
+        ++this.fpsFrameNr;
+      } else {
+        let delta = (Date.now() - this.fpsStartTime) / 1000;
+        this.fps = Math.round(this.fpsFrameNr / delta);
+        this.fpsFrameNr = 0;
       }
     },
 
-    startWasmAsync: async function() {
-      this.errorText += '\nStarting WASM compilation...';
+    startWasmAsync: async function () {
+      this.errorText += "\nStarting WASM compilation...";
       const binary_code = this.decodeB64(this.base64data);
-      console.log('*** start wasm: B64 code length:', this.base64data.length);
+      console.log("*** start wasm: B64 code length:", this.base64data.length);
 
       // Compile WASM
       // ------------
       // https://compile.fi/canvas-filled-three-ways-js-webassembly-and-webgl/
       const memSize = 256;
       const memory = new WebAssembly.Memory({
-	initial: memSize,
-	maximum: memSize
+        initial: memSize,
+        maximum: memSize,
       });
       const importObject = {
-	env: {
-	  memoryBase: 0,
-	  memory: memory,
-	  tableBase: 0,
-	  table: new WebAssembly.Table({
-	    initial: 0,
-	    element: 'anyfunc'
-	  }),
-	  emscripten_resize_heap: function(size) {
+        env: {
+          memoryBase: 0,
+          memory: memory,
+          tableBase: 0,
+          table: new WebAssembly.Table({
+            initial: 0,
+            element: "anyfunc",
+          }),
+          emscripten_resize_heap: function (size) {
             return false; // always fail
-          }
-	},
-	imports: {
-	  imported_func: function(arg) {
-	    console.log('*** imported_func', arg);
-	  },
-	}
+          },
+        },
+        imports: {
+          imported_func: function (arg) {
+            console.log("*** imported_func", arg);
+          },
+        },
       };
 
       const buffer = new Uint8Array(binary_code);
@@ -247,217 +243,223 @@ var app = new Vue({
       //console.log('imports:', {imports});
       var exports = WebAssembly.Module.exports(module);
       //console.log('exports:', {exports});
-      this.errorText += ' OK';
+      this.errorText += " OK";
 
       // Get canvas
       // ----------
-      const canvas = document.getElementById('canvas');
-      this.wCtx = canvas.getContext(
-	'2d', {alpha: false, antialias: false, depth: false}
-      );
+      const canvas = document.getElementById("canvas");
+      this.wCtx = canvas.getContext("2d", {
+        alpha: false,
+        antialias: false,
+        depth: false,
+      });
       if (!this.wCtx) {
-	throw 'Your browser does not support canvas';
+        throw "Your browser does not support canvas";
       }
       let height = canvas.height;
       let width = canvas.width;
 
       // Bind WASM to canvas
       // -------------------
-      this.errorText += '\nBinding WASM to canvas...';
+      this.errorText += "\nBinding WASM to canvas...";
       const instance = await WebAssembly.instantiate(module, importObject);
       const wasmInitF = instance.exports._init || instance.exports.init;
       this.wRenderF = instance.exports._render || instance.exports.render;
-      this.wInitializeF = instance.exports._initialize || instance.exports.initialize;
-      this.wGetDebugValueF = instance.exports._get_debug_value || instance.exports.get_debug_value;
+      this.wInitializeF =
+        instance.exports._initialize || instance.exports.initialize;
+      this.wGetDebugValueF =
+        instance.exports._get_debug_value || instance.exports.get_debug_value;
       //console.warn('exports:', instance.exports)
       const formula_width = instance.exports.get_width();
       const formula_height = instance.exports.get_height();
       const formula_no_animation = instance.exports.get_no_animation();
       this.noAnimation = formula_no_animation;
 
-      console.log('Formula-defined size:', formula_width, formula_height);
+      console.log("Formula-defined size:", formula_width, formula_height);
       canvas.width = width = formula_width;
       canvas.height = height = formula_height;
 
       const pointer = wasmInitF();
-      const data = new Uint8ClampedArray(memory.buffer, pointer,
-					 width * height * 4);
+      const data = new Uint8ClampedArray(
+        memory.buffer,
+        pointer,
+        width * height * 4
+      );
       this.wImg = new ImageData(data, width, height);
-      this.errorText += ' OK';
+      this.errorText += " OK";
 
       // Render
       // ------
       this.isLoading = false;
       this.isRunning = true;
       this.compiled = true;
-      this.errorText += '\nFiring up animation.';
+      this.errorText += "\nFiring up animation.";
       this.render();
     },
 
-    render: function(timestamp) {
+    render: function (timestamp) {
       if (!this.isRunning) return;
       this.updateFps();
 
       if (!timestamp && this.capturer) {
-	//console.log('>> initialize_f');
-	this.wInitializeF();
+        //console.log('>> initialize_f');
+        this.wInitializeF();
       }
-      if (this.capturer)
-	timestamp =  Date.now();
+      if (this.capturer) timestamp = Date.now();
 
       //console.log('>> render', timestamp);
       window.requestAnimationFrame(this.render);
-      if(!timestamp) return;
+      if (!timestamp) return;
 
       //console.log('>> render_f');
       this.wRenderF(timestamp);
       this.wCtx.putImageData(this.wImg, 0, 0);
       this.debugValue = this.wGetDebugValueF();
 
-      if (this.noAnimation)
-	this.pause();
-      else
-	this.afterRender();
+      if (this.noAnimation) this.pause();
+      else this.afterRender();
     },
 
-    afterRender: function() {
+    afterRender: function () {
       this.isStarted = true;
 
       if (this.mustPauseAfterRun) {
-	this.mustPauseAfterRun = false;
-	this.isRunning = false;
-	return;
+        this.mustPauseAfterRun = false;
+        this.isRunning = false;
+        return;
       }
 
       if (this.capturer) {
-	//console.log('>> capture');
-	this.capturer.capture(canvas);
-	if (this.captureFramesToGo > 0)
-	  this.captureFramesToGo--;
-	else {
-	  //console.log('>> stop capture');
-	  this.stopCapture();
-	  this.isRunning = false;
-	  return;
-	}
+        //console.log('>> capture');
+        this.capturer.capture(canvas);
+        if (this.captureFramesToGo > 0) this.captureFramesToGo--;
+        else {
+          //console.log('>> stop capture');
+          this.stopCapture();
+          this.isRunning = false;
+          return;
+        }
       }
     },
 
     //
     // Interface to Dropbox
     //
-    getFormula: function() {
+    getFormula: function () {
       return this.formula;
     },
 
-    setFormula: function(formula) {
+    setFormula: function (formula) {
       this.formula = formula;
       this.runOneFrame();
       browserFormulaStorage.save(this.formula);
     },
 
-    grabImage: function() {
+    grabImage: function () {
       if (!this.isStarted) {
         this.runOneFrame();
 
-	async function wait() {
-	  while (!this.isStarted) {
-	    await new Promise(resolve => setTimeout(resolve, 100));
-	  }
-	}
-	wait();
+        async function wait() {
+          while (!this.isStarted) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        }
+        wait();
       }
 
       var name = "canvas";
       var canvas = document.getElementById(name);
-      var image = canvas.toDataURL('image/png');
-      var b64Data = image.replace(/^data:image\/(png|jpg);base64,/, '');
+      var image = canvas.toDataURL("image/png");
+      var b64Data = image.replace(/^data:image\/(png|jpg);base64,/, "");
       return b64Data;
     },
 
-    onDropboxLoginState: function(dropboxManager) {
-      this.$emit('dropbox-login-state', dropboxManager);
+    onDropboxLoginState: function (dropboxManager) {
+      this.$emit("dropbox-login-state", dropboxManager);
     },
 
     //
     // Recording
     //
 
-    toggleRecording: function() {
+    toggleRecording: function () {
       if (this.capturer) {
-	this.captureFramesToGo = 0;
-	// let render() finish, stop and save.
+        this.captureFramesToGo = 0;
+        // let render() finish, stop and save.
       } else {
-	this.capturer = new CCapture({
-	  verbose: false,
-	  display: true,
-	  framerate: this.captureFrameRate,
-	  quality: 99,
-	  format: 'webm',
-	  frameLimit: 0,
-	  autoSaveTime: 0
-	})
-	this.captureFramesToGo = this.captureFrameRate * this.captureDuration -1;
-	this.isRunning = true;
-	//console.log('>> start capture');
-	this.capturer.start();
-	this.render();
+        this.capturer = new CCapture({
+          verbose: false,
+          display: true,
+          framerate: this.captureFrameRate,
+          quality: 99,
+          format: "webm",
+          frameLimit: 0,
+          autoSaveTime: 0,
+        });
+        this.captureFramesToGo =
+          this.captureFrameRate * this.captureDuration - 1;
+        this.isRunning = true;
+        //console.log('>> start capture');
+        this.capturer.start();
+        this.render();
       }
     },
 
-    stopCapture: function() {
+    stopCapture: function () {
       if (this.capturer) {
-	this.capturer.stop();
-	try {
-	  this.capturer.save();
-	}
-	catch (e) {
-	}
-	// TODO: remove capturer status display
-	this.capturer = null;
+        this.capturer.stop();
+        try {
+          this.capturer.save();
+        } catch (e) {}
+        // TODO: remove capturer status display
+        this.capturer = null;
       }
     },
 
     // buttons
-    runClicked: function() {
+    runClicked: function () {
       this.refocus();
       this.run();
     },
-    pauseClicked: function() {
+    pauseClicked: function () {
       this.refocus();
       this.pause();
     },
-    resumeClicked: function() {
+    resumeClicked: function () {
       this.refocus();
       this.resume();
     },
 
     // Misc
-    refocus: function() {
-      let el = $('#formulaEditor > textarea');
+    refocus: function () {
+      let el = $("#formulaEditor > textarea");
       el.focus();
-    }
+    },
   },
 
   created() {
-    this.dropboxManager = DropboxManager(this.onDropboxLoginState,
-					 this.getFormula, this.setFormula,
-					 this.grabImage, ENDING,
-					 this.$route.hash);
+    this.dropboxManager = DropboxManager(
+      this.onDropboxLoginState,
+      this.getFormula,
+      this.setFormula,
+      this.grabImage,
+      ENDING,
+      this.$route.hash
+    );
   },
 
   mounted() {
-    console.log('Mounted:', this.$route.query);
+    console.log("Mounted:", this.$route.query);
     let args = this.$route.query;
     this.refocus();
 
     // valueless args are taken as samples
-    let samples = Object.keys(args).filter((k) => args[k] === null)
-    let sample = samples.length ? samples[samples.length-1] : null;
-    if (sample){
+    let samples = Object.keys(args).filter((k) => args[k] === null);
+    let sample = samples.length ? samples[samples.length - 1] : null;
+    if (sample) {
       this.dropboxManager.dropboxLoadSampleLike(sample, () => {
-	router.replace({});
-	this.run();
+        router.replace({});
+        this.run();
       });
     }
     // normal start
@@ -466,7 +468,7 @@ var app = new Vue({
       this.formula = browserFormulaStorage.defaultFormula;
       this.countDown();
     }
-  }
+  },
 });
 
 // refocus editor
