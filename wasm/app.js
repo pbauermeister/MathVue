@@ -315,6 +315,7 @@ var app = new Vue({
       this.wRenderF(timestamp);
       this.wCtx.putImageData(this.wImg, 0, 0);
       this.debugValue = this.wGetDebugValueF();
+      console.log(`render,${timestamp},${this.debugValue};`)
 
       if (this.noAnimation) this.pause();
       else this.afterRender();
